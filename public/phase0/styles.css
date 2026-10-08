@@ -157,3 +157,10 @@ main.game-main{width:100%;max-width:860px;flex:1;min-height:0;margin:0 auto}
 .line-icon .kg-food-icon{width:34px;height:34px}
 .stock-batch-head .kg-food-icon,.ingredient-tile .kg-food-icon{width:27px;height:27px;margin-right:5px}
 .stock-batch-head strong,.ingredient-tile strong{display:inline-flex;align-items:center;gap:4px}
+
+/* Phase 1.5: visible empty-plot guidance; 3D + markers are built in world.js. */
+.empty-plot-hints{position:absolute;z-index:3;bottom:124px;left:12px;right:12px;display:flex;gap:7px;justify-content:center;flex-wrap:wrap;pointer-events:none}
+.empty-plot-hints span[id]{background:rgba(255,249,242,.94);color:#245C3D;border:1px solid #B5D6C2;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:750;box-shadow:0 4px 12px rgba(45,55,72,.08)}
+.empty-plot-hints span[id] span:first-child{color:#2F7D46;font-size:17px}
+@media(max-width:360px){.empty-plot-hints{bottom:112px}.empty-plot-hints span[id]{font-size:11px;padding:6px 8px}}
+.farm-stage.is-fallback .empty-plot-hints{display:none}
