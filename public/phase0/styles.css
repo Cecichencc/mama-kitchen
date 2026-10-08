@@ -246,3 +246,9 @@ main.game-main{width:100%;max-width:860px;flex:1;min-height:0;margin:0 auto}
 .kg-recipe-detail ol{padding-left:24px}
 .kg-recipe-footnote{font-size:12px;color:#657B73}
 @media(min-width:600px){.kg-more-recipes{grid-template-columns:1fr 1fr}.kg-more-recipes .kg-recipe-card{grid-template-columns:1fr}.kg-more-recipes .kg-recipe-illustration{height:100px}}
+
+/* Recipe art: single saved image reused in cards and detail. */
+.kg-recipe-illustration,.kg-detail-art{position:relative;overflow:hidden}
+.kg-recipe-illustration img,.kg-detail-art img{width:100%;height:100%;position:absolute;inset:0;object-fit:cover;display:block}
+.kg-recipe-illustration span[hidden],.kg-detail-art span[hidden]{display:none}
+.kg-recipe-illustration img[hidden],.kg-detail-art img[hidden]{display:none}
