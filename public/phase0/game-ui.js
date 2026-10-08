@@ -6,6 +6,7 @@ import {
   physicalTotal, usableTotal, availableQuantity, basketQuantity, recipeReadiness,
   hasMixedSource, heldQuantity, isUsableBatch
 } from './domain.js';
+import {ingredientIconMarkup} from './ingredient-icons.js';
 
 const byId = id => document.getElementById(id);
 const esc = x => String(x).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -91,7 +92,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     if(usableTotal(state,id)===0){openRestock(id);return;}
     expireOnInteraction();activeIngredient=id;
     const icon=iconFor(id);
-    byId('ingredientEmblem').textContent=icon;
+    byId('ingredientEmblem').innerHTML=ingredientIconMarkup(id);
     byId('ingredientHeading').textContent=name(id);
     byId('ingredientZone').textContent=t(id==='tomato'?'sheet.zone':'game.barn');
     byId('harvestQuantity').value='1';
@@ -130,7 +131,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     else area.innerHTML=lines.map(line=>{
       const b=state.batches.find(x=>x.id===line.batchId);
       if(!b)return '';
-      return `<div class="basket-line"><span class="line-icon" aria-hidden="true">${iconFor(b.ingredientId)}</span><div class="line-main"><strong>${esc(name(b.ingredientId))}</strong><span>${esc(sourceLabel(b.organicStatus))} · ${esc(t('game.held'))}</span></div><div class="mini-quantity"><input aria-label="${esc(t('game.quantity'))}" type="number" min="0" max="${b.onHand}" step="1" value="${line.quantity}" data-basket-qty="${esc(b.id)}"/><button type="button" class="mini-action" data-basket-save="${esc(b.id)}">${esc(t('game.update'))}</button><button type="button" class="remove-line" data-basket-remove="${esc(b.id)}" aria-label="${esc(t('game.remove'))}">×</button></div></div>`;
+      return `<div class="basket-line"><span class="line-icon" aria-hidden="true">${ingredientIconMarkup(b.ingredientId)}</span><div class="line-main"><strong>${esc(name(b.ingredientId))}</strong><span>${esc(sourceLabel(b.organicStatus))} · ${esc(t('game.held'))}</span></div><div class="mini-quantity"><input aria-label="${esc(t('game.quantity'))}" type="number" min="0" max="${b.onHand}" step="1" value="${line.quantity}" data-basket-qty="${esc(b.id)}"/><button type="button" class="mini-action" data-basket-save="${esc(b.id)}">${esc(t('game.update'))}</button><button type="button" class="remove-line" data-basket-remove="${esc(b.id)}" aria-label="${esc(t('game.remove'))}">×</button></div></div>`;
     }).join('');
     const readiness=recipeReadiness(state);
     byId('basketRecipe').hidden=!lines.length;
@@ -144,7 +145,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     if(!state.batches.length){list.innerHTML=`<p class="empty-state">${esc(t('pantry.empty'))}</p>`;return;}
     list.innerHTML=state.batches.map(b=>{
       const held=heldQuantity(state,b.id),available=availableQuantity(state,b.id),blocked=!isUsableBatch(b);
-      return `<article class="stock-batch"><div class="stock-batch-head"><strong>${iconFor(b.ingredientId)} ${esc(name(b.ingredientId))}</strong><span class="stock-chip">${esc(sourceLabel(b.organicStatus))}</span></div>
+      return `<article class="stock-batch"><div class="stock-batch-head"><strong>${ingredientIconMarkup(b.ingredientId)} ${esc(name(b.ingredientId))}</strong><span class="stock-chip">${esc(sourceLabel(b.organicStatus))}</span></div>
         <div class="stock-meta">${esc(t('game.atHome'))}: ${b.onHand} ${esc(t('game.pieces'))} · ${esc(t('game.held'))}: ${held} · ${esc(t('game.available'))}: ${available}<br>${esc(t('game.'+b.storage))}${b.useBy?' · '+esc(t('game.useBy'))+': '+esc(b.useBy):''}${blocked?' · '+esc(t('game.expired')):''}</div>
         <div class="stock-controls"><label>${esc(t('pantry.actual'))}<input class="stock-correction-input" aria-label="${esc(t('pantry.actual'))}" type="number" inputmode="numeric" min="0" max="99999" step="1" value="${b.onHand}" data-stock-value="${esc(b.id)}"/></label><button type="button" class="mini-action" data-stock-correct="${esc(b.id)}">${esc(t('game.update'))}</button><button type="button" class="mini-action warning" data-stock-empty="${esc(b.id)}">${esc(t('pantry.usedUp'))}</button></div></article>`;
     }).join('');
@@ -161,7 +162,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     const ready=recipeReadiness(state);
     byId('recipeIngredients').innerHTML=RECIPE.ingredients.map(x=>{
       const actual=basketQuantity(state,x.ingredientId);
-      return `<div class="ingredient-tile"><strong>${iconFor(x.ingredientId)} ${esc(name(x.ingredientId))}</strong><span>${actual}/${x.quantity} ${esc(t('game.pieces'))} · ${actual>=x.quantity?esc(t('game.ready')):esc(t('game.moreNeeded'))}</span></div>`;
+      return `<div class="ingredient-tile"><strong>${ingredientIconMarkup(x.ingredientId)} ${esc(name(x.ingredientId))}</strong><span>${actual}/${x.quantity} ${esc(t('game.pieces'))} · ${actual>=x.quantity?esc(t('game.ready')):esc(t('game.moreNeeded'))}</span></div>`;
     }).join('');
     byId('recipeSteps').replaceChildren(...(i18n.locale==='zh-CN'?RECIPE.stepsZh:RECIPE.stepsEn).map(line=>{const li=document.createElement('li');li.textContent=line;return li;}));
     // Recipe reading never changes stock.
@@ -169,7 +170,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   function renderCook(){
     byId('actualUsedLines').innerHTML=state.basket.lines.map(line=>{
       const b=state.batches.find(x=>x.id===line.batchId);
-      return `<div class="basket-line"><span class="line-icon" aria-hidden="true">${iconFor(b.ingredientId)}</span><div class="line-main"><strong>${esc(name(b.ingredientId))}</strong><span>${esc(sourceLabel(b.organicStatus))} · ${esc(t('game.onHand'))} ${b.onHand}</span></div><input class="actual-input" aria-label="${esc(t('game.actualUsed'))} ${esc(name(b.ingredientId))}" type="number" inputmode="numeric" min="0" max="${b.onHand}" step="1" data-actual-batch="${esc(b.id)}" value="${line.quantity}"/></div>`;
+      return `<div class="basket-line"><span class="line-icon" aria-hidden="true">${ingredientIconMarkup(b.ingredientId)}</span><div class="line-main"><strong>${esc(name(b.ingredientId))}</strong><span>${esc(sourceLabel(b.organicStatus))} · ${esc(t('game.onHand'))} ${b.onHand}</span></div><input class="actual-input" aria-label="${esc(t('game.actualUsed'))} ${esc(name(b.ingredientId))}" type="number" inputmode="numeric" min="0" max="${b.onHand}" step="1" data-actual-batch="${esc(b.id)}" value="${line.quantity}"/></div>`;
     }).join('');
     currentCookKey=`cook-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     byId('organicAck').checked=false;
@@ -183,7 +184,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   function renderComplete(){
     byId('remainingStock').replaceChildren();
     for(const id of ['tomato','egg']){
-      const span=document.createElement('span');span.textContent=`${iconFor(id)} ${name(id)}: ${physicalTotal(state,id)} ${t('game.pieces')}`;
+      const span=document.createElement('span');span.textContent=`${name(id)}: ${physicalTotal(state,id)} ${t('game.pieces')}`;
       byId('remainingStock').appendChild(span);
     }
   }
