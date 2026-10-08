@@ -164,3 +164,28 @@ main.game-main{width:100%;max-width:860px;flex:1;min-height:0;margin:0 auto}
 .empty-plot-hints span[id] span:first-child{color:#2F7D46;font-size:17px}
 @media(max-width:360px){.empty-plot-hints{bottom:112px}.empty-plot-hints span[id]{font-size:11px;padding:6px 8px}}
 .farm-stage.is-fallback .empty-plot-hints{display:none}
+
+/* Phase 1.5 Step 04: Harvest + Basket, approved green/cream design */
+.ingredient-sheet .ingredient-row{gap:12px;align-items:center;margin-bottom:13px}
+.ingredient-sheet .ingredient-emblem{display:grid;place-items:center;min-width:76px;min-height:76px;background:#F1F7EE;border:1px solid #E2EDDD;border-radius:20px}
+.ingredient-sheet .stock-summary{background:#F2F8F0;border:1px solid #DCEADB;border-radius:16px;padding:12px 14px;color:#315A50;line-height:1.6}
+.ingredient-sheet .field-pair select{min-height:46px;border-radius:14px}
+.ingredient-sheet .quantity-row{background:#FFFCF7;border:1px solid #E7E9E0;border-radius:18px;padding:12px;margin:12px 0}
+.ingredient-sheet .stepper{border-radius:18px;overflow:hidden;background:#F8F7F1}
+.ingredient-sheet .stepper button{min-width:46px;min-height:46px;border-radius:15px}
+.ingredient-sheet .stepper input{min-height:46px;font-size:17px;font-weight:800}
+.basket-line{background:#FFFCF7;border:1px solid #E5E7DF;padding:12px;gap:10px;align-items:center}
+.basket-line .line-icon{width:44px;height:44px;display:grid;place-items:center;background:#F1F7EE;border-radius:15px;flex:none}
+.basket-line .line-main{min-width:0;flex:1}
+.basket-line .line-main strong{color:#2D3748}
+.basket-line .line-main span{color:#657B73;font-size:12px}
+.kg-basket-stepper{display:flex;align-items:center;gap:3px;flex:none}
+.kg-basket-stepper .kg-step-button{width:36px;height:44px;border:0;border-radius:14px;background:#F6F6F3;color:#2D3748;font-size:21px;font-weight:750;display:grid;place-items:center}
+.kg-basket-stepper .kg-step-plus{background:#E8F4EA;color:#245C3D}
+.kg-basket-stepper .kg-step-button:disabled{opacity:.35;cursor:not-allowed}
+.kg-basket-stepper output{min-width:20px;text-align:center;font-size:16px;font-weight:800;color:#2D3748}
+.kg-basket-stepper .remove-line{width:36px;height:44px;border:0;background:#FFF0F1;color:#C83E46;border-radius:12px;font-size:23px}
+.basket-lines{display:grid;gap:10px}
+.basket-lines+.field-tip{font-size:12px;line-height:1.5}
+.recipe-teaser{background:#FFF9F2;border:1px solid #E5E7DF;border-radius:20px}
+@media(max-width:360px){.basket-line{padding:8px;gap:5px}.basket-line .line-icon{width:35px;height:38px}.kg-basket-stepper .kg-step-button{width:31px}.kg-basket-stepper .remove-line{width:31px}.kg-basket-stepper output{min-width:16px}}

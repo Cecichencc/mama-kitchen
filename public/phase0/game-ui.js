@@ -91,7 +91,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   function openIngredient(id){
     if(usableTotal(state,id)===0){openRestock(id);return;}
     expireOnInteraction();activeIngredient=id;
-    const icon=iconFor(id);
+    // Grocery icon comes from the shared miniature asset library.
     byId('ingredientEmblem').innerHTML=ingredientIconMarkup(id);
     byId('ingredientHeading').textContent=name(id);
     byId('ingredientZone').textContent=t(id==='tomato'?'sheet.zone':'game.barn');
@@ -131,7 +131,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     else area.innerHTML=lines.map(line=>{
       const b=state.batches.find(x=>x.id===line.batchId);
       if(!b)return '';
-      return `<div class="basket-line"><span class="line-icon" aria-hidden="true">${ingredientIconMarkup(b.ingredientId)}</span><div class="line-main"><strong>${esc(name(b.ingredientId))}</strong><span>${esc(sourceLabel(b.organicStatus))} · ${esc(t('game.held'))}</span></div><div class="mini-quantity"><input aria-label="${esc(t('game.quantity'))}" type="number" min="0" max="${b.onHand}" step="1" value="${line.quantity}" data-basket-qty="${esc(b.id)}"/><button type="button" class="mini-action" data-basket-save="${esc(b.id)}">${esc(t('game.update'))}</button><button type="button" class="remove-line" data-basket-remove="${esc(b.id)}" aria-label="${esc(t('game.remove'))}">×</button></div></div>`;
+      return `<div class="basket-line"><span class="line-icon" aria-hidden="true">${ingredientIconMarkup(b.ingredientId)}</span><div class="line-main"><strong>${esc(name(b.ingredientId))}</strong><span>${esc(sourceLabel(b.organicStatus))} · ${esc(t('game.held'))}</span></div><div class="mini-quantity kg-basket-stepper"><button type="button" class="kg-step-button" data-basket-decrement="${esc(b.id)}" aria-label="${esc(t('game.decrease'))}" ${line.quantity<=1?'disabled':''}>−</button><output aria-live="polite" aria-label="${esc(t('game.quantity'))}">${line.quantity}</output><button type="button" class="kg-step-button kg-step-plus" data-basket-increment="${esc(b.id)}" aria-label="${esc(t('game.increase'))}" ${line.quantity>=b.onHand?'disabled':''}>+</button><button type="button" class="remove-line" data-basket-remove="${esc(b.id)}" aria-label="${esc(t('game.remove'))}">×</button></div></div>`;
     }).join('');
     const readiness=recipeReadiness(state);
     byId('basketRecipe').hidden=!lines.length;
@@ -227,10 +227,13 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   byId('basketLines').addEventListener('click',event=>{
     const remove=event.target.closest('[data-basket-remove]');
     if(remove){transact(s=>setReservation(s,{batchId:remove.dataset.basketRemove,quantity:0}));return;}
-    const saveBtn=event.target.closest('[data-basket-save]');
-    if(saveBtn){const batchId=saveBtn.dataset.basketSave;
-      const input=[...byId('basketLines').querySelectorAll('[data-basket-qty]')].find(el=>el.dataset.basketQty===batchId);
-      if(input)transact(s=>setReservation(s,{batchId,quantity:Number(input.value)}));}
+    const inc=event.target.closest('[data-basket-increment]');
+    const dec=event.target.closest('[data-basket-decrement]');
+    const action=inc||dec;
+    if(action){const batchId=inc?.dataset.basketIncrement||dec?.dataset.basketDecrement;
+      const current=state.basket.lines.find(line=>line.batchId===batchId);
+      if(current)transact(s=>setReservation(s,{batchId,quantity:current.quantity+(inc?1:-1)}));
+    }
   });
   byId('basketClearBtn').addEventListener('click',()=>{transact(s=>clearBasket(s));toast(t('basket.returned'));});
   byId('basketRecipeBtn').addEventListener('click',()=>{renderRecipe();openPanel('recipeSheet');});
