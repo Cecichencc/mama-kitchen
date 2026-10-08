@@ -120,3 +120,33 @@ main.game-main{width:100%;max-width:860px;flex:1;min-height:0;margin:0 auto}
 
 /* Hide all decorative HUD behind the accessible non-WebGL replacement. */
 .farm-stage.is-fallback .scene-controls,.farm-stage.is-fallback .plot-label,.farm-stage.is-fallback .chicken-message{display:none}
+
+/* Kitchen Garden v1.5 — green interactive UI foundation.
+   Intentional scope: UI only. Preserve the approved clay-world materials. */
+:root{
+  --kg-primary:#4CAF7A;--kg-primary-pressed:#2F7D46;--kg-primary-light:#E8F4EA;
+  --kg-cream:#FFF9F2;--kg-background:#F7FAFD;--kg-pink:#FFD9E0;--kg-blue:#E3F2FF;
+  --kg-text:#2D3748;--kg-text-secondary:#8A94A6;--kg-success:#4CAF7A;
+  --kg-warning:#FFB74D;--kg-error:#FF6B6B;--kg-border:#E5E7EB;
+  --kg-radius-control:16px;--kg-radius-card:20px;--kg-radius-sheet:28px;
+  --kg-control-height:48px;--kg-shadow-card:0 5px 18px rgba(45,55,72,.08);
+}
+/* Green actions replace coral without recolouring the 3D tomatoes/house. */
+.cta-button,.pill-button.primary{background:var(--kg-primary)!important;color:#fff!important;border-color:var(--kg-primary)!important;box-shadow:0 5px 13px rgba(47,125,70,.22)!important;min-height:var(--kg-control-height);border-radius:var(--kg-radius-control)}
+.cta-button:hover:not(:disabled),.pill-button.primary:hover:not(:disabled){background:var(--kg-primary-pressed)!important}
+.cta-button:active:not(:disabled),.pill-button.primary:active:not(:disabled){background:var(--kg-primary-pressed)!important;transform:translateY(1px)}
+.cta-button:disabled,.pill-button.primary:disabled{background:#C7DFCE!important;border-color:#C7DFCE!important;color:#426650!important;box-shadow:none!important;opacity:.75}
+.pill-button:not(.primary),.mini-action,.text-action{border-radius:var(--kg-radius-control)}
+.pill-button:not(.primary){background:var(--kg-cream);border:1px solid #B5D6C2;color:#245C3D}
+.pill-button:not(.primary):active,.mini-action:active{transform:translateY(1px)}
+.mini-action{background:var(--kg-primary-light);color:#245C3D;border:1px solid #B5D6C2;min-height:42px}
+.mini-action.warning,.remove-line{color:#C83E46;background:#FFF0F1;border-color:#F6C8CD}
+.stepper button,.quantity-row button{min-width:44px;min-height:44px}
+.stepper button:last-child{background:var(--kg-primary-light);color:#245C3D}
+.stepper button:disabled,.mini-action:disabled{opacity:.45;cursor:not-allowed}
+.card-surface,.meal-slot,.stock-batch,.basket-line,.recipe-teaser{border-radius:var(--kg-radius-card);box-shadow:var(--kg-shadow-card)}
+.game-sheet{border-radius:var(--kg-radius-sheet) var(--kg-radius-sheet) 0 0;background:var(--kg-cream)}
+.bottom-nav .nav-item.active{color:var(--kg-primary-pressed)}
+.bottom-nav .nav-item.active .nav-icon{color:var(--kg-primary-pressed)}
+.icon-button:focus-visible,.cta-button:focus-visible,.pill-button:focus-visible,.mini-action:focus-visible{outline:3px solid var(--kg-primary-pressed);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.cta-button,.pill-button,.mini-action{transition:none!important;transform:none!important}}
