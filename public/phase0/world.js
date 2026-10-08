@@ -1,8 +1,8 @@
 // Kitchen Garden Phase 0 — original lightweight, procedural Three.js clay-world assets.
 // Presentation only. Physical groceries never live in this module.
 export const WORLD_COLORS = Object.freeze({
-  sky:'#C9EAE6', grass:'#A8C896', distantHills:'#B9D5A7', barn:'#DB91A6',
-  barnRoof:'#BD758F', ivory:'#FFFCF7', cream:'#FAF5EA', flowers:'#F2D98D',
+  sky:'#C9EAE6', grass:'#B7D9A8', distantHills:'#B9D5A7', barn:'#E89CB0', house:'#E89CB0', houseRoof:'#D16B84', tomato:'#FF6B5B', tomatoLeaf:'#7CC67A', soil:'#A67C52', white:'#FFFFFF',
+  barnRoof:'#D16B84', ivory:'#FFFCF7', cream:'#FFF8EC', flowers:'#F2D98D',
   water:'#91D5DD', text:'#315A50', action:'#EB8068'
 });
 
@@ -15,15 +15,15 @@ export function createPastelWorld(THREE, scene) {
 
   const mat = hex => new THREE.MeshStandardMaterial({color:hex,roughness:.91,metalness:0});
   const M = {
-    grass:mat(WORLD_COLORS.grass), grassLight:mat('#C5DBA9'), grassDeep:mat('#83B780'),
+    grass:mat(WORLD_COLORS.grass), grassLight:mat('#C9E3B5'), grassDeep:mat('#83B780'),
     hill:mat(WORLD_COLORS.distantHills), hill2:mat('#ADD1B7'),
-    island:mat('#BEA77B'), soil:mat('#9E7358'), soilSoft:mat('#BA8A64'),
+    island:mat('#BEA77B'), soil:mat('#A67C52'), soilSoft:mat('#BA8A64'),
     path:mat('#FFF1D4'), stone:mat('#E8DEBB'),
-    barn:mat(WORLD_COLORS.barn), roof:mat(WORLD_COLORS.barnRoof), barnTrim:mat('#FFEFE5'),
-    door:mat('#9C6277'), fence:mat('#F4E9D4'), wood:mat('#B59070'),
+    barn:mat(WORLD_COLORS.barn), roof:mat(WORLD_COLORS.barnRoof), barnTrim:mat('#FFF8EC'),
+    door:mat('#9C6277'), fence:mat('#FFF9EF'), wood:mat('#B59070'),
     trunk:mat('#92705D'), leaf:mat('#78B386'), leafLight:mat('#9CC99B'),
-    leafDark:mat('#5E9D76'), tomato:mat('#E85A4D'), tomatoLight:mat('#F2745B'),
-    stem:mat('#4D986F'), white:mat('#FFFBF3'), eye:mat('#36504B'),
+    leafDark:mat('#5E9D76'), tomato:mat('#FF6B5B'), tomatoLight:mat('#FF8069'),
+    stem:mat('#7CC67A'), white:mat('#FFFFFF'), eye:mat('#36504B'),
     coral:mat('#E87867'), yellow:mat('#F6BD70'), flower:mat(WORLD_COLORS.flowers),
     flowerPink:mat('#F7D0CD'), water:mat(WORLD_COLORS.water)
   };
@@ -74,8 +74,8 @@ export function createPastelWorld(THREE, scene) {
   }
 
   // Softly beveled, floating grassy island; soil is only visible around its edge.
-  roundedPlatform(8.12,6.55,.55,M.island,0,-.58,0,1.22);
-  roundedPlatform(8.08,6.52,.22,M.grass,0,.12,0,1.24);
+  roundedPlatform(8.28,6.58,.55,M.island,0,-.58,0,1.32);
+  roundedPlatform(8.22,6.52,.22,M.grass,0,.12,0,1.32);
   // Rounded hillside mounds around the back, visible from an isometric camera.
   for(const [x,z,sx,sy,sz] of [[-3.3,-2.25,1.05,.45,1.05],[3.15,-2.0,1.18,.50,1.15],[-.1,-2.63,1.0,.32,.60]]){
     sphere(1,M.grassLight,root,x,.30,z,sx,sy,sz);
@@ -107,82 +107,93 @@ export function createPastelWorld(THREE, scene) {
   fenceLine(-3.08,2.22,-.40,2.22,6);
   fenceLine(-3.13,.15,-3.13,2.03,5);
 
-  // Blush-pink toy barn: soft roof, ivory frames, a little dormer and chimney.
-  const barn=new THREE.Group();root.add(barn);barn.position.set(1.58,.42,-1.12);
-  softBox(1.65,1.27,1.47,M.barn,barn,0,.72,0);
-  const roofA=softBox(1.18,.18,1.77,M.roof,barn,-.455,1.59,0);roofA.rotation.z=.51;
-  const roofB=softBox(1.18,.18,1.77,M.roof,barn,.455,1.59,0);roofB.rotation.z=-.51;
-  softBox(.60,.84,.075,M.barnTrim,barn,0,.49,.75);
-  softBox(.47,.73,.08,M.door,barn,0,.47,.80);
-  box(.06,.63,.1,M.barnTrim,barn,0,.45,.86);
-  box(.44,.06,.10,M.barnTrim,barn,0,.47,.86);
-  sphere(.19,M.barnTrim,barn,0,1.22,.795,1,1,.26);
-  sphere(.12,M.door,barn,0,1.22,.85,1,1,.20);
-  softBox(.24,.40,.23,M.barn,barn,-.38,1.79,-.36);
-  softBox(.68,.48,.06,M.barnTrim,barn,.84,.84,.18);
-  softBox(.49,.30,.08,M.water,barn,.85,.84,.22);
-  box(.065,.37,.10,M.barnTrim,barn,.85,.84,.27);
-  box(.49,.055,.1,M.barnTrim,barn,.85,.84,.28);
+  // Pink farmhouse: actual extruded gable, beveled pitched roof and modeled doors/windows.
+  const house=new THREE.Group(); house.name='Farmhouse';root.add(house);
+  house.position.set(1.58,.42,-1.12);
+  const w=1.65,depth=1.47,wallY=1.30,ridgeY=1.95;
+  softBox(w,1.27,depth,M.barn,house,0,.68,0);
+  const gable=new THREE.Shape();
+  gable.moveTo(-w/2,0);gable.lineTo(0,ridgeY-wallY);gable.lineTo(w/2,0);gable.closePath();
+  const gableGeo=new THREE.ExtrudeGeometry(gable,{depth:depth-.04,steps:1,bevelEnabled:false});
+  gableGeo.translate(0,0,-(depth-.04)/2);mesh(gableGeo,M.barn,house,0,wallY,0);
+  const slope=Math.atan2(ridgeY-wallY,w/2);
+  for(const side of [-1,1]){
+    const roof=softBox(Math.hypot(w/2+.16,ridgeY-wallY+.05),.15,depth+.24,M.roof,house,side*(w/4+.05),(wallY+ridgeY)/2,0);
+    roof.rotation.z=side===-1?slope:-slope;
+  }
+  // Rounded arched door relief, not a painted facade.
+  function archPanel(width,height,z,material){
+    const radius=width/2,sh=new THREE.Shape();
+    sh.moveTo(-radius,0);sh.lineTo(-radius,height-radius);
+    sh.absarc(0,height-radius,radius,Math.PI,0,true);sh.lineTo(radius,0);sh.closePath();
+    return mesh(new THREE.ExtrudeGeometry(sh,{depth:.07,bevelEnabled:true,bevelSize:.012,bevelThickness:.012,bevelSegments:2,curveSegments:10}),material,house,0,.03,z);
+  }
+  archPanel(.65,.97,depth/2+.015,M.barnTrim);
+  archPanel(.53,.85,depth/2+.095,M.door);
+  box(.05,.73,.05,M.barnTrim,house,0,.47,depth/2+.18);
+  box(.47,.06,.05,M.barnTrim,house,0,.46,depth/2+.18);
+  mesh(new THREE.TorusGeometry(.165,.04,8,20),M.barnTrim,house,0,1.50,depth/2+.028);
+  sphere(.115,M.water,house,0,1.50,depth/2+.018,1,1,.20);
+  box(.035,.28,.04,M.barnTrim,house,0,1.50,depth/2+.09);
+  box(.27,.036,.04,M.barnTrim,house,0,1.50,depth/2+.09);
+  const sideFrame=softBox(.52,.45,.06,M.barnTrim,house,w/2+.045,.87,-.10);
+  sideFrame.rotation.y=Math.PI/2;
+  const sidePane=softBox(.40,.32,.07,M.water,house,w/2+.095,.87,-.10);
+  sidePane.rotation.y=Math.PI/2;
+  box(.05,.38,.05,M.barnTrim,house,w/2+.15,.87,-.10);
+  box(.05,.05,.40,M.barnTrim,house,w/2+.15,.87,-.10);
+  softBox(.28,.39,.30,M.barn,house,.39,1.91,-.31);
+  softBox(.34,.09,.36,M.roof,house,.39,2.15,-.31);
 
-  // Rounded clay trees built from reusable spheres. Colors and scales vary softly.
+  // Rounded trees are modest in height to avoid occluding the island on iPhone.
   function tree(x,z,size=1,variation=0){
     const g=new THREE.Group();root.add(g);g.position.set(x,.39,z);g.scale.setScalar(size);
-    cyl(.135,.205,1.07,M.trunk,g,0,.56,0);
-    const clusters=[[0,1.37,0,.55],[-.37,1.13,.14,.43],[.34,1.18,.13,.44],[0,1.10,-.35,.42]];
-    clusters.forEach(([xx,yy,zz,r],i)=>sphere(r,[M.leaf,M.leafLight,M.leafDark][(i+variation)%3],g,xx,yy,zz,1.07,1,.97));
+    cyl(.13,.18,.87,M.trunk,g,0,.45,0);
+    sphere(.54,[M.leaf,M.leafLight][variation%2],g,0,1.18,0,1.06,1.02,1.06);
+    sphere(.23,M.leafLight,g,-.31,1.13,.12);
+    sphere(.20,M.leafDark,g,.32,1.04,-.14);
     return g;
   }
-  tree(-3.24,-1.66,1.02);tree(3.18,-1.73,.91,1);tree(3.16,.82,.76,2);
-  tree(-.18,-2.22,.63,1);
+  tree(-3.05,-1.72,.89);tree(3.25,-1.78,.75,1);tree(3.22,.78,.67);
 
-  // Soft, curved tomato vines with oversized recognisable produce.
-  function stem(points,material,r=.038,parent=root){
-    const curve=new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p)));
-    return mesh(new THREE.TubeGeometry(curve,10,r,6,false),material,parent,0,0,0);
-  }
-  function tomato(x,y,z,r=.27,material=M.tomato){
-    const group=new THREE.Group();group.position.set(x,y,z);root.add(group);
-    sphere(r,material,group,0,0,0,1.06,.95,1.05);
-    cyl(.026,.029,.16,M.stem,group,0,r+.038,0,6);
+  // Soil-resting collectible tomato asset: no stalks or tall tomato plants.
+  function tomato(r=.25,material=M.tomato){
+    const group=new THREE.Group();group.name='Reusable Tomato';
+    sphere(r,material,group,0,0,0,1.07,.87,1.03);
     for(let i=0;i<5;i++){
       const a=i*2*Math.PI/5;
-      const leaf=sphere(r*.53,M.stem,group,Math.cos(a)*r*.36,r*.78,Math.sin(a)*r*.36,.85,.21,.45);
+      const leaf=sphere(r*.41,M.stem,group,Math.cos(a)*r*.38,r*.79,Math.sin(a)*r*.38,1.25,.22,.69);
       leaf.rotation.y=-a;
     }
+    cyl(r*.10,r*.11,r*.19,M.stem,group,0,r*.87,0,8);
     return group;
   }
-  function vine(x,z,variant=0){
-    stem([[x,.56,z],[x+.06,.92,z+.05],[x-.02,1.28,z+.03],[x-.06,1.63,z]],M.stem,.05);
-    for(let i=0;i<4;i++){
-      const a=i*Math.PI/2+.35, y=.83+(i%2)*.27;
-      const leaf=sphere(.21,i%2?M.leaf:M.leafDark,root,x+Math.cos(a)*.23,y,z+Math.sin(a)*.23,1.3,.19,.53);
-      leaf.rotation.y=a;
-    }
-  }
-  vine(-2.42,.95);vine(-1.52,1.10);vine(-.67,1.03);
-  const fruits=[
-    tomato(-2.43,1.39,.99,.275,M.tomatoLight),
-    tomato(-1.56,1.54,1.10,.34,M.tomato),
-    tomato(-.68,1.40,1.04,.295,M.tomatoLight),
-    tomato(-2.19,.95,1.51,.20,M.tomato),
-    tomato(-.88,.99,1.52,.22,M.tomato)
-  ];
+  const tomatoSpots=[[-2.43,.94,.25],[-1.55,1.10,.32],[-.68,1.06,.28],[-2.19,1.65,.21],[-.89,1.65,.235]];
+  const fruits=tomatoSpots.map(([x,z,r],i)=>{
+    const g=tomato(r,i%2?M.tomatoLight:M.tomato);
+    g.position.set(x,.58+r*.87,z);g.rotation.y=(i%3-1)*.27;root.add(g);return g;
+  });
   const colliders=fruits.map((f,i)=>{
-    const c=new THREE.Mesh(new THREE.SphereGeometry(i===1?.54:.47,12,9),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,colorWrite:false}));
+    const c=new THREE.Mesh(new THREE.SphereGeometry(.42+(i===1?.08:0),12,9),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,colorWrite:false}));
     c.position.copy(f.position);c.userData.ingredient='tomato';c.userData.fruitIndex=i;root.add(c);return c;
   });
+  for(const [x,z] of [[-2.9,1.46],[-1.8,1.1],[-.40,1.52],[-2.8,.8]]){
+    for(const a of [0,2.09,4.18]){const l=sphere(.10,M.leaf,root,x+Math.cos(a)*.10,.56,z+Math.sin(a)*.10,1,.3,.8);l.rotation.y=-a;}
+  }
 
-  // White hen companion (not a required control): wings, comb, eyes, beak and feet.
-  const hen=new THREE.Group();root.add(hen);hen.position.set(2.46,.39,1.28);
-  sphere(.32,M.white,hen,0,.35,0,1.23,.95,.98);
-  sphere(.22,M.white,hen,0,.67,.12);
-  sphere(.14,M.white,hen,-.31,.38,-.01,.64,.95,1.17);
-  sphere(.14,M.white,hen,.31,.38,-.01,.64,.95,1.17);
-  sphere(.15,M.white,hen,0,.36,-.35,.58,.82,.82);
-  for(const [xx,yy,zz] of [[-.12,.91,.04],[0,.98,.07],[.12,.91,.04]])sphere(.087,M.coral,hen,xx,yy,zz,.9,1.1,.85);
-  const beak=mesh(new THREE.ConeGeometry(.125,.21,5),M.yellow,hen,0,.60,.36);beak.rotation.x=Math.PI/2;
-  const eyes=[sphere(.038,M.eye,hen,-.096,.72,.296,1,1,.6),sphere(.038,M.eye,hen,.096,.72,.296,1,1,.6)];
-  for(const x of [-.19,.19]){sphere(.082,M.yellow,hen,x,.08,.12,1.0,.45,1.35);}
+  // Articulated three-view coherent chicken: pear body, rounded head, wings and feet.
+  const hen=new THREE.Group();hen.name='White chicken companion';root.add(hen);
+  hen.position.set(2.46,.39,1.28);hen.scale.setScalar(.76);
+  sphere(.35,M.white,hen,0,.35,0,1.0,1.10,.96);
+  const head=new THREE.Group();hen.add(head);head.position.set(0,.70,.12);
+  sphere(.25,M.white,head);
+  const wings=[sphere(.17,M.white,hen,-.33,.38,.04,.60,.91,1.12),sphere(.17,M.white,hen,.33,.38,.04,.60,.91,1.12)];
+  sphere(.14,M.white,hen,0,.34,-.33,.78,1,.84);
+  for(const xx of [-.17,.17])sphere(.068,M.yellow,hen,xx,.06,.11,1.08,.50,1.38);
+  for(const [xx,yy] of [[-.10,.26],[0,.32],[.10,.26]])sphere(.075,M.coral,head,xx,yy,-.03,1,1,.82);
+  sphere(.055,M.coral,head,0,-.10,.24,.82,1.12,.77);
+  const beak=mesh(new THREE.ConeGeometry(.115,.20,8),M.yellow,head,0,-.09,.28);beak.rotation.x=Math.PI/2;
+  const eyes=[sphere(.041,M.eye,head,-.108,.018,.22,1,1,.65),sphere(.041,M.eye,head,.108,.018,.22,1,1,.65)];
 
   // Decorations: small grass clumps, limited flower stems and little stones.
   const positions=Array.from({length:30},(_,i)=>{
@@ -192,7 +203,14 @@ export function createPastelWorld(THREE, scene) {
   positions.forEach(([x,z],i)=>{
     const grass=new THREE.Group();root.add(grass);grass.position.set(x,.40,z);
     for(let j=-1;j<=1;j++)sphere(.09,j===0?M.leaf:M.grassDeep,grass,j*.11,.09,0,.68,1.55,.45);
-    if(i%3===0){cyl(.018,.02,.20,M.stem,root,x,.54,z,8);sphere(.085,i%2?M.flower:M.flowerPink,root,x,.68,z,.9,.65,.9);sphere(.036,M.yellow,root,x,.72,z,.7,.6,.7);}
+    if(i%3===0){
+      for(let k=0;k<5;k++){
+        const a=k*2*Math.PI/5;
+        const petal=sphere(.069,M.white,root,x+Math.cos(a)*.074,.60,z+Math.sin(a)*.074,1,.35,.78);
+        petal.rotation.y=-a;petal.castShadow=false;
+      }
+      sphere(.043,M.yellow,root,x,.60,z,1,.5,1);
+    }
   });
   for(let i=0;i<12;i++){
     const x=2.2+((i*17)%41)/41*1.5,z=-.27+((i*11)%37)/37*1.3;
@@ -200,16 +218,17 @@ export function createPastelWorld(THREE, scene) {
   }
 
   function update(elapsed,reduced,focused,selectedIndex=1){
-    if(reduced) {hen.position.y=.39;eyes.forEach(e=>{e.scale.y=.038});return;}
-    hen.position.y=.39+Math.sin(elapsed*1.7)*.022;
-    hen.rotation.y=Math.sin(elapsed*.68)*.07;
-    const blink=Math.sin(elapsed*.72)>0.992 ? .16 : 1;
-    eyes.forEach(e=>{e.scale.y=.038*blink;});
+    hen.position.y=.39+(reduced?0:Math.sin(elapsed*1.7)*.020);
+    head.rotation.z=reduced?0:Math.sin(elapsed*.7)*.04;
+    const blink=!reduced&&Math.sin(elapsed*.72)>0.992?.16:1;
+    eyes.forEach(e=>{e.scale.y=.041*blink;});
+    wings.forEach((w,i)=>{w.rotation.z=reduced?0:(i?1:-1)*Math.sin(elapsed*1.2)*.04;});
     fruits.forEach((fruit,i)=>{
-      fruit.rotation.y=Math.sin(elapsed*1.4+i*.9)*(i===selectedIndex&&focused?.09:.027);
-      const sc=(i===selectedIndex&&focused?1.045:1);
-      fruit.scale.setScalar(sc);
+      fruit.rotation.y=(i%3-1)*.27+(reduced?0:Math.sin(elapsed*.9+i)*.015);
+      fruit.scale.setScalar(i===selectedIndex&&focused?1.045:1);
     });
   }
-  return {root,colliders,fruitPositions:fruits.map(f=>f.position.clone()),update};
+  
+
+  return {root,colliders,fruitPositions:fruits.map(f=>f.position.clone()),update,assets:{island:root,tomato:fruits[1],house,chicken:hen}};
 }

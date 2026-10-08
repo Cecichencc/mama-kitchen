@@ -119,7 +119,7 @@ async function boot() {
     scene.add(sunlight);
     const farm=createPastelWorld(THREE,scene);
     const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
-    const overviewTarget=new THREE.Vector3(-.16,.74,.10),desired=overviewTarget.clone(),current=desired.clone();
+    const overviewTarget=new THREE.Vector3(-.16,.68,.10),desired=overviewTarget.clone(),current=desired.clone();
     const cameraOffset=new THREE.Vector3(7.4,9.4,12.0);
     const homeZoom=1;
     let zoomTarget=homeZoom,focused=false,selectedIndex=1;
@@ -144,7 +144,7 @@ async function boot() {
     function inspect(index=1){
       selectedIndex=index;focused=true;
       const target=farm.fruitPositions[index]||farm.fruitPositions[1];
-      desired.set(target.x,.77,target.z);
+      desired.set(target.x,.77,target.z+.55); // keep selected tomato above bottom sheet
       zoomTarget=1.56;
       overviewBtn.hidden=false;
       showStatus('farm.focused');
