@@ -4,77 +4,138 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#C9EAE6" />
-  <meta name="description" content="Kitchen Garden — explore a soft pastel interactive 3D toy farm. Phase 0 preview." />
-  <title>Kitchen Garden — Explore the Farm</title>
+  <meta name="description" content="Kitchen Garden — harvest your real groceries, then make something lovely." />
+  <title>Kitchen Garden — Harvest & Cook</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <div class="app">
-    <header class="topbar">
-      <div class="brand"><span class="brand-leaf" aria-hidden="true">🌱</span><div><strong>Kitchen Garden</strong><span data-i18n="app.tagline">Good Food Grows at Home</span></div></div>
-      <div class="top-actions">
-        <button id="settingsBtn" class="icon-button" type="button" aria-label="Open settings" data-i18n-aria="settings.open" aria-haspopup="dialog" aria-controls="settingsSheet">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8a4 4 0 100 8 4 4 0 000-8Z"/><path d="M19.4 15.5l1-1.7-1-3.4-2-.2a7.4 7.4 0 00-1.3-1.3l-.2-2-3.4-1-1.7 1-1.7-1-3.4 1-.2 2a7.4 7.4 0 00-1.3 1.3l-2 .2-1 3.4 1 1.7-1 1.7 1 3.4 2 .2c.4.5.8.9 1.3 1.3l.2 2 3.4 1 1.7-1 1.7 1 3.4-1 .2-2c.5-.4.9-.8 1.3-1.3l2-.2 1-3.4-1-1.7Z" transform="translate(1 -2) scale(.88)"/></svg>
-        </button>
-      </div>
-    </header>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><span class="brand-leaf" aria-hidden="true">🌱</span><div><strong>Kitchen Garden</strong><span data-i18n="app.tagline">Good Food Grows at Home</span></div></div>
+    <div class="top-actions">
+      <button id="basketBtn" class="icon-button basket-icon" type="button" aria-label="Open my basket" data-i18n-aria="basket.open"><span aria-hidden="true">🧺</span><span id="basketBadge" class="basket-count" hidden>0</span></button>
+      <button id="settingsBtn" class="icon-button" type="button" aria-label="Open settings" data-i18n-aria="settings.open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8a4 4 0 100 8 4 4 0 000-8Z"/><path d="M19.4 15.5l1-1.7-1-3.4-2-.2a7.4 7.4 0 00-1.3-1.3l-.2-2-3.4-1-1.7 1-1.7-1-3.4 1-.2 2a7.4 7.4 0 00-1.3 1.3l-2 .2-1-3.4 1-1.7-1-1.7 1-3.4 2-.2c.4-.5.8-.9 1.3-1.3l.2-2 3.4-1 1.7 1 1.7-1 3.4 1 .2 2c.5.4.9.8 1.3 1.3l2 .2 1 3.4-1 1.7Z" transform="translate(1 -2) scale(.88)"/></svg></button>
+    </div>
+  </header>
 
-    <main>
-      <section class="farm-stage" id="farmStage" aria-label="Interactive 3D farm" data-i18n-aria="farm.viewLabel">
-        <div class="sky-cloud cloud-a" aria-hidden="true"></div>
-        <div class="sky-cloud cloud-b" aria-hidden="true"></div>
-        <div class="sun-haze" aria-hidden="true"></div>
-        <div id="threeMount" class="three-mount" role="group" aria-label="Interactive 3D farm: tap a tomato to inspect it" data-i18n-aria="farm.viewLabel"></div>
+  <main class="game-main">
+    <section id="farmView" class="page-view" aria-label="Farm" data-i18n-aria="nav.farm">
+      <div class="farm-stage" id="farmStage" aria-label="Interactive 3D farm" data-i18n-aria="farm.viewLabel">
+        <div class="sky-cloud cloud-a" aria-hidden="true"></div><div class="sky-cloud cloud-b" aria-hidden="true"></div><div class="sun-haze" aria-hidden="true"></div>
+        <div id="threeMount" class="three-mount" role="group" aria-label="Interactive 3D farm: tap tomatoes and eggs" data-i18n-aria="farm.viewLabel"></div>
         <div class="world-note sr-only" id="worldNote" role="status" aria-live="polite" data-i18n="farm.loading">Getting your little farm ready…</div>
-
-        <div class="chicken-message" aria-label="Chicken helper" data-i18n-aria="farm.helperLabel">
-          <span class="chicken-icon" aria-hidden="true">🐔</span>
-          <span class="chicken-bubble" data-i18n="farm.chickenPrompt">Good morning! Tap a tomato to explore.</span>
-        </div>
-        <div class="plot-label" aria-hidden="true">🍅 <span data-i18n="farm.plotLabel">Tomato Garden</span></div>
-
+        <div class="chicken-message" aria-label="Chicken helper" data-i18n-aria="farm.helperLabel"><span class="chicken-icon" aria-hidden="true">🐔</span><span class="chicken-bubble" data-i18n="game.helper">Let's harvest something for dinner!</span></div>
+        <div class="plot-label tomato-label"><span aria-hidden="true">🍅</span> <span data-i18n="farm.plotLabel">Tomato Garden</span><span id="tomatoPlotCount" class="plot-count">0</span></div>
+        <div class="plot-label eggs-label"><span aria-hidden="true">🥚</span> <span data-i18n="game.eggs">Eggs</span><span id="eggPlotCount" class="plot-count">0</span></div>
         <div class="scene-controls" aria-label="Farm camera controls" data-i18n-aria="farm.sceneControls">
           <button id="overviewBtn" class="pill-button back-button" type="button" aria-label="Return to the complete farm view" data-i18n-aria="farm.backLabel" hidden><span aria-hidden="true">↖</span> <span data-i18n="farm.back">Back to Farm</span></button>
-          <button id="selectTomatoBtn" class="pill-button primary" type="button"><span aria-hidden="true">🍅</span> <span data-i18n="farm.explore">Explore Tomato</span></button>
+          <button id="selectTomatoBtn" class="pill-button primary" type="button"><span aria-hidden="true">🍅</span> <span data-i18n="game.selectTomato">Tomatoes</span></button>
+          <button id="selectEggBtn" class="pill-button" type="button"><span aria-hidden="true">🥚</span> <span data-i18n="game.selectEgg">Eggs</span></button>
         </div>
-
         <div class="fallback" id="fallback" hidden>
           <div class="fallback-icon" aria-hidden="true">🌿</div>
           <h2 data-i18n="farm.fallbackTitle">The 3D farm is unavailable right now</h2>
-          <p data-i18n="farm.fallbackBody">You can still explore tomato details using the accessible controls.</p>
-          <button id="fallbackSelectBtn" class="cta-button" type="button" data-i18n="farm.inspect">Inspect Tomato</button>
+          <p data-i18n="game.fallbackBody">You can still collect real ingredients and cook using the buttons below.</p>
+          <div class="fallback-actions"><button id="fallbackSelectBtn" class="pill-button primary" type="button" data-i18n="game.selectTomato">Tomatoes</button><button id="fallbackEggBtn" class="pill-button" type="button" data-i18n="game.selectEgg">Eggs</button></div>
         </div>
-
-        <nav class="bottom-nav" aria-label="Kitchen Garden navigation" data-i18n-aria="nav.label">
-          <a class="nav-item active" href="./index.html" aria-current="page"><span class="nav-icon" aria-hidden="true">⌂</span><span data-i18n="nav.farm">Farm</span></a>
-          <button class="nav-item" type="button" disabled data-i18n-title="nav.mealsSoon" title="Today's Meals — coming in a later phase"><span class="nav-icon" aria-hidden="true">♨</span><span data-i18n="nav.meals">Today's Meals</span><span class="coming-soon" data-i18n="nav.soon">Coming soon</span></button>
-          <button class="nav-item" type="button" disabled data-i18n-title="nav.pantrySoon" title="Pantry — coming in a later phase"><span class="nav-icon" aria-hidden="true">▣</span><span data-i18n="nav.pantry">Pantry</span><span class="coming-soon" data-i18n="nav.soon">Coming soon</span></button>
-        </nav>
-      </section>
-    </main>
-
-    <div id="sheetBackdrop" class="sheet-backdrop" hidden></div>
-    <section id="ingredientSheet" class="ingredient-sheet" role="dialog" aria-modal="true" aria-labelledby="ingredientHeading" hidden tabindex="-1">
-      <div class="sheet-grip" aria-hidden="true"></div>
-      <button id="closeSheetBtn" class="sheet-close" type="button" aria-label="Close tomato details" data-i18n-aria="sheet.dismiss">×</button>
-      <div class="ingredient-row"><div class="ingredient-emblem" aria-hidden="true">🍅</div><div><span class="ingredient-kicker" data-i18n="sheet.zone">VEGETABLE GARDEN</span><h2 id="ingredientHeading" data-i18n="farm.tomato">Tomato</h2><p data-i18n="sheet.description">Meet a juicy tomato from your miniature farm.</p></div></div>
-      <div class="info-tiles"><div><strong data-i18n="sheet.3d">Real 3D</strong><span data-i18n="sheet.3dValue">Tappable model</span></div><div><strong data-i18n="sheet.camera">Camera focus</strong><span data-i18n="sheet.cameraValue">Smooth close-up</span></div></div>
-      <p class="sheet-disclaimer" data-i18n="sheet.disclaimer">Preview only: grocery stock is not connected yet. Harvesting and cooking will arrive in the next phase.</p>
-      <button id="returnBtn" class="cta-button" type="button"><span data-i18n="farm.back">Back to Farm</span><span aria-hidden="true"> ↗</span></button>
+      </div>
     </section>
 
-    <div id="settingsBackdrop" class="sheet-backdrop" hidden></div>
-    <section id="settingsSheet" class="settings-sheet" role="dialog" aria-modal="true" aria-labelledby="settingsHeading" hidden tabindex="-1">
-      <div class="sheet-grip" aria-hidden="true"></div>
-      <button id="settingsCloseBtn" class="sheet-close" type="button" aria-label="Close settings" data-i18n-aria="settings.close">×</button>
-      <h2 id="settingsHeading" data-i18n="settings.title">Settings</h2>
-      <fieldset class="language-fieldset"><legend data-i18n="settings.language">Language</legend><p data-i18n="settings.languageHelp">Choose your preferred interface language.</p>
-        <label class="language-option"><input type="radio" name="language" value="en" checked /><span data-i18n="settings.english">English</span></label>
-        <label class="language-option"><input type="radio" name="language" value="zh-CN" /><span data-i18n="settings.chinese">简体中文</span></label>
-      </fieldset>
-      <details class="dev-status"><summary data-i18n="settings.devStatus">About this preview</summary><p data-i18n="settings.previewNote">This phase proves the 3D world, tomato selection and camera movement. It does not invent grocery quantities or change stock.</p></details>
+    <section id="todayView" class="page-view utility-view" hidden>
+      <div class="page-heading"><span class="eyebrow" data-i18n="game.household">For Mom & Daughter</span><h1 data-i18n="meals.today">Today's Kitchen</h1><p data-i18n="game.mealIntro">Your little kitchen starts with one real recipe. More daily meal ideas come later.</p></div>
+      <div class="meal-cards">
+        <article class="meal-slot"><div class="slot-icon" aria-hidden="true">🌤️</div><div><h2 data-i18n="game.breakfast">Breakfast</h2><p data-i18n="game.unplanned">Not planned yet</p></div></article>
+        <article class="meal-slot"><div class="slot-icon" aria-hidden="true">☀️</div><div><h2 data-i18n="game.lunch">Lunch</h2><p data-i18n="game.unplanned">Not planned yet</p></div></article>
+        <article class="meal-slot" id="dinnerCard"><div class="slot-icon" aria-hidden="true">🍅</div><div><h2 data-i18n="game.dinner">Dinner idea</h2><p id="mealStatus" data-i18n="game.recipeName">Tomato & Egg Stir-fry</p><span class="inline-note" data-i18n="game.singleRecipe">One available recipe · not a complete nutrition plan</span></div></article>
+      </div>
+      <div id="recentCooked" class="recent-cooked" hidden></div>
+      <button id="todayBasketBtn" class="cta-button" type="button" data-i18n="game.goBasket">See harvest basket</button>
     </section>
-  </div>
-  <script type="module" src="./scene.js"></script>
+
+    <section id="pantryView" class="page-view utility-view" hidden>
+      <div class="page-heading"><span class="eyebrow" data-i18n="game.household">For Mom & Daughter</span><h1 data-i18n="pantry.title">My Pantry</h1><p data-i18n="pantry.deviceOnly">These quantities are saved on this device only. Shared sync comes later.</p></div>
+      <form id="groceryForm" class="grocery-form card-surface">
+        <h2 data-i18n="pantry.addTitle">Add food from home</h2>
+        <div class="field-pair"><label for="groceryIngredient" data-i18n="game.ingredient">Ingredient</label><select id="groceryIngredient" name="ingredient"><option value="tomato" data-i18n="farm.tomato">Tomato</option><option value="egg" data-i18n="game.eggs">Eggs</option></select></div>
+        <div class="field-pair"><label for="groceryQuantity" data-i18n="game.quantity">Quantity (pieces)</label><input id="groceryQuantity" name="quantity" type="number" inputmode="numeric" min="1" max="9999" step="1" placeholder="1" required /></div>
+        <div class="field-pair"><label for="grocerySource" data-i18n="game.source">Source</label><select id="grocerySource" name="source"><option value="organic" data-i18n="game.organic">Organic</option><option value="nonorganic" data-i18n="game.nonorganic">Non-organic</option><option value="unknown" selected data-i18n="game.unknown">Unknown</option></select></div>
+        <div class="field-pair"><label for="groceryStorage" data-i18n="game.storage">Stored in</label><select id="groceryStorage" name="storage"><option value="fridge" data-i18n="game.fridge">Fridge</option><option value="freezer" data-i18n="game.freezer">Freezer</option><option value="pantry" data-i18n="pantry.title">Pantry</option></select></div>
+        <div class="field-pair"><label for="groceryDate" data-i18n="game.useBy">Use-by date (optional)</label><input id="groceryDate" type="date" name="useBy" /></div>
+        <button class="cta-button" type="submit" data-i18n="pantry.add">Add groceries</button>
+      </form>
+      <div class="stock-title"><h2 data-i18n="pantry.stock">Real food at home</h2><span id="pantryBatchCount" class="stock-micro"></span></div>
+      <div id="stockList" class="stock-list"></div>
+      <p class="field-tip" data-i18n="pantry.warning">Only enter food that you actually have. This is not a synced household inventory yet.</p>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Kitchen Garden navigation" data-i18n-aria="nav.label">
+    <button id="navFarm" class="nav-item active" type="button" data-page="farm" aria-current="page"><span class="nav-icon" aria-hidden="true">⌂</span><span data-i18n="nav.farm">Farm</span></button>
+    <button id="navToday" class="nav-item" type="button" data-page="today"><span class="nav-icon" aria-hidden="true">♨</span><span data-i18n="nav.meals">Today's Meals</span></button>
+    <button id="navPantry" class="nav-item" type="button" data-page="pantry"><span class="nav-icon" aria-hidden="true">▣</span><span data-i18n="nav.pantry">Pantry</span></button>
+  </nav>
+</div>
+
+<div id="sheetBackdrop" class="sheet-backdrop" hidden></div>
+<section id="ingredientSheet" class="ingredient-sheet game-sheet" role="dialog" aria-modal="true" aria-labelledby="ingredientHeading" hidden tabindex="-1">
+  <div class="sheet-grip" aria-hidden="true"></div><button class="sheet-close" type="button" data-close aria-label="Close" data-i18n-aria="common.close">×</button>
+  <div class="ingredient-row"><div id="ingredientEmblem" class="ingredient-emblem" aria-hidden="true">🍅</div><div><span id="ingredientZone" class="ingredient-kicker" data-i18n="sheet.zone">VEGETABLE GARDEN</span><h2 id="ingredientHeading">Tomato</h2><p id="ingredientDescription" data-i18n="game.harvestInfo">Choose how much of your actual food to collect.</p></div></div>
+  <div id="ingredientAvailability" class="stock-summary"></div>
+  <div class="field-pair"><label for="harvestBatch" data-i18n="game.chooseBatch">Choose stock batch</label><select id="harvestBatch"></select></div>
+  <div class="quantity-row"><label for="harvestQuantity" data-i18n="game.quantity">Quantity (pieces)</label><div class="stepper"><button id="harvestMinus" type="button" aria-label="Decrease quantity" data-i18n-aria="game.decrease">−</button><input id="harvestQuantity" type="number" min="1" max="9999" step="1" inputmode="numeric" value="1"/><button id="harvestPlus" type="button" aria-label="Increase quantity" data-i18n-aria="game.increase">+</button></div></div>
+  <p id="ingredientHelp" class="field-tip"></p>
+  <button id="harvestBtn" class="cta-button" type="button" data-i18n="game.harvest">Harvest to basket</button>
+  <button id="restockShortcut" class="text-action" type="button" data-i18n="game.goPantry">Add or correct pantry stock</button>
+</section>
+
+<section id="basketSheet" class="ingredient-sheet game-sheet" role="dialog" aria-modal="true" aria-labelledby="basketHeading" hidden tabindex="-1">
+  <div class="sheet-grip" aria-hidden="true"></div><button class="sheet-close" type="button" data-close aria-label="Close" data-i18n-aria="common.close">×</button>
+  <div class="sheet-title"><span aria-hidden="true">🧺</span><div><span class="eyebrow" data-i18n="game.collected">Collected ingredients</span><h2 id="basketHeading" data-i18n="basket.title">My Basket</h2></div></div>
+  <div id="basketLines" class="basket-lines"></div>
+  <p id="basketExpiry" class="field-tip"></p>
+  <div id="basketRecipe" class="recipe-teaser" hidden><div aria-hidden="true" class="meal-art">🍅 <span>🍳</span></div><div><strong data-i18n="game.recipeName">Tomato & Egg Stir-fry</strong><p id="recipeReadyNote"></p></div></div>
+  <button id="basketRecipeBtn" class="cta-button" type="button" data-i18n="game.cookWithThese">Cook with these</button>
+  <button id="basketClearBtn" class="text-action" type="button" data-i18n="basket.clear">Return everything to farm</button>
+</section>
+
+<section id="recipeSheet" class="ingredient-sheet game-sheet" role="dialog" aria-modal="true" aria-labelledby="recipeHeading" hidden tabindex="-1">
+  <div class="sheet-grip" aria-hidden="true"></div><button class="sheet-close" type="button" data-close aria-label="Close" data-i18n-aria="common.close">×</button>
+  <div class="recipe-hero"><span class="meal-emoji" aria-hidden="true">🍅🍳</span><span class="eyebrow" data-i18n="game.forTwo">A dish for two</span><h2 id="recipeHeading" data-i18n="game.recipeName">Tomato & Egg Stir-fry</h2><p data-i18n="game.recipeTime">About 15 min · Easy</p></div>
+  <div id="recipeIngredients" class="recipe-ingredients"></div>
+  <div class="recipe-steps"><h3 data-i18n="game.steps">Cooking steps</h3><ol id="recipeSteps"></ol></div>
+  <p class="field-tip" data-i18n="game.mealDisclaimer">This is one dish, not a complete three-meal plan. Add sides according to your needs.</p>
+  <button id="startCookBtn" class="cta-button" type="button" data-i18n="game.startCooking">Start cooking</button>
+  <button id="backBasketBtn" class="text-action" type="button" data-i18n="game.backBasket">Back to basket</button>
+</section>
+
+<section id="cookSheet" class="ingredient-sheet game-sheet" role="dialog" aria-modal="true" aria-labelledby="cookHeading" hidden tabindex="-1">
+  <div class="sheet-grip" aria-hidden="true"></div><button class="sheet-close" type="button" data-close aria-label="Close" data-i18n-aria="common.close">×</button>
+  <div class="sheet-title"><span aria-hidden="true">🍳</span><div><span class="eyebrow" data-i18n="game.beforeCook">Review the real amounts</span><h2 id="cookHeading" data-i18n="game.actualUsed">What did you actually use?</h2></div></div>
+  <p class="field-tip" data-i18n="game.rawDeduct">Physical groceries are only deducted when you confirm cooking.</p>
+  <form id="cookForm">
+    <div id="actualUsedLines" class="basket-lines"></div>
+    <div id="organicNotice" class="organic-notice" hidden><label class="check-line"><input id="organicAck" type="checkbox"/><span data-i18n="game.mixedAck">This shared dish may include non-organic or unknown ingredients. I understand.</span></label></div>
+    <div class="total-panel"><span data-i18n="game.servings">Prepared for</span><strong data-i18n="game.twoPeople">2 people · Mom & Daughter</strong></div>
+    <button id="confirmCookBtn" class="cta-button" type="submit" data-i18n="game.cooked">I cooked this</button>
+  </form>
+  <button id="backRecipeBtn" class="text-action" type="button" data-i18n="game.backRecipe">Back to recipe</button>
+</section>
+
+<section id="completeSheet" class="ingredient-sheet game-sheet" role="dialog" aria-modal="true" aria-labelledby="completeHeading" hidden tabindex="-1">
+  <div class="sheet-grip" aria-hidden="true"></div><button class="sheet-close" type="button" data-close aria-label="Close" data-i18n-aria="common.close">×</button>
+  <div class="done-art" aria-hidden="true">✨🍅🍳✨</div><h2 id="completeHeading" data-i18n="game.doneTitle">Dinner is ready!</h2>
+  <p data-i18n="game.doneText">Your physical ingredient stock was updated. Eating and leftovers can be logged separately later.</p>
+  <div id="remainingStock" class="remaining-stock"></div>
+  <button id="completeFarmBtn" class="cta-button" type="button" data-i18n="farm.back">Back to Farm</button>
+</section>
+
+<section id="settingsSheet" class="settings-sheet game-sheet" role="dialog" aria-modal="true" aria-labelledby="settingsHeading" hidden tabindex="-1">
+  <div class="sheet-grip" aria-hidden="true"></div><button class="sheet-close" type="button" data-close aria-label="Close" data-i18n-aria="settings.close">×</button>
+  <h2 id="settingsHeading" data-i18n="settings.title">Settings</h2>
+  <fieldset class="language-fieldset"><legend data-i18n="settings.language">Language</legend><p data-i18n="settings.languageHelp">Choose your preferred interface language.</p><label class="language-option"><input type="radio" name="language" value="en" checked/><span data-i18n="settings.english">English</span></label><label class="language-option"><input type="radio" name="language" value="zh-CN"/><span data-i18n="settings.chinese">简体中文</span></label></fieldset>
+  <details class="dev-status"><summary data-i18n="settings.devStatus">About this preview</summary><p data-i18n="game.previewNote">This Phase 1 game saves inventory on this browser only. Do not use it as synced household inventory yet.</p></details>
+</section>
+<div id="gameToast" class="game-toast" role="status" aria-live="polite" hidden></div>
+<script type="module" src="./scene.js"></script>
 </body>
 </html>

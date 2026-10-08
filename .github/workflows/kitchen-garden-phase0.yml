@@ -1,12 +1,14 @@
-name: Kitchen Garden Phase 0 checks
+name: Kitchen Garden Phase 0-1 checks
 on:
   push:
     branches:
       - feature/kitchen-garden-3d-phase0-20261008
+      - feature/kitchen-garden-harvest-cook-20261008
   pull_request:
     paths:
       - "public/phase0/**"
-      - "tests/phase0-smoke.mjs"
+      - "tests/**"
+      - "docs/PHASE1_*.md"
       - "index.html"
       - ".github/workflows/kitchen-garden-phase0.yml"
 jobs:
@@ -19,6 +21,6 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci
-      - run: node --test tests/phase0-smoke.mjs
+      - run: node --test tests/*.mjs
       - run: npm run build
       - run: test -f dist/phase0/index.html
