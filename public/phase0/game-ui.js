@@ -195,6 +195,8 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
       const btn=byId(id==='tomato'?'selectTomatoBtn':'selectEggBtn');
       btn.classList.toggle('empty-resource',usableTotal(state,id)===0);
       btn.querySelector('[data-resource-label]').textContent=usableTotal(state,id)===0?t('game.addFood'):name(id);
+      const hint=byId(id==='tomato'?'tomatoEmptyHint':'eggEmptyHint');
+      if(hint)hint.hidden=usableTotal(state,id)>0;
     }
     const helper=document.querySelector('.chicken-bubble');
     helper.dataset.i18n=empty?'game.helperEmpty':'game.helper';helper.textContent=t(helper.dataset.i18n);
