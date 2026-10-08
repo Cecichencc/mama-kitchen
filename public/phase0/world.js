@@ -258,6 +258,59 @@ export function createPastelWorld(THREE, scene) {
     const fruit=tomato(.105,M.tomato);fruit.position.set(x,.29,z);crate.add(fruit);
   }
 
+  // Phase 1 egg resource: a small, actually three-dimensional nest by the hen.
+  // Eggs represent eligible household stock; this is NOT a biological growth timer.
+  const nest=new THREE.Group();nest.name='Chicken coop egg resource';root.add(nest);
+  const nestX=2.45,nestZ=2.17;
+  const nestY=grassSurfaceY(nestX,nestZ);
+  nest.position.set(nestX,nestY,nestZ);
+  const nestBase=cyl(.39,.41,.13,M.wood,nest,0,.066,0,12);
+  nestBase.castShadow=true;
+  const nestRim=mesh(new THREE.TorusGeometry(.32,.075,8,20),M.trunk,nest,0,.16,0);
+  nestRim.rotation.x=-Math.PI/2;
+  contactShadow(nestX,nestY,nestZ,.47,.36);
+  const eggs=[[-.17,-.035],[.14,-.045],[0,.15]].map(([x,z])=>{
+    const egg=new THREE.Group();egg.name='Harvestable egg';
+    sphere(.17,M.cream,egg,0,0,0,.75,1.1,.83);
+    egg.position.set(x,.28,z);nest.add(egg);return egg;
+  });
+  const eggCollider=new THREE.Mesh(
+    new THREE.SphereGeometry(.50,12,9),
+    new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,colorWrite:false})
+  );
+  eggCollider.position.set(nestX,nestY+.26,nestZ);
+  eggCollider.userData.ingredient='egg';eggCollider.userData.fruitIndex=0;
+  root.add(eggCollider);
+  colliders.push(eggCollider);
+
+  // Presentation derives from available physical stock after any basket holds.
+  // Keep colliders active even if the visual resource is empty, so tapping can
+  // open a useful restock action. Decorative crate fruit is never an ingredient.
+  const available={tomato:0,egg:0};
+  const harvestEffect={tomato:-100,egg:-100};
+  let latestElapsed=0;
+  function setAvailability(counts){
+    for(const id of ['tomato','egg']) {
+      const num=Number(counts[id]??0);
+      const next=Number.isFinite(num)?Math.max(0,num):0;
+      // Newly restocked resources gently reappear; this never generates stock.
+      if(available[id]===0&&next>0)harvestEffect[id]=latestElapsed-.45;
+      available[id]=next;
+    }
+  }
+  function playHarvest(id){if(id==='tomato'||id==='egg')harvestEffect[id]=latestElapsed;}
+  function resourceFactor(id,elapsed,reduced){
+    if(available[id]===0)return 0;
+    const elapsedSince=elapsed-harvestEffect[id];
+    if(reduced)return 1;
+    if(elapsedSince>=0&&elapsedSince<.45)return 0;
+    if(elapsedSince>=.45&&elapsedSince<1.05){
+      const t=Math.min(1,(elapsedSince-.45)/.6);
+      return .22+.78*(1-(1-t)**3);
+    }
+    return 1;
+  }
+
   // Decorations: small grass clumps, limited flower stems and little stones.
   const positions=Array.from({length:30},(_,i)=>{
     const x=-3.6+((i*41)%97)/97*7.2,z=-2.79+((i*31)%89)/89*5.58;
@@ -283,19 +336,22 @@ export function createPastelWorld(THREE, scene) {
     sphere(.115,M.stone,root,x,.43,z,1,.47,.72).castShadow=false;
   }
 
-  function update(elapsed,reduced,focused,selectedIndex=1){
-    // Chicken body stays planted on the grass; micro head motion is sufficient.
+  function update(elapsed,reduced,focused,selectedIndex=1,selectedIngredient='tomato'){
+    latestElapsed=elapsed;
     head.position.y=.77+(reduced?0:Math.sin(elapsed*1.7)*.006);
     head.rotation.z=reduced?0:Math.sin(elapsed*.7)*.04;
     const blink=!reduced&&Math.sin(elapsed*.72)>0.992?.16:1;
     eyes.forEach(e=>{e.scale.y=.041*blink;});
     wings.forEach((w,i)=>{w.rotation.z=reduced?0:(i?1:-1)*Math.sin(elapsed*1.2)*.04;});
+    const tomatoFactor=resourceFactor('tomato',elapsed,reduced);
     fruits.forEach((fruit,i)=>{
       fruit.rotation.y=(i%3-1)*.27+(reduced?0:Math.sin(elapsed*.9+i)*.015);
-      fruit.scale.setScalar(i===selectedIndex&&focused?1.045:1);
+      fruit.visible=tomatoFactor>0;
+      fruit.scale.setScalar(tomatoFactor*(i===selectedIndex&&focused&&selectedIngredient==='tomato'?1.045:1));
     });
+    const eggFactor=resourceFactor('egg',elapsed,reduced);
+    eggs.forEach(egg=>{egg.visible=eggFactor>0;egg.scale.setScalar(eggFactor);});
   }
   
-
-  return {root,colliders,fruitPositions:fruits.map(f=>f.position.clone()),update,assets:{island:root,tomato:fruits[1],house,chicken:hen}};
+  return {root,colliders,fruitPositions:fruits.map(f=>f.position.clone()),resourcePositions:{tomato:fruits.map(f=>f.position.clone()),egg:[eggCollider.position.clone()]},setAvailability,playHarvest,update,assets:{island:root,tomato:fruits[1],eggs,nest,house,chicken:hen}};
 }

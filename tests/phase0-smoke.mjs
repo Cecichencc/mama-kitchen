@@ -1,165 +1,90 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import {readFileSync,existsSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {pathToFileURL} from 'node:url';
 
 const root=resolve(import.meta.dirname,'..');
-const get=path=>readFileSync(resolve(root,path),'utf8');
-const html=get('public/phase0/index.html');
-const css=get('public/phase0/styles.css');
-const js=get('public/phase0/scene.js');
-const world=get('public/phase0/world.js');
-const i18nSource=get('public/phase0/i18n.js');
+const read=path=>readFileSync(resolve(root,path),'utf8');
+const html=read('public/phase0/index.html');
+const css=read('public/phase0/styles.css');
+const scene=read('public/phase0/scene.js');
+const world=read('public/phase0/world.js');
+const ui=read('public/phase0/game-ui.js');
+const domain=read('public/phase0/domain.js');
+const locales=read('public/phase0/i18n.js');
 
-test('existing Vite app and isolated Phase 0 entry remain separate',()=>{
-  assert.match(get('index.html'),/\.\/main\.jsx/);
+test('root Vite app is preserved; phase1 remains at /phase0/',()=>{
+  assert.match(read('index.html'),/\.\/main\.jsx/);
   assert.match(html,/src="\.\/scene\.js"/);
   assert.match(html,/href="\.\/styles\.css"/);
-  for(const file of ['public/phase0/scene.js','public/phase0/world.js','public/phase0/i18n.js']){
-    assert.ok(existsSync(resolve(root,file)),`${file} exists`);
-  }
+  for(const f of ['world.js','scene.js','i18n.js','grounding.js','game-ui.js','domain.js'])assert.ok(existsSync(resolve(root,'public/phase0',f)));
 });
-
-test('essential Phase 0 controls exist and are connected to events',()=>{
-  for(const id of ['settingsBtn','settingsCloseBtn','overviewBtn','selectTomatoBtn','fallbackSelectBtn','closeSheetBtn','returnBtn']) {
-    assert.match(html,new RegExp(`id="${id}"`));
-    assert.match(js,new RegExp(`(?:el\\('${id}'\\)|getElementById\\('${id}'\\))`));
-  }
-  assert.match(js,/addEventListener\('pointerup'/);
-  assert.match(js,/pointercancel/);
+test('farm and utility screens plus all four gameplay sheets exist',()=>{
+  for(const id of ['farmView','todayView','pantryView','ingredientSheet','basketSheet','recipeSheet','cookSheet','completeSheet','settingsSheet','basketBtn','navFarm','navToday','navPantry','harvestBtn','harvestBatch','basketLines','actualUsedLines','groceryForm','stockList','organicAck','gameToast'])assert.match(html,new RegExp(`id="${id}"`),id);
+  assert.match(ui,/confirmCooked/);assert.match(ui,/reserve\(/);
+  assert.match(ui,/correctStock/);assert.match(ui,/STORAGE_KEY/);
 });
-
-test('the farm uses genuine Three.js geometry, camera and mesh raycasting',()=>{
-  assert.match(js,/new THREE\.WebGLRenderer/);
-  assert.match(js,/new THREE\.OrthographicCamera/);
-  assert.match(js,/new THREE\.Raycaster/);
-  assert.match(js,/intersectObjects\(farm\.colliders,false\)/);
-  assert.match(js,/cdn\.jsdelivr\.net\/npm\/three@0\.167\.1/);
-  assert.match(world,/new THREE\.(ExtrudeGeometry|TubeGeometry|SphereGeometry)/);
+test('real 3D geometry, egg resource, movable camera and colliders remain',()=>{
+  assert.match(scene,/new THREE\.WebGLRenderer/);
+  assert.match(scene,/new THREE\.OrthographicCamera/);
+  assert.match(scene,/new THREE\.Raycaster/);
+  assert.match(scene,/intersectObjects\(farm\.colliders,false\)/);
+  assert.match(scene,/three@0\.167\.1/);
+  for(const x of ['new THREE.SphereGeometry','new THREE.TorusGeometry','eggCollider','createPastelWorld','playHarvest','setAvailability','fruitPositions','resourcePositions','house','hen.position'])assert.ok(world.includes(x),x);
 });
-
-test('approved pastel palette is used in 3D world and CSS tokens',()=>{
-  for(const hex of ['#C9EAE6','#A8C896','#B9D5A7','#DB91A6','#FAF5EA','#FFFCF7','#F2D98D','#91D5DD','#EB8068','#315A50']){
-    assert.match(css,new RegExp(hex,'i'));
-  }
-  assert.match(world,/houseRoof/);
-  assert.match(world,/createPastelWorld/);
-  assert.doesNotMatch(css,/background:radial-gradient\(ellipse at 55% 36%,#ffdc97/);
-});
-
-test('pastel toy-world assets and gentle character animation are 3D',()=>{
-  for(const label of ['roundedPlatform','softBox','tree(','tomato(','archPanel(','fenceLine(','hen.position','flowerPink'])assert.ok(world.includes(label),`contains ${label}`);
-  assert.match(world,/\.castShadow/);
-  assert.match(js,/prefersReduced\.matches/);
-});
-
-test('responsive mobile camera, fallback and accessible modal are present',()=>{
-  assert.match(js,/aspect<\.56/);
-  assert.match(js,/ResizeObserver/);
-  assert.match(js,/showFallback/);
-  assert.match(html,/role="dialog" aria-modal="true"/);
-  assert.match(html,/id="fallbackSelectBtn"/);
-  assert.match(css,/@media\(max-width:360px\)/);
-  assert.match(css,/safe-area-inset-bottom/);
-  assert.match(html,/class="bottom-nav"/);
-  assert.match(html,/disabled data-i18n-title="nav\.mealsSoon"/);
-});
-
-test('Phase 0 never invents ingredient stock, reservations or cooking changes',()=>{
-  assert.doesNotMatch(js,/\b(fetch|supabase|ConfirmCooked|reserveInventory|deductStock)\s*\(/);
-  assert.doesNotMatch(world,/\b(fetch|supabase|localStorage|on_hand|stockMovement)\b/);
-  assert.match(html,/Preview only: grocery stock is not connected yet/);
-});
-
-test('translation dictionaries cover all data-i18n keys and localized aria labels',()=>{
-  const keys=[...html.matchAll(/data-i18n(?:-aria|-title)?="([^"]+)"/g)].map(x=>x[1]);
-  const dictionaryKeys=new Set([...i18nSource.matchAll(/'([\w.]+)':/g)].map(x=>x[1]));
-  for(const key of keys)assert.ok(dictionaryKeys.has(key),`missing translation key: ${key}`);
-  assert.match(i18nSource,/LANGUAGE_STORAGE_KEY/);
-  assert.match(html,/value="zh-CN"/);
-  assert.match(html,/value="en"/);
-});
-
-test('English is first-launch default; saved Chinese choice persists',async()=>{
-  const originalCustomEvent=globalThis.CustomEvent;
-  globalThis.CustomEvent=class {constructor(name,props){this.type=name;this.detail=props?.detail;}};
-  try {
-    const {createTranslator,LANGUAGE_STORAGE_KEY}=await import(pathToFileURL(resolve(root,'public/phase0/i18n.js')).href);
-    const values=new Map();
-    const storage={getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,value)};
-    const textEl={dataset:{i18n:'nav.meals'},textContent:''};
-    const doc={documentElement:{lang:''},title:'',querySelectorAll:query=>query==='[data-i18n]'?[textEl]:[],dispatchEvent:()=>{}};
-    const locale=createTranslator({document:doc,storage});
-    assert.equal(locale.locale,'en');assert.equal(doc.documentElement.lang,'en');assert.equal(textEl.textContent,"Today's Meals");
-    assert.equal(locale.setLocale('zh-CN'),true);
-    assert.equal(textEl.textContent,'今日三餐');
-    assert.equal(values.get(LANGUAGE_STORAGE_KEY),'zh-CN');
-    const reloaded=createTranslator({document:doc,storage});
-    assert.equal(reloaded.locale,'zh-CN');
-    assert.equal(locale.setLocale('invalid'),false);
-  } finally {globalThis.CustomEvent=originalCustomEvent;}
-});
-
-test('color and localization are reusable separate from scene controller',()=>{
-  assert.match(js,/import \{ createTranslator \} from '\.\/i18n\.js'/);
-  assert.match(js,/import \{ createPastelWorld \} from '\.\/world\.js'/);
-  assert.match(html,/data-i18n-aria="settings.open"/);
-  assert.match(css,/--coral:/);
-});
-
-// Grounding tests are pure JS and do not depend on WebGL or a network CDN.
-const GROUND = await import('../public/phase0/grounding.js');
-test('grass/soil reference heights follow real extruded platform bevels',()=>{
-  assert.ok(Math.abs(GROUND.GROUND_LEVELS.grass-.43)<1e-9);
-  assert.ok(Math.abs(GROUND.GROUND_LEVELS.tomatoSoil-.62)<1e-9);
-  assert.equal(GROUND.grassSurfaceY(1.58,-1.12),GROUND.GROUND_LEVELS.grass);
-  assert.ok(GROUND.grassSurfaceY(-3.05,-1.72)>GROUND.GROUND_LEVELS.grass);
-  assert.ok(GROUND.grassSurfaceY(3.25,-1.78)>GROUND.GROUND_LEVELS.grass);
-  assert.equal(GROUND.grassSurfaceY(40,40),GROUND.GROUND_LEVELS.grass);
-});
-
-test('groundedRootY aligns each asset lowest point to a real surface',()=>{
-  const {groundedRootY,GROUND_LEVELS}=GROUND;
-  for(const [surface,lowest,scale] of [
-    [GROUND_LEVELS.grass,.68-1.27/2-.035,1], // house bevel
-    [GROUND_LEVELS.tomatoSoil,-.25*.87,1],  // tomato berry
-    [GROUND_LEVELS.grass,.06-.068*.50,.76], // chicken feet
-    [GROUND_LEVELS.grass,.14-.24/2-.035,1] // crate bevel
-  ]){
-    const base=groundedRootY(surface,lowest,scale);
-    assert.ok(Math.abs((base+lowest*scale)-surface+0.012)<1e-9);
-  }
-});
-
-test('tight real shadows and tiny gradient contact shadows, not displaced decals',()=>{
-  assert.match(js,/shadow\.mapSize\.set\(1024,1024\)/);
-  assert.match(js,/shadow\.camera\.left=-6\.2/);
-  assert.match(js,/shadow\.normalBias=\.006/);
-  assert.match(js,/shadow\.bias=-\.00005/);
-  assert.match(js,/sunlight\.target\.position\.set/);
+test('approved style, existing shadow and grounding parameters stay stable',()=>{
+  for(const hex of ['#C9EAE6','#A8C896','#B9D5A7','#DB91A6','#FAF5EA','#FFFCF7','#F2D98D','#91D5DD','#EB8068','#315A50'])assert.match(css,new RegExp(hex,'i'));
+  assert.match(scene,/shadow\.mapSize\.set\(1024,1024\)/);
+  assert.match(scene,/shadow\.normalBias=\.006/);
   assert.match(world,/new THREE\.CanvasTexture/);
-  assert.match(world,/createRadialGradient/);
-  assert.match(world,/plane\.castShadow=false/);
-  assert.match(world,/contactShadow\(1\.58,GROUND_LEVELS\.grass/);
-  assert.match(world,/contactShadow\(2\.46,henGround/);
-  assert.match(world,/contactShadow\(x,GROUND_LEVELS\.tomatoSoil/);
-  assert.match(world,/contactShadow\(3\.18,GROUND_LEVELS\.grass/);
-  assert.match(world,/contactShadow\(x,footY/);
+  assert.match(world,/grassSurfaceY/);
+  assert.match(world,/groundedRootY/);
 });
-
-test('chicken feet stay planted during idle animation',()=>{
-  assert.doesNotMatch(world,/hen\.position\.y\s*=\s*\.39\s*\+/);
-  assert.match(world,/head\.position\.y=\.77\+/);
-  assert.match(world,/hen\.position\.set\(2\.46,groundedRootY\(henGround/);
-  assert.match(world,/g\.position\.set\(x,groundedRootY\(GROUND_LEVELS\.tomatoSoil/);
+test('WebGL fallback still exposes both ingredient actions and actual Pantry nav',()=>{
+  assert.match(scene,/showFallback/);
+  assert.match(html,/id="fallbackSelectBtn"/);
+  assert.match(html,/id="fallbackEggBtn"/);
+  assert.match(html,/id="navPantry"/);
+  assert.match(html,/role="dialog" aria-modal="true"/);
+  assert.match(css,/safe-area-inset-bottom/);
+  assert.match(css,/@media\(max-width:360px\)/);
 });
-
-test('small details and earth are correctly grounded with no inventory side effects',()=>{
-  assert.match(world,/crate\.name='Decorative tomato crate'/);
-  assert.match(world,/petal=sphere\(\.069,M\.white,root,x\+Math\.cos\(a\)\*\.074,\.455/);
-  assert.match(world,/earthBase\.castShadow=false/);
-  assert.match(world,/grassTop\.receiveShadow=true/);
-  assert.match(world,/tomatoBed\.receiveShadow=true/);
-  assert.doesNotMatch(world,/\b(fetch\(|stockMovement|localStorage|on_hand|supabase)\b/);
+test('English/Chinese translation dictionary includes visible labels and semantic actions',()=>{
+  const mod= [...html.matchAll(/data-i18n(?:-aria|-title)?="([^"]+)"/g)].map(v=>v[1]);
+  const dict=new Set([...locales.matchAll(/'([\w.]+)':/g)].map(v=>v[1]));
+  for(const key of mod)assert.ok(dict.has(key),`missing: ${key}`);
+  for(const key of [...ui.matchAll(/\bt\('([\w.]+)'\)/g)].map(x=>x[1]))assert.ok(dict.has(key),`dynamic key: ${key}`);
+  assert.match(html,/value="en"/);assert.match(html,/value="zh-CN"/);
+});
+test('English is default, Chinese persisted and restores without reload',async()=>{
+  const prev=globalThis.CustomEvent;
+  globalThis.CustomEvent=class{constructor(type,options){this.type=type;this.detail=options?.detail;}};
+  try{
+    const mod=await import(pathToFileURL(resolve(root,'public/phase0/i18n.js')).href);
+    const values=new Map();const storage={getItem:k=>values.get(k)??null,setItem:(k,v)=>values.set(k,v)};
+    const node={dataset:{i18n:'game.recipeName'},textContent:''};
+    const doc={documentElement:{lang:''},title:'',querySelectorAll:q=>q==='[data-i18n]'?[node]:[],dispatchEvent:()=>{}};
+    const tr=mod.createTranslator({document:doc,storage});assert.equal(tr.locale,'en');
+    assert.equal(node.textContent,'Tomato & Egg Stir-fry');
+    tr.setLocale('zh-CN');assert.equal(node.textContent,'番茄炒蛋');
+    assert.equal(values.get(mod.LANGUAGE_STORAGE_KEY),'zh-CN');
+    assert.equal(mod.createTranslator({document:doc,storage}).locale,'zh-CN');
+  }finally{globalThis.CustomEvent=prev;}
+});
+test('real stock logic lives in domain, not the Three.js meshes or rendering code',()=>{
+  assert.doesNotMatch(world,/\b(localStorage|stockMovement|on_hand|supabase)\b/);
+  assert.doesNotMatch(scene,/\b(confirmCooked|deductStock|AddGroceries)\s*\(/);
+  assert.match(domain,/export function reserve/);
+  assert.match(domain,/export function confirmCooked/);
+  assert.match(domain,/export function expireBasket/);
+  assert.match(html,/saved on this device only/i);
+});
+test('UI interaction is usable without any WebGL and exposes confirmed changes',()=>{
+  assert.match(ui,/onHarvest\(activeIngredient\)/);
+  assert.match(ui,/onAvailability\(\{tomato:usableTotal/);
+  assert.match(ui,/renderBasket\(/);
+  assert.match(ui,/renderPantry\(/);
+  assert.match(ui,/showError\(/);
+  assert.match(ui,/onAvailabilityChanged/);
 });

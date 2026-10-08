@@ -32,3 +32,91 @@ main{max-width:900px;margin:0 auto}
 @media(min-width:680px){.topbar{border-radius:24px 24px 0 0;margin-top:18px}.farm-stage{height:min(78svh,780px);min-height:600px;border-radius:0 0 30px 30px}.chicken-message{left:7%;top:9%}.plot-label{left:24%;bottom:27%}.bottom-nav{border-radius:24px 24px 30px 30px}.scene-controls{bottom:95px}}
 @media(max-width:360px){.topbar{padding:8px 12px;height:66px}.brand strong{font-size:20px}.brand-leaf{font-size:25px}.brand span:not(.brand-leaf){font-size:10px}.farm-stage{height:calc(100svh - 66px);min-height:485px}.chicken-message{left:3%;top:9%;max-width:205px}.chicken-icon{font-size:32px}.chicken-bubble{font-size:11px;padding:8px 10px}.pill-button{padding:11px 10px;font-size:12px}.pill-button.primary{min-width:145px}.scene-controls{left:8px;right:8px}.plot-label{left:6%;bottom:33%}.nav-item{font-size:11px}.coming-soon{font-size:8px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* Phase 1 — Harvest → Basket → Recipe → Cooking, using approved toy-world tokens. */
+.app{display:flex;flex-direction:column;min-height:100svh}
+.topbar{width:100%;max-width:860px;flex-shrink:0}
+.top-actions{display:flex;align-items:center;gap:8px}
+.basket-icon{position:relative;font-size:24px}
+.basket-count{position:absolute;top:-4px;right:-3px;min-width:20px;height:20px;border-radius:30px;background:var(--coral-dark);color:white;font-size:11px;font-weight:850;display:grid;place-items:center;padding:0 4px;border:2px solid var(--ivory)}
+main.game-main{width:100%;max-width:860px;flex:1;min-height:0;margin:0 auto}
+.page-view[hidden]{display:none!important}
+.farm-stage{height:clamp(440px,calc(100svh - 162px),750px);min-height:440px;border-radius:0 0 22px 22px}
+.scene-controls{bottom:16px;left:12px;right:12px;gap:8px;flex-wrap:wrap}
+.scene-controls .pill-button{min-width:0;min-height:48px;white-space:normal;padding:11px 14px}
+.scene-controls .primary{min-width:126px}
+.plot-label{bottom:28%;left:8%;display:flex;align-items:center;gap:5px}
+.eggs-label{left:auto;right:6%;bottom:23%;transform:rotate(4deg)}
+.plot-count{min-width:23px;min-height:23px;background:#FFFFFFCF;border-radius:50%;display:inline-grid;place-items:center;padding:1px 4px;border:1px solid #cee2cf;font-size:12px}
+.bottom-nav{position:sticky;bottom:0;max-width:860px;width:100%;margin:0 auto;border-radius:20px 20px 0 0;flex-shrink:0;min-height:80px;z-index:8}
+.nav-item{min-height:58px}
+.nav-item.active{color:var(--coral-dark)}
+.utility-view{max-width:670px;margin-inline:auto;padding:24px 17px 46px;min-height:490px}
+.page-heading{margin:5px 0 22px}
+.eyebrow{display:block;text-transform:uppercase;letter-spacing:.08em;font-weight:850;font-size:11px;color:#638A7D}
+.page-heading h1{margin:8px 0;font-size:clamp(25px,5.5vw,32px);line-height:1.14;letter-spacing:-.035em}
+.page-heading p{font-size:14px;line-height:1.55;color:var(--muted);margin:7px 0}
+.meal-cards{display:grid;gap:12px;margin:20px 0}
+.meal-slot{border:1px solid var(--border);display:flex;align-items:center;gap:14px;background:var(--ivory);border-radius:19px;padding:14px;box-shadow:0 4px 14px #416b5010}
+.slot-icon{width:57px;height:57px;flex-shrink:0;border-radius:17px;background:#E7F0DF;display:grid;place-items:center;font-size:28px}
+.meal-slot h2{font-size:17px;margin:0 0 4px;color:var(--ink)}.meal-slot p{font-size:14px;margin:0;color:var(--muted)}
+.inline-note{display:block;font-size:11px;line-height:1.4;margin-top:6px;color:var(--muted)}
+.recent-cooked{background:#E7F0DF;padding:13px 17px;border-radius:16px;margin-bottom:18px;font-size:14px;line-height:1.5}
+.card-surface{background:var(--ivory);border-radius:22px;border:1px solid var(--border);padding:18px;box-shadow:0 4px 16px #3d675411}
+.grocery-form h2{font-size:20px;line-height:1.2;margin:2px 0 18px}
+.field-pair{display:grid;gap:7px;margin-bottom:14px}
+.field-pair label,.quantity-row>label{font-size:14px;font-weight:780;color:var(--ink)}
+.field-pair select,.field-pair input,.stepper input,.actual-input,.stock-correction-input{width:100%;min-width:0;background:#fff;border:1.5px solid #CDDACE;color:var(--ink);border-radius:13px;padding:11px 12px;min-height:46px;font-size:16px;line-height:1.3}
+.field-pair select:focus-visible,.field-pair input:focus-visible,.stepper input:focus-visible,.actual-input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.stock-title{display:flex;gap:15px;justify-content:space-between;align-items:baseline;margin:21px 0 13px}
+.stock-title h2{margin:0;font-size:20px}.stock-micro{font-size:12px;color:var(--muted)}
+.stock-list{display:grid;gap:12px}
+.stock-batch{display:grid;gap:10px;border:1px solid var(--border);border-radius:16px;background:var(--ivory);padding:14px}
+.stock-batch-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.stock-batch-head strong{font-size:17px}.stock-chip{border-radius:30px;background:#E5EFE0;color:var(--ink);padding:4px 8px;font-size:11px;font-weight:750}
+.stock-meta{font-size:12px;color:var(--muted);line-height:1.5}
+.stock-controls{display:flex;align-items:end;gap:9px;flex-wrap:wrap}
+.stock-controls label{font-size:12px;font-weight:750;display:grid;gap:5px;min-width:90px;flex:1}
+.stock-correction-input{max-width:110px;min-height:44px}
+.mini-action{border:1px solid #bfd4c7;background:#F3F8EF;color:var(--ink);border-radius:12px;padding:10px 12px;font-weight:760;min-height:45px;font-size:13px}
+.mini-action.warning{color:#8b4939;background:#FFF2E8;border-color:#ecc9b4}
+.field-tip{color:var(--muted);font-size:12px;line-height:1.5;margin:8px 0 15px}
+.stock-summary{padding:12px 14px;background:#EAF2E5;border:1px solid #D6E5D8;border-radius:15px;margin:16px 0;font-size:14px;color:var(--ink);line-height:1.5}
+.game-sheet{padding-top:23px;padding-bottom:max(25px,env(safe-area-inset-bottom));overscroll-behavior:contain;max-height:min(86svh,790px)}
+.game-sheet h2{margin:3px 0;font-size:24px}
+.sheet-title{display:flex;align-items:center;gap:12px;padding-right:44px;margin-bottom:15px}
+.sheet-title>span{font-size:37px;line-height:1}
+.quantity-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:16px 0}
+.stepper{display:flex;align-items:center;border:1px solid #CADACC;border-radius:15px;overflow:hidden;background:#fff}
+.stepper button{border:0;color:var(--ink);background:#EDF3E8;height:46px;width:45px;flex-shrink:0;font-size:24px;font-weight:750}
+.stepper input{width:60px;max-width:70px;text-align:center;border:0;border-radius:0;padding:7px 3px;min-height:46px;appearance:textfield;-moz-appearance:textfield}
+.stepper input::-webkit-inner-spin-button{appearance:none}
+.text-action{border:0;display:block;background:transparent;color:var(--ink);font-weight:780;margin:11px auto 0;padding:9px 7px;min-height:44px;text-align:center;text-decoration:underline;text-underline-offset:4px;font-size:14px}
+.basket-lines{display:grid;gap:11px;margin:14px 0}
+.basket-line{display:flex;justify-content:space-between;gap:10px;align-items:center;background:#FFFCF7;border:1px solid var(--border);border-radius:17px;padding:12px}
+.line-icon{font-size:32px;line-height:1}
+.line-main{flex:1;min-width:0}.line-main strong{font-size:15px;display:block;line-height:1.3}.line-main span{font-size:12px;color:var(--muted);line-height:1.4}
+.basket-line button.remove-line{border:0;background:#F7E9E2;color:#8f584c;width:42px;height:42px;border-radius:13px;font-size:24px}
+.basket-line .mini-quantity{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.basket-line input{width:58px;min-height:44px;border:1px solid var(--border);border-radius:12px;padding:7px;font-size:16px;color:var(--ink);text-align:center}
+.basket-line .mini-action{padding:7px 10px;min-height:42px}
+.recipe-teaser{display:flex;align-items:center;gap:13px;background:#F4F2DF;border:1px solid #ECE2CA;padding:13px;border-radius:17px;margin:17px 0}
+.meal-art{font-size:28px;background:#FCF8EA;border-radius:14px;display:grid;place-items:center;padding:12px;white-space:nowrap}
+.recipe-teaser strong{display:block;font-size:16px}.recipe-teaser p{font-size:12px;color:var(--muted);line-height:1.45;margin:5px 0}
+.recipe-hero{text-align:center;border-radius:19px;background:linear-gradient(125deg,#E7EFDF,#FFF0DD);padding:15px 12px;margin:5px 0 16px}
+.recipe-hero .meal-emoji{display:block;font-size:48px;margin-bottom:7px}.recipe-hero h2{font-size:23px;margin:3px 0}.recipe-hero p{margin:4px 0;font-size:13px;color:var(--muted)}
+.recipe-ingredients{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:15px}
+.recipe-ingredients .ingredient-tile{border-radius:14px;border:1px solid var(--border);padding:12px;background:var(--ivory)}
+.recipe-ingredients strong{display:block;font-size:14px}.recipe-ingredients span{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+.recipe-steps{margin:12px 0}.recipe-steps h3{font-size:17px;margin:8px 0}.recipe-steps ol{margin:0;padding-left:22px}.recipe-steps li{line-height:1.55;font-size:14px;padding:4px 0}
+.organic-notice{border-radius:14px;background:#FFF0E5;border:1px solid #ECC7B0;padding:13px;color:#684734;margin:16px 0;font-size:13px;line-height:1.5}
+.check-line{display:flex;align-items:start;gap:10px}.check-line input{width:21px;height:21px;flex-shrink:0;accent-color:var(--ink)}
+.total-panel{display:flex;align-items:center;gap:10px;justify-content:space-between;background:#EDF4EA;padding:12px;border-radius:12px;margin:14px 0;font-size:13px}.total-panel strong{font-size:13px}
+.done-art{text-align:center;font-size:52px;margin:6px 0}.remaining-stock{border-radius:15px;background:#EDF4EA;padding:15px;display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin:16px 0}
+.game-toast{position:fixed;z-index:50;left:50%;bottom:calc(98px + env(safe-area-inset-bottom));transform:translateX(-50%);max-width:min(92vw,520px);background:#315A50;color:white;border-radius:17px;padding:12px 17px;font-size:13px;font-weight:750;box-shadow:0 12px 25px #204b4745;text-align:center;line-height:1.5}
+.empty-state{padding:21px 13px;text-align:center;background:#F4F7EE;border:1px dashed #c1d5bf;border-radius:16px;color:var(--muted);font-size:14px;line-height:1.5}
+@media(max-width:360px){.scene-controls{bottom:12px;left:6px;right:6px;gap:5px}.scene-controls .pill-button{padding:8px 9px;font-size:12px;min-height:46px}.scene-controls .primary{min-width:0}.plot-label{left:4%;bottom:29%}.eggs-label{right:3%;left:auto;bottom:23%}.game-sheet{padding-left:16px;padding-right:16px}.basket-line{padding:10px;gap:6px}.line-icon{font-size:25px}.line-main strong{font-size:13px}.quantity-row{gap:6px}.stepper input{width:48px}}
+@media(min-width:680px){.farm-stage{height:min(74svh,800px);min-height:610px}.scene-controls{bottom:23px}.bottom-nav{border-radius:24px 24px 30px 30px}.app{padding-bottom:10px}}
+
+/* Hide all decorative HUD behind the accessible non-WebGL replacement. */
+.farm-stage.is-fallback .scene-controls,.farm-stage.is-fallback .plot-label,.farm-stage.is-fallback .chicken-message{display:none}
