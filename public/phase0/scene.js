@@ -94,7 +94,7 @@ async function boot(){
     }
     function overview(){focused=false;desired.copy(overviewTarget);zoomTarget=homeZoom;overviewBtn.hidden=true;status('farm.ready');}
     backToOverview=overview;
-    selectResource=id=>focus(id,id==='tomato'?1:0);
+    selectResource=id=>{if(game.getState().batches.filter(b=>b.ingredientId===id).reduce((n,b)=>n+b.onHand,0)===0){game.openRestock(id);return;}focus(id,id==='tomato'?1:0);};
     game.onAvailabilityChanged(available=>farm.setAvailability(available));
     game.onHarvestEffect(id=>{farm.playHarvest(id);overview();});
     status('farm.ready');
