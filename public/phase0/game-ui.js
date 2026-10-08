@@ -82,7 +82,13 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     if(id==='farm') {onReturnToFarm();window.dispatchEvent(new Event('resize'));}
     render();
   }
+  function openRestock(id){
+    closePanel();switchTab('pantry');
+    byId('groceryIngredient').value=id;
+    byId('groceryQuantity').focus();
+  }
   function openIngredient(id){
+    if(usableTotal(state,id)===0){openRestock(id);return;}
     expireOnInteraction();activeIngredient=id;
     const icon=iconFor(id);
     byId('ingredientEmblem').textContent=icon;
@@ -118,7 +124,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     const count=lines.reduce((n,l)=>n+l.quantity,0);
     byId('basketBadge').textContent=String(count);
     byId('basketBadge').hidden=count===0;
-    byId('basketExpiry').textContent=lines.length?t('basket.holdNote'):'';
+    byId('basketExpiry').textContent=lines.length?t('game.selectionNotice'):'';
     const area=byId('basketLines');
     if(!lines.length)area.innerHTML=`<p class="empty-state">${esc(t('basket.empty'))}</p>`;
     else area.innerHTML=lines.map(line=>{
@@ -144,7 +150,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     }).join('');
   }
   function renderToday(){
-    const last=state.sessions.at(-1),el=byId('recentCooked');
+    const last=null,el=byId('recentCooked');
     el.hidden=!last;
     if(last){
       el.textContent=`✓ ${t('game.cookedLogged')} · ${t('game.recipeName')} · ${new Date(last.createdAt).toLocaleString(i18n.locale==='zh-CN'?'zh-CN':'en-SG',{timeZone:'Asia/Singapore',dateStyle:'medium',timeStyle:'short'})}`;
@@ -158,7 +164,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
       return `<div class="ingredient-tile"><strong>${iconFor(x.ingredientId)} ${esc(name(x.ingredientId))}</strong><span>${actual}/${x.quantity} ${esc(t('game.pieces'))} · ${actual>=x.quantity?esc(t('game.ready')):esc(t('game.moreNeeded'))}</span></div>`;
     }).join('');
     byId('recipeSteps').replaceChildren(...(i18n.locale==='zh-CN'?RECIPE.stepsZh:RECIPE.stepsEn).map(line=>{const li=document.createElement('li');li.textContent=line;return li;}));
-    byId('startCookBtn').disabled=!ready.possible;
+    // Recipe reading never changes stock.
   }
   function renderCook(){
     byId('actualUsedLines').innerHTML=state.basket.lines.map(line=>{
@@ -184,6 +190,11 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   function render(){
     for(const id of ['tomato','egg'])byId(id==='tomato'?'tomatoPlotCount':'eggPlotCount').textContent=String(usableTotal(state,id));
     const empty=usableTotal(state,'tomato')+usableTotal(state,'egg')===0;
+    for(const id of ['tomato','egg']){
+      const btn=byId(id==='tomato'?'selectTomatoBtn':'selectEggBtn');
+      btn.classList.toggle('empty-resource',usableTotal(state,id)===0);
+      btn.querySelector('[data-resource-label]').textContent=usableTotal(state,id)===0?t('game.addFood'):name(id);
+    }
     const helper=document.querySelector('.chicken-bubble');
     helper.dataset.i18n=empty?'game.helperEmpty':'game.helper';helper.textContent=t(helper.dataset.i18n);
     renderBasket();renderPantry();renderToday();
@@ -209,7 +220,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     onHarvest(activeIngredient);
     closePanel();toast(t('game.harvestSuccess'));
   });
-  byId('restockShortcut').addEventListener('click',()=>switchTab('pantry'));
+  byId('restockShortcut').addEventListener('click',()=>openRestock(activeIngredient));
   byId('basketLines').addEventListener('click',event=>{
     const remove=event.target.closest('[data-basket-remove]');
     if(remove){transact(s=>setReservation(s,{batchId:remove.dataset.basketRemove,quantity:0}));return;}
@@ -221,22 +232,13 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   byId('basketClearBtn').addEventListener('click',()=>{transact(s=>clearBasket(s));toast(t('basket.returned'));});
   byId('basketRecipeBtn').addEventListener('click',()=>{renderRecipe();openPanel('recipeSheet');});
   byId('backBasketBtn').addEventListener('click',()=>{renderBasket();openPanel('basketSheet');});
-  byId('startCookBtn').addEventListener('click',()=>{renderCook();openPanel('cookSheet');});
-  byId('backRecipeBtn').addEventListener('click',()=>{renderRecipe();openPanel('recipeSheet');});
-  byId('actualUsedLines').addEventListener('input',updateOrganicNotice);
-  byId('cookForm').addEventListener('submit',event=>{
-    event.preventDefault();if(submitting)return;
-    submitting=true;byId('confirmCookBtn').disabled=true;
-    const lines=actualLines(),ackMixed=byId('organicAck').checked;
-    const ok=transact(s=>confirmCooked(s,{key:currentCookKey,actualLines:lines,ackMixed}));
-    submitting=false;byId('confirmCookBtn').disabled=false;
-    if(ok){renderComplete();openPanel('completeSheet');toast(t('game.cookSuccess'));}
-  });
-  byId('completeFarmBtn').addEventListener('click',()=>switchTab('farm'));
+  // Cooking confirmation removed: recipes are informational.
+  // The recipe is the final destination.
+  // No actual-used form in the recipe-first experience.
   byId('groceryForm').addEventListener('submit',event=>{
     event.preventDefault();const form=event.currentTarget;
     const ingredientId=form.elements.ingredient.value,quantity=Number(form.elements.quantity.value),organicStatus=form.elements.source.value,storage=form.elements.storage.value,useBy=byId('groceryDate').value;
-    if(transact(s=>addGroceries(s,{ingredientId,quantity,organicStatus,storage,useBy}))){toast(t('pantry.added'));form.elements.quantity.value='';}
+    if(transact(s=>addGroceries(s,{ingredientId,quantity,organicStatus,storage,useBy}))){toast(t('pantry.added'));form.elements.quantity.value='';switchTab('farm');}
   });
   byId('stockList').addEventListener('click',event=>{
     const update=event.target.closest('[data-stock-correct]'),empty=event.target.closest('[data-stock-empty]');
@@ -267,6 +269,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   return {
     openIngredient,
     openBasket:()=>openPanel('basketSheet'),
+    openRestock,
     backToFarm:()=>{closePanel();switchTab('farm');},
     onAvailabilityChanged(fn){onAvailability=fn;render();},
     onHarvestEffect(fn){onHarvest=fn;},
