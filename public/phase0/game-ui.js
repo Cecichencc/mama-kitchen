@@ -98,11 +98,15 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     byId('harvestQuantity').value='1';
     renderIngredient();openPanel('ingredientSheet');
   }
+  function selectedSourceSummary(id){
+    const sources=[...new Set(liveBatches(id).map(b=>sourceLabel(b.organicStatus)))];
+    return sources.length?sources.join(' · '):t('game.noStock');
+  }
   function renderIngredient(){
     const id=activeIngredient,available=usableTotal(state,id),held=basketQuantity(state,id);
     byId('ingredientHeading').textContent=name(id);
     byId('ingredientZone').textContent=t(id==='tomato'?'sheet.zone':'game.barn');
-    byId('ingredientAvailability').textContent=`${t('game.atHome')}: ${physicalTotal(state,id)} ${t('game.pieces')}  ·  ${t('game.available')}: ${available}  ·  ${t('game.inBasket')}: ${held}`;
+    byId('ingredientAvailability').textContent=selectedSourceSummary(id);
     const choice=byId('harvestBatch'),prior=choice.value;
     const eligible=liveBatches(id);
     choice.replaceChildren();
@@ -118,7 +122,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     const input=byId('harvestQuantity');
     input.max=String(selected?availableQuantity(state,selected.id):1);
     input.value=String(Math.max(1,Math.min(parseInt(input.value,10)||1,Number(input.max))));
-    byId('ingredientHelp').textContent=selected?t('game.reserveNotice'):t('game.noStockHelp');
+    byId('ingredientHelp').textContent=selected?t('game.selectionNotice'):t('game.noStockHelp');
   }
   function renderBasket(){
     const lines=state.basket.lines;
