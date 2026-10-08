@@ -7,6 +7,7 @@ import {
   hasMixedSource, heldQuantity, isUsableBatch
 } from './domain.js';
 import {ingredientIconMarkup} from './ingredient-icons.js';
+import {initRecipeDiscovery} from './recipe-discovery.js';
 
 const byId = id => document.getElementById(id);
 const esc = x => String(x).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -205,6 +206,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     const helper=document.querySelector('.chicken-bubble');
     helper.dataset.i18n=empty?'game.helperEmpty':'game.helper';helper.textContent=t(helper.dataset.i18n);
     renderBasket();renderPantry();renderToday();
+    document.querySelector('.kg-recipe-discovery')&&document.dispatchEvent(new Event('kg:recipes-refresh'));
     if(modal?.id==='ingredientSheet')renderIngredient();
     if(modal?.id==='recipeSheet')renderRecipe();
     if(modal?.id==='completeSheet')renderComplete();
@@ -274,6 +276,8 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
     else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
   });
+  const recipeDiscovery=initRecipeDiscovery({getState:()=>state,getLocale:()=>i18n.locale});
+  recipeDiscovery.render();
   render();
   if(storageFailed)toast(t('pantry.memoryWarning'));
   return {

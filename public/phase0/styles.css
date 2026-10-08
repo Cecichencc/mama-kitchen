@@ -205,3 +205,44 @@ main.game-main{width:100%;max-width:860px;flex:1;min-height:0;margin:0 auto}
 #ingredientSheet .quantity-row{margin-top:7px}
 #ingredientSheet .field-tip{line-height:1.45}
 #ingredientSheet #restockShortcut{display:none}
+
+/* Recipe-first discovery v1: warm cards, green actions and honest availability. */
+.kg-recipe-enabled>.page-heading,.kg-recipe-enabled>.meal-cards,.kg-recipe-enabled>#recentCooked,.kg-recipe-enabled>#todayBasketBtn{display:none}
+.kg-recipe-discovery{max-width:650px;margin:auto;padding-bottom:20px}
+.kg-recipes-head h2{font-size:26px;margin:0 0 5px;color:#315A50}
+.kg-recipes-head p{font-size:13px;color:#657B73;line-height:1.5}
+.kg-recipe-filters{display:flex;gap:8px;overflow-x:auto;margin:16px 0;padding-bottom:5px}
+.kg-recipe-filters button{white-space:nowrap;border:1px solid #DFE7DA;background:#FFF9F2;color:#315A50;border-radius:999px;padding:11px 15px;min-height:44px}
+.kg-recipe-filters button.active{background:#4CAF7A;border-color:#4CAF7A;color:#fff}
+.kg-recipe-card{background:#FFF9F2;border:1px solid #E5E7DF;border-radius:20px;overflow:hidden;box-shadow:0 5px 18px rgba(45,55,72,.08);margin-bottom:12px}
+.kg-recipe-illustration{min-height:105px;background:linear-gradient(145deg,#FCE9D8,#E8F4EA);display:grid;place-items:center;font-size:55px}
+.kg-recipe-card.featured .kg-recipe-illustration{min-height:165px;font-size:80px}
+.kg-recipe-content{padding:13px}
+.kg-recipe-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.kg-recipe-heading h3{font-size:17px;margin:0;color:#2D3748}
+.kg-fav{border:0;background:#fff;border-radius:50%;width:44px;height:44px;color:#DB6B76;font-size:24px;flex:none}
+.kg-recipe-meta{font-size:12px;color:#657B73;margin:5px 0 10px}
+.kg-recipe-status{border-radius:12px;padding:9px 11px;font-size:12px;line-height:1.4;background:#E8EFF7;color:#37536B}
+.kg-recipe-status.ready{background:#E8F4EA;color:#245C3D}
+.kg-recipe-status.missing{background:#FFF1DB;color:#8D5B20}
+.kg-another{width:100%;min-height:48px;border:1px solid #4CAF7A;color:#245C3D;background:#FFF9F2;border-radius:16px;font-weight:800}
+.kg-more-title{font-size:18px;color:#315A50;margin:22px 0 12px}
+.kg-more-recipes{display:grid;gap:10px}
+.kg-more-recipes .kg-recipe-card{display:grid;grid-template-columns:95px 1fr;margin:0}
+.kg-more-recipes .kg-recipe-illustration{min-height:100%;font-size:40px}
+.kg-more-recipes .kg-recipe-content{padding:10px}
+.kg-more-recipes .kg-recipe-content .cta-button{min-height:42px}
+.kg-recipe-detail{position:fixed;z-index:40;inset:0;max-width:600px;margin:auto;background:#FFF9F2;overflow:auto;padding:20px 20px max(30px,env(safe-area-inset-bottom));box-shadow:0 0 0 100vw rgba(20,40,30,.45)}
+.kg-recipe-detail[hidden]{display:none}
+.kg-detail-open{overflow:hidden}
+.kg-detail-top{display:flex;justify-content:space-between}
+.kg-detail-top button{width:44px;height:44px;border-radius:50%;background:#fff;border:1px solid #DFE7DA;font-size:24px}
+.kg-detail-art{height:180px;border-radius:20px;background:linear-gradient(145deg,#FCE9D8,#E8F4EA);display:grid;place-items:center;font-size:95px;margin:10px 0}
+.kg-recipe-detail h2{color:#315A50;margin:12px 0}
+.kg-recipe-detail h3{margin:20px 0 10px}
+.kg-recipe-detail ul{list-style:none;padding:0}
+.kg-recipe-detail li{padding:10px 0;border-bottom:1px solid #E5E7DF;line-height:1.5}
+.kg-recipe-detail ul li{display:flex;justify-content:space-between;gap:12px}
+.kg-recipe-detail ol{padding-left:24px}
+.kg-recipe-footnote{font-size:12px;color:#657B73}
+@media(min-width:600px){.kg-more-recipes{grid-template-columns:1fr 1fr}.kg-more-recipes .kg-recipe-card{grid-template-columns:1fr}.kg-more-recipes .kg-recipe-illustration{height:100px}}
