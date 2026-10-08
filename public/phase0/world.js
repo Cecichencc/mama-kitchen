@@ -283,6 +283,36 @@ export function createPastelWorld(THREE, scene) {
   root.add(eggCollider);
   colliders.push(eggCollider);
 
+  // Restock markers are actual 3D meshes. The invisible ingredient colliders
+  // remain usable when stock is zero, and the UI handles the grocery form.
+  function restockMarker(x,y,z,label){
+    const group=new THREE.Group();group.name=label+' empty-plot restock marker';
+    group.position.set(x,y,z);root.add(group);
+    const ring=mesh(new THREE.TorusGeometry(.24,.043,10,28),M.leaf,group,0,.025,0);
+    ring.rotation.x=-Math.PI/2;ring.castShadow=false;
+    const disc=mesh(new THREE.CylinderGeometry(.215,.215,.035,24),M.cream,group,0,.018,0);
+    disc.castShadow=false;
+    const plusMat=new THREE.MeshStandardMaterial({color:'#2F7D46',roughness:.91,metalness:0});
+    for(const [w,d] of [[.23,.052],[.052,.23]]){
+      const bar=mesh(new THREE.BoxGeometry(w,.018,d),plusMat,group,0,.055,0);
+      bar.castShadow=false;
+    }
+    group.userData.isRestockMarker=true;
+    return group;
+  }
+  const restockMarkers={
+    tomato:restockMarker(-1.70,GROUND_LEVELS.tomatoSoil+.055,1.03,'Tomato'),
+    egg:restockMarker(nestX,nestY+.21,nestZ,'Egg')
+  };
+  restockMarkers.tomato.visible=false;restockMarkers.egg.visible=false;
+  // Large invisible hit volumes make the empty-plot + easy to tap on phones.
+  for(const id of ['tomato','egg']){
+    const p=restockMarkers[id].position;
+    const hit=new THREE.Mesh(new THREE.SphereGeometry(.47,12,9),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,colorWrite:false}));
+    hit.position.copy(p);hit.userData.ingredient=id;hit.userData.fruitIndex=0;
+    root.add(hit);colliders.push(hit);
+  }
+
   // Presentation derives from available physical stock after any basket holds.
   // Keep colliders active even if the visual resource is empty, so tapping can
   // open a useful restock action. Decorative crate fruit is never an ingredient.
@@ -296,6 +326,7 @@ export function createPastelWorld(THREE, scene) {
       // Newly restocked resources gently reappear; this never generates stock.
       if(available[id]===0&&next>0)harvestEffect[id]=latestElapsed-.45;
       available[id]=next;
+      restockMarkers[id].visible=next===0;
     }
   }
   function playHarvest(id){if(id==='tomato'||id==='egg')harvestEffect[id]=latestElapsed;}
@@ -353,5 +384,5 @@ export function createPastelWorld(THREE, scene) {
     eggs.forEach(egg=>{egg.visible=eggFactor>0;egg.scale.setScalar(eggFactor);});
   }
   
-  return {root,colliders,fruitPositions:fruits.map(f=>f.position.clone()),resourcePositions:{tomato:fruits.map(f=>f.position.clone()),egg:[eggCollider.position.clone()]},setAvailability,playHarvest,update,assets:{island:root,tomato:fruits[1],eggs,nest,house,chicken:hen}};
+  return {root,colliders,fruitPositions:fruits.map(f=>f.position.clone()),resourcePositions:{tomato:fruits.map(f=>f.position.clone()),egg:[eggCollider.position.clone()]},setAvailability,playHarvest,update,assets:{island:root,tomato:fruits[1],eggs,nest,house,chicken:hen,restockMarkers}};
 }
