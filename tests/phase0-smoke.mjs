@@ -43,7 +43,7 @@ test('the new pastel palette replaces the dominant orange environment', () => {
   assert.doesNotMatch(css, /background:radial-gradient\(ellipse at 55% 36%,#ffdc97/);
 });
 test('world has 3D clay barn, vines, flowers, chickens, fences and paths', () => {
-  for (const label of ['roundedPlatform(', 'softBox(', 'tree(', 'tomato(', 'vine(', 'fenceLine(', 'hen.position', 'flowerPink']) {
+  for (const label of ['roundedPlatform(', 'softBox(', 'tree(', 'tomato(', 'archPanel(', 'fenceLine(', 'hen.position', 'flowerPink']) {
     assert.ok(world.includes(label), label);
   }
 });
