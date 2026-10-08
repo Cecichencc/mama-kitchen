@@ -1,57 +1,79 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#fff4e6" />
-  <meta name="description" content="Kitchen Garden 厨房小农场：在真实 3D 农场里发现食材。Phase 0 互动技术体验。" />
-  <title>Kitchen Garden — 3D 农场体验</title>
+  <meta name="theme-color" content="#C9EAE6" />
+  <meta name="description" content="Kitchen Garden — explore a soft pastel interactive 3D toy farm. Phase 0 preview." />
+  <title>Kitchen Garden — Explore the Farm</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <div class="app">
     <header class="topbar">
-      <div class="brand"><span class="brand-leaf" aria-hidden="true">🌱</span><div><strong>Kitchen Garden</strong><span>厨房小农场 · 3D 体验</span></div></div>
-      <div class="top-meta"><span class="proof-tag">PHASE 0</span><span class="status-dot" aria-hidden="true"></span></div>
+      <div class="brand"><span class="brand-leaf" aria-hidden="true">🌱</span><div><strong>Kitchen Garden</strong><span data-i18n="app.tagline">Good Food Grows at Home</span></div></div>
+      <div class="top-actions">
+        <button id="settingsBtn" class="icon-button" type="button" aria-label="Open settings" data-i18n-aria="settings.open" aria-haspopup="dialog" aria-controls="settingsSheet">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8a4 4 0 100 8 4 4 0 000-8Z"/><path d="M19.4 15.5l1-1.7-1-3.4-2-.2a7.4 7.4 0 00-1.3-1.3l-.2-2-3.4-1-1.7 1-1.7-1-3.4 1-.2 2a7.4 7.4 0 00-1.3 1.3l-2 .2-1 3.4 1 1.7-1 1.7 1 3.4 2 .2c.4.5.8.9 1.3 1.3l.2 2 3.4 1 1.7-1 1.7 1 3.4-1 .2-2c.5-.4.9-.8 1.3-1.3l2-.2 1-3.4-1-1.7Z" transform="translate(1 -2) scale(.88)"/></svg>
+        </button>
+      </div>
     </header>
 
     <main>
-      <div class="welcome"><p class="eyebrow">GOOD FOOD GROWS AT HOME</p><h1>今天，我们去农场看看！</h1><p>点一点番茄，走进你的小小厨房农场。</p></div>
-      <section class="farm-stage" aria-label="可探索的 3D 农场">
-        <div class="sky-sun" aria-hidden="true"></div>
-        <div id="threeMount" class="three-mount" aria-label="可交互 3D 农场：点击番茄来查看" role="group"></div>
-        <div class="world-note" id="worldNote" role="status" aria-live="polite">正在准备 3D 小农场…</div>
-        <div class="chicken-message"><span class="chicken-icon" aria-hidden="true">🐥</span><span>早上好！<br/>点番茄看看吧～</span></div>
-        <div class="plot-label" aria-hidden="true">🍅 蔬菜园</div>
-        <div class="mini-label" aria-hidden="true">好食材 · 好心情</div>
-        <div class="scene-controls" aria-label="农场镜头操作">
-          <button type="button" id="overviewBtn" class="pill-button" disabled><span aria-hidden="true">⌂</span> 回到全景</button>
-          <button type="button" id="selectTomatoBtn" class="pill-button primary" disabled><span aria-hidden="true">🍅</span> 查看番茄</button>
-        </div>
-        <div class="fallback" id="fallback" hidden>
-          <div class="fallback-icon" aria-hidden="true">🌱</div>
-          <h2>3D 农场暂时无法显示</h2>
-          <p>你仍然可以查看番茄。稍后可以在支持 WebGL 的浏览器重试。</p>
-          <button type="button" id="fallbackSelectBtn" class="cta-button">查看番茄</button>
-        </div>
-      </section>
+      <section class="farm-stage" id="farmStage" aria-label="Interactive 3D farm" data-i18n-aria="farm.viewLabel">
+        <div class="sky-cloud cloud-a" aria-hidden="true"></div>
+        <div class="sky-cloud cloud-b" aria-hidden="true"></div>
+        <div class="sun-haze" aria-hidden="true"></div>
+        <div id="threeMount" class="three-mount" role="group" aria-label="Interactive 3D farm: tap a tomato to inspect it" data-i18n-aria="farm.viewLabel"></div>
+        <div class="world-note sr-only" id="worldNote" role="status" aria-live="polite" data-i18n="farm.loading">Getting your little farm ready…</div>
 
-      <div class="below-farm">
-        <div class="instruction"><span class="instruction-icon" aria-hidden="true">👆</span><div><strong>点击、探索、发现</strong><p>这是一个真正的 3D 场景。触摸番茄会聚焦镜头，点击「回到全景」即可返回。</p></div></div>
-        <div class="phase-note"><span aria-hidden="true">ⓘ</span><p>本阶段只验证 3D 交互。不会添加、预留或扣除实际库存；收获与做饭功能将在下一阶段接入。</p></div>
-      </div>
+        <div class="chicken-message" aria-label="Chicken helper" data-i18n-aria="farm.helperLabel">
+          <span class="chicken-icon" aria-hidden="true">🐔</span>
+          <span class="chicken-bubble" data-i18n="farm.chickenPrompt">Good morning! Tap a tomato to explore.</span>
+        </div>
+        <div class="plot-label" aria-hidden="true">🍅 <span data-i18n="farm.plotLabel">Tomato Garden</span></div>
+
+        <div class="scene-controls" aria-label="Farm camera controls" data-i18n-aria="farm.sceneControls">
+          <button id="overviewBtn" class="pill-button back-button" type="button" aria-label="Return to the complete farm view" data-i18n-aria="farm.backLabel" hidden><span aria-hidden="true">↖</span> <span data-i18n="farm.back">Back to Farm</span></button>
+          <button id="selectTomatoBtn" class="pill-button primary" type="button"><span aria-hidden="true">🍅</span> <span data-i18n="farm.explore">Explore Tomato</span></button>
+        </div>
+
+        <div class="fallback" id="fallback" hidden>
+          <div class="fallback-icon" aria-hidden="true">🌿</div>
+          <h2 data-i18n="farm.fallbackTitle">The 3D farm is unavailable right now</h2>
+          <p data-i18n="farm.fallbackBody">You can still explore tomato details using the accessible controls.</p>
+          <button id="fallbackSelectBtn" class="cta-button" type="button" data-i18n="farm.inspect">Inspect Tomato</button>
+        </div>
+
+        <nav class="bottom-nav" aria-label="Kitchen Garden navigation" data-i18n-aria="nav.label">
+          <a class="nav-item active" href="./index.html" aria-current="page"><span class="nav-icon" aria-hidden="true">⌂</span><span data-i18n="nav.farm">Farm</span></a>
+          <button class="nav-item" type="button" disabled data-i18n-title="nav.mealsSoon" title="Today's Meals — coming in a later phase"><span class="nav-icon" aria-hidden="true">♨</span><span data-i18n="nav.meals">Today's Meals</span><span class="coming-soon" data-i18n="nav.soon">Coming soon</span></button>
+          <button class="nav-item" type="button" disabled data-i18n-title="nav.pantrySoon" title="Pantry — coming in a later phase"><span class="nav-icon" aria-hidden="true">▣</span><span data-i18n="nav.pantry">Pantry</span><span class="coming-soon" data-i18n="nav.soon">Coming soon</span></button>
+        </nav>
+      </section>
     </main>
 
-    <div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
-    <section class="ingredient-sheet" id="ingredientSheet" role="dialog" aria-modal="true" aria-labelledby="ingredientHeading" hidden>
+    <div id="sheetBackdrop" class="sheet-backdrop" hidden></div>
+    <section id="ingredientSheet" class="ingredient-sheet" role="dialog" aria-modal="true" aria-labelledby="ingredientHeading" hidden tabindex="-1">
       <div class="sheet-grip" aria-hidden="true"></div>
-      <button type="button" id="closeSheetBtn" class="sheet-close" aria-label="关闭番茄详情">×</button>
-      <div class="ingredient-row"><div class="ingredient-emblem" aria-hidden="true">🍅</div><div><span class="ingredient-kicker">蔬菜园 · VEGETABLE GARDEN</span><h2 id="ingredientHeading">番茄</h2><p>这是一颗可以点选的 3D 番茄。</p></div></div>
-      <div class="info-tiles"><div><strong>真实 3D</strong><span>可选择的模型</span></div><div><strong>镜头聚焦</strong><span>平滑变换视角</span></div></div>
-      <p class="sheet-disclaimer">Phase 0 体验：未连接真实食材库存。下一阶段将提供数量选择、收获篮与重新生长动画。</p>
-      <button type="button" id="returnBtn" class="cta-button">返回农场 · 回到全景 <span aria-hidden="true">↗</span></button>
+      <button id="closeSheetBtn" class="sheet-close" type="button" aria-label="Close tomato details" data-i18n-aria="sheet.dismiss">×</button>
+      <div class="ingredient-row"><div class="ingredient-emblem" aria-hidden="true">🍅</div><div><span class="ingredient-kicker" data-i18n="sheet.zone">VEGETABLE GARDEN</span><h2 id="ingredientHeading" data-i18n="farm.tomato">Tomato</h2><p data-i18n="sheet.description">Meet a juicy tomato from your miniature farm.</p></div></div>
+      <div class="info-tiles"><div><strong data-i18n="sheet.3d">Real 3D</strong><span data-i18n="sheet.3dValue">Tappable model</span></div><div><strong data-i18n="sheet.camera">Camera focus</strong><span data-i18n="sheet.cameraValue">Smooth close-up</span></div></div>
+      <p class="sheet-disclaimer" data-i18n="sheet.disclaimer">Preview only: grocery stock is not connected yet. Harvesting and cooking will arrive in the next phase.</p>
+      <button id="returnBtn" class="cta-button" type="button"><span data-i18n="farm.back">Back to Farm</span><span aria-hidden="true"> ↗</span></button>
     </section>
-    <footer class="footer">A SMALL FARM FOR A BRIGHTER EVERYDAY <span aria-hidden="true">♡</span></footer>
+
+    <div id="settingsBackdrop" class="sheet-backdrop" hidden></div>
+    <section id="settingsSheet" class="settings-sheet" role="dialog" aria-modal="true" aria-labelledby="settingsHeading" hidden tabindex="-1">
+      <div class="sheet-grip" aria-hidden="true"></div>
+      <button id="settingsCloseBtn" class="sheet-close" type="button" aria-label="Close settings" data-i18n-aria="settings.close">×</button>
+      <h2 id="settingsHeading" data-i18n="settings.title">Settings</h2>
+      <fieldset class="language-fieldset"><legend data-i18n="settings.language">Language</legend><p data-i18n="settings.languageHelp">Choose your preferred interface language.</p>
+        <label class="language-option"><input type="radio" name="language" value="en" checked /><span data-i18n="settings.english">English</span></label>
+        <label class="language-option"><input type="radio" name="language" value="zh-CN" /><span data-i18n="settings.chinese">简体中文</span></label>
+      </fieldset>
+      <details class="dev-status"><summary data-i18n="settings.devStatus">About this preview</summary><p data-i18n="settings.previewNote">This phase proves the 3D world, tomato selection and camera movement. It does not invent grocery quantities or change stock.</p></details>
+    </section>
   </div>
   <script type="module" src="./scene.js"></script>
 </body>
