@@ -1,0 +1,24 @@
+name: Kitchen Garden Phase 0 checks
+on:
+  push:
+    branches:
+      - feature/kitchen-garden-3d-phase0-20261008
+  pull_request:
+    paths:
+      - "public/phase0/**"
+      - "tests/phase0-smoke.mjs"
+      - "index.html"
+      - ".github/workflows/kitchen-garden-phase0.yml"
+jobs:
+  smoke-and-vite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: node --test tests/phase0-smoke.mjs
+      - run: npm run build
+      - run: test -f dist/phase0/index.html
