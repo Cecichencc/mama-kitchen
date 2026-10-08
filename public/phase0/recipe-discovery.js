@@ -49,5 +49,6 @@ export function initRecipeDiscovery({getState,getLocale}){
  });
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&detail){closeDetail();}});
  document.addEventListener('kg:languagechange',render);
+ document.addEventListener('kg:recipes-refresh',render);
  return {render};
 }
