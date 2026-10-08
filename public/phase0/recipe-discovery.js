@@ -1,5 +1,13 @@
 import {rankedRecipes,RECIPES,recipeAvailability,ingredientLabels} from './recipes.js';
 const key='kitchen-garden.recipe-favourites.v1';
+const recipeImages={
+ 'tomato-egg':'tomato-egg-stir-fry.webp',
+ 'bokchoy-garlic':'garlic-bok-choy.webp',
+ 'mushroom-rice':'chicken-mushroom-rice.webp',
+ 'salmon-bowl':'salmon-vegetable-bowl.webp',
+ 'pumpkin-soup':'pumpkin-soup.webp'
+};
+const art=recipe=>recipeImages[recipe.id]?`<img loading="lazy" decoding="async" src="./recipes/${recipeImages[recipe.id]}" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"/><span hidden>${recipe.icon}</span>`:`<span>${recipe.icon}</span>`;
 export function initRecipeDiscovery({getState,getLocale}){
  const host=document.getElementById('todayView');
  const root=document.createElement('section');root.className='kg-recipe-discovery';
@@ -12,7 +20,7 @@ export function initRecipeDiscovery({getState,getLocale}){
  const label=id=>ingredientLabels[id]?.[zh()?1:0]||id;
  function badge(item){return item.ready?tr('All ingredients available','食材齐全'):item.missing.length?tr('Missing: ','缺少：')+item.missing.map(label).join(', '):tr('Check untracked ingredients at home','请核对未记录的食材');}
  function card(item,featured=false){const r=item.recipe;return `<article class="kg-recipe-card ${featured?'featured':''}">
- <div class="kg-recipe-illustration" aria-hidden="true"><span>${r.icon}</span></div>
+ <div class="kg-recipe-illustration" aria-hidden="true">${art(r)}</div>
  <div class="kg-recipe-content"><div class="kg-recipe-heading"><h3>${title(r)}</h3><button type="button" class="kg-fav" data-fav="${r.id}" aria-label="${tr('Toggle favourite','收藏或取消收藏')} ${title(r)}" aria-pressed="${fav.includes(r.id)}">${fav.includes(r.id)?'♥':'♡'}</button></div>
  <p class="kg-recipe-meta">◷ ${r.minutes} ${tr('min','分钟')} · ${tr('Easy home cooking','家常简易')}</p>
  <p class="kg-recipe-status ${item.ready?'ready':item.missing.length?'missing':'unknown'}">${badge(item)}</p>
@@ -32,7 +40,7 @@ export function initRecipeDiscovery({getState,getLocale}){
   if(!panel){panel=document.createElement('section');panel.id='kgRecipeDetail';panel.className='kg-recipe-detail';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.tabIndex=-1;document.body.append(panel);}
   const avail=recipeAvailability(r,getState());
   panel.innerHTML=`<div class="kg-detail-top"><button type="button" data-close-detail aria-label="${tr('Close','关闭')}">×</button><button type="button" data-fav="${r.id}" aria-label="${tr('Toggle favourite','收藏或取消收藏')}">${fav.includes(r.id)?'♥':'♡'}</button></div>
-  <div class="kg-detail-art" aria-hidden="true">${r.icon}</div><h2>${title(r)}</h2><p>◷ ${r.minutes} ${tr('min','分钟')} · ${tr('Serves 2','两人份')}</p><p class="kg-recipe-status">${badge({...avail,recipe:r})}</p>
+  <div class="kg-detail-art" aria-hidden="true">${art(r)}</div><h2>${title(r)}</h2><p>◷ ${r.minutes} ${tr('min','分钟')} · ${tr('Serves 2','两人份')}</p><p class="kg-recipe-status">${badge({...avail,recipe:r})}</p>
   <h3>${tr('Ingredients','食材')}</h3><ul>${r.ingredients.map(([id,q])=>`<li>${label(id)} <span>${q??tr('To taste / as needed','适量')}</span></li>`).join('')}</ul>
   <h3>${tr('Steps','做法')}</h3><ol>${(zh()?r.stepsZh:r.stepsEn).map(step=>`<li>${step}</li>`).join('')}</ol>
   <p class="kg-recipe-footnote">${tr('Viewing recipes never changes your grocery stock.','查看菜谱不会改变食材库存。')}</p>`;
