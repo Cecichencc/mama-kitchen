@@ -189,3 +189,11 @@ main.game-main{width:100%;max-width:860px;flex:1;min-height:0;margin:0 auto}
 .basket-lines+.field-tip{font-size:12px;line-height:1.5}
 .recipe-teaser{background:#FFF9F2;border:1px solid #E5E7DF;border-radius:20px}
 @media(max-width:360px){.basket-line{padding:8px;gap:5px}.basket-line .line-icon{width:35px;height:38px}.kg-basket-stepper .kg-step-button{width:31px}.kg-basket-stepper .remove-line{width:31px}.kg-basket-stepper output{min-width:16px}}
+
+/* Farm-first minimal HUD: controls remain in DOM as accessible fallback hooks. */
+.farm-stage:not(.is-fallback) .scene-controls,
+.farm-stage:not(.is-fallback) .plot-label,
+.farm-stage:not(.is-fallback) .empty-plot-hints,
+.farm-stage:not(.is-fallback) .chicken-message{display:none!important}
+.three-mount canvas{touch-action:none;cursor:grab}
+.three-mount canvas:active{cursor:grabbing}
