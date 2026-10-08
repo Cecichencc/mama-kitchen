@@ -108,14 +108,22 @@ async function boot() {
     mount.appendChild(renderer.domElement);
 
     scene=new THREE.Scene();
-    const skyLight=new THREE.HemisphereLight(0xfffcf2,0x7c9b8d,2.0);scene.add(skyLight);
-    const sunlight=new THREE.DirectionalLight(0xfff4df,2.2);
-    sunlight.position.set(-5,10,8);sunlight.castShadow=true;
-    sunlight.shadow.mapSize.set(512,512);
-    sunlight.shadow.camera.left=-9;sunlight.shadow.camera.right=9;
-    sunlight.shadow.camera.top=9;sunlight.shadow.camera.bottom=-9;
-    sunlight.shadow.normalBias=.025;sunlight.shadow.bias=-.00015;
-    sunlight.shadow.radius=3;
+    const skyLight=new THREE.HemisphereLight(0xfffcf2,0x7c9b8d,1.6);scene.add(skyLight);
+    const sunlight=new THREE.DirectionalLight(0xfff4df,2.05);
+    // A higher key light keeps cast shadows close to objects rather than
+    // making them appear to float beside their own silhouettes.
+    sunlight.position.set(-3.6,11.5,5.1);sunlight.castShadow=true;
+    sunlight.target.position.set(0,.58,0);scene.add(sunlight.target);
+    // Map coverage is concentrated on the playable island; 1024px on a
+    // ~12-unit frustum is substantially sharper than the old 512px / 18.
+    sunlight.shadow.mapSize.set(1024,1024);
+    sunlight.shadow.camera.left=-6.2;sunlight.shadow.camera.right=6.2;
+    sunlight.shadow.camera.top=6.2;sunlight.shadow.camera.bottom=-6.2;
+    sunlight.shadow.camera.near=.5;sunlight.shadow.camera.far=28;
+    sunlight.shadow.camera.updateProjectionMatrix();
+    // Use only enough bias to prevent acne. Excess normalBias detaches feet.
+    sunlight.shadow.normalBias=.006;sunlight.shadow.bias=-.00005;
+    sunlight.shadow.radius=1.6;
     scene.add(sunlight);
     const farm=createPastelWorld(THREE,scene);
     const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
@@ -144,7 +152,8 @@ async function boot() {
     function inspect(index=1){
       selectedIndex=index;focused=true;
       const target=farm.fruitPositions[index]||farm.fruitPositions[1];
-      desired.set(target.x,.77,target.z+.55); // keep selected tomato above bottom sheet
+      // Aim slightly in front of the fruit to leave it visible above the ingredient sheet.
+      desired.set(target.x,.77,target.z+.55);
       zoomTarget=1.56;
       overviewBtn.hidden=false;
       showStatus('farm.focused');
