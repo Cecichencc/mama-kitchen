@@ -1,5 +1,6 @@
 // Kitchen Garden Phase 0 — original lightweight, procedural Three.js clay-world assets.
 // Presentation only. Physical groceries never live in this module.
+import {GROUND_LEVELS,GRASS_MOUNDS,grassSurfaceY,groundedRootY} from './grounding.js';
 export const WORLD_COLORS = Object.freeze({
   sky:'#C9EAE6', grass:'#B7D9A8', distantHills:'#B9D5A7', barn:'#E89CB0', house:'#E89CB0', houseRoof:'#D16B84', tomato:'#FF6B5B', tomatoLeaf:'#7CC67A', soil:'#A67C52', white:'#FFFFFF',
   barnRoof:'#D16B84', ivory:'#FFFCF7', cream:'#FFF8EC', flowers:'#F2D98D',
@@ -27,6 +28,37 @@ export function createPastelWorld(THREE, scene) {
     coral:mat('#E87867'), yellow:mat('#F6BD70'), flower:mat(WORLD_COLORS.flowers),
     flowerPink:mat('#F7D0CD'), water:mat(WORLD_COLORS.water)
   };
+  // One tiny reusable alpha texture makes gentle, *tight* ground-contact
+  // occlusion. It supplements real shadow maps instead of offset opaque discs.
+  // The canvas/texture is shared by every object; no expensive AO pass needed.
+  const shadowCanvas=document.createElement('canvas');
+  shadowCanvas.width=shadowCanvas.height=64;
+  const shadowCtx=shadowCanvas.getContext('2d');
+  let contactGeometry=null,contactMaterial=null;
+  if(shadowCtx){
+    const g=shadowCtx.createRadialGradient(32,32,2,32,32,31);
+    g.addColorStop(0,'rgba(55,69,50,0.20)');
+    g.addColorStop(.38,'rgba(55,69,50,0.12)');
+    g.addColorStop(.75,'rgba(55,69,50,0.035)');
+    g.addColorStop(1,'rgba(55,69,50,0)');
+    shadowCtx.fillStyle=g;shadowCtx.fillRect(0,0,64,64);
+    const texture=new THREE.CanvasTexture(shadowCanvas);
+    texture.colorSpace=THREE.SRGBColorSpace;
+    contactGeometry=new THREE.PlaneGeometry(2,2);
+    contactMaterial=new THREE.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1});
+  }
+  function contactShadow(x,y,z,rx,rz){
+    if(!contactGeometry)return;
+    const plane=new THREE.Mesh(contactGeometry,contactMaterial);
+    plane.name='Grounded contact shadow (cosmetic)';
+    plane.position.set(x,y+0.006,z);
+    plane.rotation.x=-Math.PI/2;
+    plane.scale.set(rx,rz,1);
+    plane.castShadow=false;
+    plane.receiveShadow=false;
+    plane.renderOrder=1;
+    root.add(plane);
+  }
   const sphereGeom = new THREE.SphereGeometry(1,16,12);
   const boxGeomCache = new Map();
   const cylGeomCache = new Map();
@@ -73,12 +105,16 @@ export function createPastelWorld(THREE, scene) {
     const hill=sphere(1,m,root,x,-1.48,z,sx,sy,sz);hill.castShadow=false;hill.receiveShadow=false;
   }
 
-  // Softly beveled, floating grassy island; soil is only visible around its edge.
-  roundedPlatform(8.28,6.58,.55,M.island,0,-.58,0,1.32);
-  roundedPlatform(8.22,6.52,.22,M.grass,0,.12,0,1.32);
+  // Softly beveled miniature island. Surface y=GROUND_LEVELS.grass.
+  const earthBase=roundedPlatform(8.28,6.58,.55,M.island,0,-.58,0,1.32);
+  const grassTop=roundedPlatform(8.22,6.52,.22,M.grass,0,.12,0,1.32);
+  earthBase.castShadow=false; // never throw a giant offset shadow on the ground
+  grassTop.castShadow=false;
+  grassTop.receiveShadow=true;
   // Rounded hillside mounds around the back, visible from an isometric camera.
-  for(const [x,z,sx,sy,sz] of [[-3.3,-2.25,1.05,.45,1.05],[3.15,-2.0,1.18,.50,1.15],[-.1,-2.63,1.0,.32,.60]]){
-    sphere(1,M.grassLight,root,x,.30,z,sx,sy,sz);
+  for(const mound of GRASS_MOUNDS){
+    const m=sphere(1,M.grassLight,root,mound.x,mound.y,mound.z,mound.rx,mound.ry,mound.rz);
+    m.castShadow=false;m.receiveShadow=true;
   }
 
   // Winding cream stepping stones connect barn, vegetables and chicken companion.
@@ -88,8 +124,9 @@ export function createPastelWorld(THREE, scene) {
     stone.rotation.y=(i%4-.5)*.16;stone.castShadow=false;
   }
 
-  // Vegetable patch, thin curved timber borders and shallow planting furrows.
-  roundedPlatform(3.08,2.02,.12,M.soil,-1.55,.41,1.12,.34);
+  // Vegetable patch receives actual directional shadows at the soil surface.
+  const tomatoBed=roundedPlatform(3.08,2.02,.12,M.soil,-1.55,.41,1.12,.34);
+  tomatoBed.receiveShadow=true;
   for(let k=0;k<3;k++){
     const furrow=softBox(.06,.035,1.66,M.soilSoft,root,-2.55+k*.95,.58,1.13);
     furrow.castShadow=false;
@@ -109,7 +146,9 @@ export function createPastelWorld(THREE, scene) {
 
   // Pink farmhouse: actual extruded gable, beveled pitched roof and modeled doors/windows.
   const house=new THREE.Group(); house.name='Farmhouse';root.add(house);
-  house.position.set(1.58,.42,-1.12);
+  // Wall bevel extends 0.035 beyond the wall's rectangular bounds.
+  house.position.set(1.58,groundedRootY(GROUND_LEVELS.grass,.68-1.27/2-.035),-1.12);
+  contactShadow(1.58,GROUND_LEVELS.grass,-1.12,.97,.80);
   const w=1.65,depth=1.47,wallY=1.30,ridgeY=1.95;
   softBox(w,1.27,depth,M.barn,house,0,.68,0);
   const gable=new THREE.Shape();
@@ -147,7 +186,12 @@ export function createPastelWorld(THREE, scene) {
 
   // Rounded trees are modest in height to avoid occluding the island on iPhone.
   function tree(x,z,size=1,variation=0){
-    const g=new THREE.Group();root.add(g);g.position.set(x,.39,z);g.scale.setScalar(size);
+    const g=new THREE.Group();root.add(g);
+    // Ellipsoid hills rise above the grass plate: place trunk feet on the true
+    // local surface, not on the flat platform far below the visible hill.
+    const footY=grassSurfaceY(x,z);
+    g.position.set(x,groundedRootY(footY,.45-.87/2,size),z);g.scale.setScalar(size);
+    contactShadow(x,footY,z,.22*size,.19*size);
     cyl(.13,.18,.87,M.trunk,g,0,.45,0);
     sphere(.54,[M.leaf,M.leafLight][variation%2],g,0,1.18,0,1.06,1.02,1.06);
     sphere(.23,M.leafLight,g,-.31,1.13,.12);
@@ -171,7 +215,10 @@ export function createPastelWorld(THREE, scene) {
   const tomatoSpots=[[-2.43,.94,.25],[-1.55,1.10,.32],[-.68,1.06,.28],[-2.19,1.65,.21],[-.89,1.65,.235]];
   const fruits=tomatoSpots.map(([x,z,r],i)=>{
     const g=tomato(r,i%2?M.tomatoLight:M.tomato);
-    g.position.set(x,.58+r*.87,z);g.rotation.y=(i%3-1)*.27;root.add(g);return g;
+    // Body's lowest point is radius*0.87; sink it just 0.012 into soil.
+    g.position.set(x,groundedRootY(GROUND_LEVELS.tomatoSoil,-r*.87),z);
+    g.rotation.y=(i%3-1)*.27;root.add(g);
+    contactShadow(x,GROUND_LEVELS.tomatoSoil,z,r*.95,r*.87);return g;
   });
   const colliders=fruits.map((f,i)=>{
     const c=new THREE.Mesh(new THREE.SphereGeometry(.42+(i===1?.08:0),12,9),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false,colorWrite:false}));
@@ -183,17 +230,33 @@ export function createPastelWorld(THREE, scene) {
 
   // Articulated three-view coherent chicken: pear body, rounded head, wings and feet.
   const hen=new THREE.Group();hen.name='White chicken companion';root.add(hen);
-  hen.position.set(2.46,.39,1.28);hen.scale.setScalar(.76);
-  sphere(.35,M.white,hen,0,.35,0,1.0,1.10,.96);
-  const head=new THREE.Group();hen.add(head);head.position.set(0,.70,.12);
+  // Keep the feet rooted: only the head/wings breathe, never animate the
+  // entire body vertically (that previously lifted contact shadows).
+  const henGround=grassSurfaceY(2.46,1.28);
+  hen.position.set(2.46,groundedRootY(henGround,.06-.068*.50,.76),1.28);hen.scale.setScalar(.76);
+  contactShadow(2.46,henGround,1.28,.36,.27);
+  sphere(.35,M.white,hen,0,.42,0,1.0,1.10,.96);
+  const head=new THREE.Group();hen.add(head);head.position.set(0,.77,.12);
   sphere(.25,M.white,head);
-  const wings=[sphere(.17,M.white,hen,-.33,.38,.04,.60,.91,1.12),sphere(.17,M.white,hen,.33,.38,.04,.60,.91,1.12)];
-  sphere(.14,M.white,hen,0,.34,-.33,.78,1,.84);
+  const wings=[sphere(.17,M.white,hen,-.33,.44,.04,.60,.91,1.12),sphere(.17,M.white,hen,.33,.44,.04,.60,.91,1.12)];
+  sphere(.14,M.white,hen,0,.42,-.33,.78,1,.84);
   for(const xx of [-.17,.17])sphere(.068,M.yellow,hen,xx,.06,.11,1.08,.50,1.38);
   for(const [xx,yy] of [[-.10,.26],[0,.32],[.10,.26]])sphere(.075,M.coral,head,xx,yy,-.03,1,1,.82);
   sphere(.055,M.coral,head,0,-.10,.24,.82,1.12,.77);
   const beak=mesh(new THREE.ConeGeometry(.115,.20,8),M.yellow,head,0,-.09,.28);beak.rotation.x=Math.PI/2;
   const eyes=[sphere(.041,M.eye,head,-.108,.018,.22,1,1,.65),sphere(.041,M.eye,head,.108,.018,.22,1,1,.65)];
+
+  // Small wooden tomato crate, rooted to the flat grass and containing
+  // decorative miniature fruits. It never represents physical grocery stock.
+  const crate=new THREE.Group();crate.name='Decorative tomato crate';root.add(crate);
+  crate.position.set(3.18,groundedRootY(GROUND_LEVELS.grass,.14-.24/2-.035),1.27);
+  contactShadow(3.18,GROUND_LEVELS.grass,1.27,.46,.34);
+  softBox(.72,.24,.52,M.wood,crate,0,.14,0);
+  for(const x of [-.30,.30])softBox(.055,.23,.58,M.trunk,crate,x,.17,0);
+  for(const z of [-.22,.22])softBox(.73,.065,.055,M.trunk,crate,0,.23,z);
+  for(const [x,z] of [[-.19,-.07],[.07,.10],[.18,-.10]]){
+    const fruit=tomato(.105,M.tomato);fruit.position.set(x,.29,z);crate.add(fruit);
+  }
 
   // Decorations: small grass clumps, limited flower stems and little stones.
   const positions=Array.from({length:30},(_,i)=>{
@@ -202,14 +265,17 @@ export function createPastelWorld(THREE, scene) {
   }).filter(([x,z])=> !((x>-3.15&&x<.1&&z>-.15&&z<2.35)||(x>.5&&x<2.8&&z>-.8&&z<1.9)));
   positions.forEach(([x,z],i)=>{
     const grass=new THREE.Group();root.add(grass);grass.position.set(x,.40,z);
-    for(let j=-1;j<=1;j++)sphere(.09,j===0?M.leaf:M.grassDeep,grass,j*.11,.09,0,.68,1.55,.45);
+    for(let j=-1;j<=1;j++){
+      const tuft=sphere(.09,j===0?M.leaf:M.grassDeep,grass,j*.11,.09,0,.68,1.55,.45);
+      tuft.castShadow=false; // dozens of tiny shadows add noise, not grounding
+    }
     if(i%3===0){
       for(let k=0;k<5;k++){
         const a=k*2*Math.PI/5;
-        const petal=sphere(.069,M.white,root,x+Math.cos(a)*.074,.60,z+Math.sin(a)*.074,1,.35,.78);
+        const petal=sphere(.069,M.white,root,x+Math.cos(a)*.074,.455,z+Math.sin(a)*.074,1,.35,.78);
         petal.rotation.y=-a;petal.castShadow=false;
       }
-      sphere(.043,M.yellow,root,x,.60,z,1,.5,1);
+      sphere(.043,M.yellow,root,x,.455,z,1,.5,1).castShadow=false;
     }
   });
   for(let i=0;i<12;i++){
@@ -218,7 +284,8 @@ export function createPastelWorld(THREE, scene) {
   }
 
   function update(elapsed,reduced,focused,selectedIndex=1){
-    hen.position.y=.39+(reduced?0:Math.sin(elapsed*1.7)*.020);
+    // Chicken body stays planted on the grass; micro head motion is sufficient.
+    head.position.y=.77+(reduced?0:Math.sin(elapsed*1.7)*.006);
     head.rotation.z=reduced?0:Math.sin(elapsed*.7)*.04;
     const blink=!reduced&&Math.sin(elapsed*.72)>0.992?.16:1;
     eyes.forEach(e=>{e.scale.y=.041*blink;});
