@@ -45,7 +45,7 @@ async function boot(){
     renderer.toneMappingExposure=1.22;
     renderer.shadowMap.enabled=true;
     renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-    renderer.domElement.style.touchAction='pan-y';
+    renderer.domElement.style.touchAction='none';
     renderer.domElement.setAttribute('aria-label',i18n.t('farm.viewLabel'));
     mount.appendChild(renderer.domElement);
     const scene=new THREE.Scene();
@@ -88,7 +88,7 @@ async function boot(){
       const target=farm.resourcePositions?.[id]?.[index]||farm.resourcePositions?.[id]?.[0]||farm.fruitPositions[1];
       desired.set(target.x,.77,target.z+.55);
       zoomTarget=1.56;
-      overviewBtn.hidden=false;
+      overviewBtn.hidden=true;
       status('farm.focused');
       game.openIngredient(id);
     }
@@ -99,18 +99,58 @@ async function boot(){
     game.onHarvestEffect(id=>{farm.playHarvest(id);overview();});
     status('farm.ready');
 
-    let pointerDown=null;
-    renderer.domElement.addEventListener('pointerdown',e=>{pointerDown={x:e.clientX,y:e.clientY};});
-    renderer.domElement.addEventListener('pointercancel',()=>pointerDown=null);
+    // Farm-first gestures: one-finger pan, two-finger pinch, wheel zoom.
+    // A tap only selects when the pointer has not moved beyond the drag threshold.
+    const pointers=new Map();let gestureMoved=false,lastTap=null;
+    const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+    function pan(dx,dy){
+      const factor=8/(Math.max(240,mount.clientWidth)*camera.zoom);
+      desired.x=clamp(desired.x-(dx+dy*.50)*factor,-2.0,2.0);
+      desired.z=clamp(desired.z+(-dx*.55+dy)*factor,-1.65,1.65);
+    }
+    function zoom(delta){zoomTarget=clamp(zoomTarget*delta,.72,2.15);}
+    renderer.domElement.addEventListener('pointerdown',e=>{
+      renderer.domElement.setPointerCapture?.(e.pointerId);
+      pointers.set(e.pointerId,{x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY});
+      if(pointers.size>1)gestureMoved=true;
+    });
+    renderer.domElement.addEventListener('pointercancel',e=>pointers.delete(e.pointerId));
+    renderer.domElement.addEventListener('pointermove',e=>{
+      const p=pointers.get(e.pointerId);if(!p)return;
+      const dx=e.clientX-p.x,dy=e.clientY-p.y;
+      if(Math.hypot(e.clientX-p.startX,e.clientY-p.startY)>10)gestureMoved=true;
+      if(pointers.size===1&&gestureMoved)pan(dx,dy);
+      if(pointers.size===2){
+        const other=[...pointers.entries()].find(([id])=>id!==e.pointerId)?.[1];
+        if(other){const oldD=Math.hypot(p.x-other.x,p.y-other.y),newD=Math.hypot(e.clientX-other.x,e.clientY-other.y);if(oldD>10)zoom(newD/oldD);}
+      }
+      p.x=e.clientX;p.y=e.clientY;
+    });
     renderer.domElement.addEventListener('pointerup',e=>{
-      const from=pointerDown;pointerDown=null;
-      if(!from||Math.hypot(e.clientX-from.x,e.clientY-from.y)>13)return;
+      const p=pointers.get(e.pointerId);const wasMulti=pointers.size>1;
+      pointers.delete(e.pointerId);
+      if(!p||wasMulti){if(!pointers.size)gestureMoved=false;return;}
+      const moved=gestureMoved||Math.hypot(e.clientX-p.startX,e.clientY-p.startY)>10;
+      gestureMoved=false;if(moved)return;
       const rect=renderer.domElement.getBoundingClientRect();if(!rect.width||!rect.height)return;
       pointer.set((e.clientX-rect.left)/rect.width*2-1,-((e.clientY-rect.top)/rect.height*2-1));
       raycaster.setFromCamera(pointer,camera);
       const intersections=raycaster.intersectObjects(farm.colliders,false);
-      if(intersections.length){const data=intersections[0].object.userData;focus(data.ingredient||'tomato',data.fruitIndex??0);}
+      if(intersections.length){const data=intersections[0].object.userData;selectResource(data.ingredient||'tomato');lastTap=null;return;}
+      const now=performance.now();if(lastTap&&now-lastTap.time<350&&Math.hypot(e.clientX-lastTap.x,e.clientY-lastTap.y)<35){overview();lastTap=null;}else lastTap={time:now,x:e.clientX,y:e.clientY};
     });
+    renderer.domElement.addEventListener('wheel',e=>{e.preventDefault();zoom(e.deltaY>0?.91:1.09);},{passive:false});
+    renderer.domElement.addEventListener('keydown',e=>{
+      if(e.key==='+'||e.key==='=')zoom(1.12);
+      else if(e.key==='-')zoom(.89);
+      else if(e.key==='ArrowLeft')pan(-30,0);
+      else if(e.key==='ArrowRight')pan(30,0);
+      else if(e.key==='ArrowUp')pan(0,-30);
+      else if(e.key==='ArrowDown')pan(0,30);
+      else if(e.key==='Home')overview();else return;
+      e.preventDefault();
+    });
+    renderer.domElement.tabIndex=0;
     const onLanguage=()=>renderer.domElement.setAttribute('aria-label',i18n.t('farm.viewLabel'));
     document.addEventListener('kg:languagechange',onLanguage);
     renderer.domElement.addEventListener('webglcontextlost',event=>{
