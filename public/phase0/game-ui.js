@@ -10,6 +10,7 @@ import {ingredientIconMarkup} from './ingredient-icons.js';
 import {initRecipeDiscovery} from './recipe-discovery.js';
 import {unitOptions,displayAmount} from './units.js';
 import {previewLocalInventoryTransfer} from './shared-pantry-session.js';
+import {initFamilyOnboarding} from './family-onboarding.js';
 import {SELECTION_KEY,emptySelection,sanitizeSelection,selectQuantity,selectedQuantity,selectionReadiness} from './recipe-selection.js';
 
 const byId = id => document.getElementById(id);
@@ -338,6 +339,9 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
     else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
   });
+  // The backend is disabled by default. Onboarding can be reviewed locally,
+  // but no remote auth or grocery transfer runs without approved configuration.
+  initFamilyOnboarding({getLocale:()=>i18n.locale});
   const recipeDiscovery=initRecipeDiscovery({
     getState:()=>state,getLocale:()=>i18n.locale,
     onAddToPantry:({ingredientId,quantity,unit})=>{
