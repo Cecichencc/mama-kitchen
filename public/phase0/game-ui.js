@@ -8,6 +8,7 @@ import {
 } from './domain.js';
 import {ingredientIconMarkup} from './ingredient-icons.js';
 import {initRecipeDiscovery} from './recipe-discovery.js';
+import {SELECTION_KEY,emptySelection,sanitizeSelection,selectQuantity,selectedQuantity,selectionReadiness} from './recipe-selection.js';
 
 const byId = id => document.getElementById(id);
 const esc = x => String(x).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -17,10 +18,21 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   const t = key => i18n.t(key);
   let state=emptyState(),modal=null,originalFocus=null,activeIngredient='tomato',activeTab='farm';
   let currentCookKey=null,submitting=false,toastTimer=null;
+  let selection=emptySelection();
   const storage=(()=>{try{return window.localStorage}catch{return null}})();
   let storageFailed=false;
   try {state=loadState(storage?.getItem(STORAGE_KEY));}
   catch(error){storageFailed=true;console.warn('Inventory could not be restored',error);state=emptyState();}
+  // Migrate old held ingredients to a non-reserving selection once, without stock changes.
+  try {
+    const saved=storage?.getItem(SELECTION_KEY);
+    selection=sanitizeSelection(saved?JSON.parse(saved):{lines:state.basket.lines},state.batches);
+    if(state.basket.lines.length){state={...state,basket:{lines:[],expiresAt:null}};storage?.setItem(STORAGE_KEY,JSON.stringify(state));}
+    storage?.setItem(SELECTION_KEY,JSON.stringify(selection));
+  }catch(error){console.warn('Recipe selections could not be restored',error);selection=emptySelection();}
+  const selected=id=>selectedQuantity(selection,state.batches,id);
+  const selectionLines=()=>selection.lines;
+  function saveSelection(next){selection=sanitizeSelection(next,state.batches);try{storage?.setItem(SELECTION_KEY,JSON.stringify(selection));}catch{}render();}
   const views={farm:byId('farmView'),today:byId('todayView'),pantry:byId('pantryView')};
   const tabs={farm:byId('navFarm'),today:byId('navToday'),pantry:byId('navPantry')};
   const panels=[...document.querySelectorAll('.game-sheet')];
@@ -29,9 +41,9 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   const sourceLabel=source=>t('game.'+source);
   const name=id=>t(id==='egg'?'game.eggs':'farm.tomato');
   const prettyLine=(b,q)=>`${name(b.ingredientId)} · ${q} ${t('game.pieces')} · ${sourceLabel(b.organicStatus)}`;
-  const labelFor=b=>`${sourceLabel(b.organicStatus)} · ${t('game.'+b.storage)} · ${availableQuantity(state,b.id)} ${t('game.available')}`;
+  const labelFor=b=>`${sourceLabel(b.organicStatus)} · ${t('game.'+b.storage)} · ${b.onHand} ${t('game.pieces')}`;
   const batchesOf=id=>state.batches.filter(b=>b.ingredientId===id);
-  const liveBatches=id=>batchesOf(id).filter(b=>availableQuantity(state,b.id)>0);
+  const liveBatches=id=>batchesOf(id).filter(b=>b.onHand>0&&isUsableBatch(b));
 
   function toast(text){
     clearTimeout(toastTimer);note.hidden=false;note.textContent=text;
@@ -48,6 +60,8 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   }
   function save(next){
     state=next;
+    selection=sanitizeSelection(selection,state.batches);
+    try{storage?.setItem(SELECTION_KEY,JSON.stringify(selection));}catch{}
     try{storage?.setItem(STORAGE_KEY,JSON.stringify(state));if(!storage)storageFailed=true;}
     catch(error){storageFailed=true;console.warn('Inventory is in-memory only',error);}
     render();
@@ -57,7 +71,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     try{const next=action(state);if(next!==state)save(next);else render();return true;}
     catch(error){showError(error);render();return false;}
   }
-  function expireOnInteraction(){const fresh=expireBasket(state);if(fresh!==state){save(fresh);toast(t('basket.expired'));}}
+  function expireOnInteraction(){}
 
   function openPanel(id){
     expireOnInteraction();
@@ -104,7 +118,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     return sources.length?sources.join(' · '):t('game.noStock');
   }
   function renderIngredient(){
-    const id=activeIngredient,available=usableTotal(state,id),held=basketQuantity(state,id);
+    const id=activeIngredient,available=usableTotal(state,id),held=selected(id);
     byId('ingredientHeading').textContent=name(id);
     byId('ingredientZone').textContent=t(id==='tomato'?'sheet.zone':'game.barn');
     byId('ingredientAvailability').textContent=selectedSourceSummary(id);
@@ -121,12 +135,12 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     byId('harvestPlus').disabled=!selected;
     byId('harvestBtn').disabled=!selected;
     const input=byId('harvestQuantity');
-    input.max=String(selected?availableQuantity(state,selected.id):1);
+    input.max=String(selected?selected.onHand:1);
     input.value=String(Math.max(1,Math.min(parseInt(input.value,10)||1,Number(input.max))));
     byId('ingredientHelp').textContent=selected?t('game.selectionNotice'):t('game.noStockHelp');
   }
   function renderBasket(){
-    const lines=state.basket.lines;
+    const lines=selectionLines();
     const count=lines.reduce((n,l)=>n+l.quantity,0);
     byId('basketBadge').textContent=String(count);
     byId('basketBadge').hidden=count===0;
@@ -136,9 +150,9 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     else area.innerHTML=lines.map(line=>{
       const b=state.batches.find(x=>x.id===line.batchId);
       if(!b)return '';
-      return `<div class="basket-line"><span class="line-icon" aria-hidden="true">${ingredientIconMarkup(b.ingredientId)}</span><div class="line-main"><strong>${esc(name(b.ingredientId))}</strong><span>${esc(sourceLabel(b.organicStatus))} · ${esc(t('game.held'))}</span></div><div class="mini-quantity kg-basket-stepper"><button type="button" class="kg-step-button" data-basket-decrement="${esc(b.id)}" aria-label="${esc(t('game.decrease'))}" ${line.quantity<=1?'disabled':''}>−</button><output aria-live="polite" aria-label="${esc(t('game.quantity'))}">${line.quantity}</output><button type="button" class="kg-step-button kg-step-plus" data-basket-increment="${esc(b.id)}" aria-label="${esc(t('game.increase'))}" ${line.quantity>=b.onHand?'disabled':''}>+</button><button type="button" class="remove-line" data-basket-remove="${esc(b.id)}" aria-label="${esc(t('game.remove'))}">×</button></div></div>`;
+      return `<div class="basket-line"><span class="line-icon" aria-hidden="true">${ingredientIconMarkup(b.ingredientId)}</span><div class="line-main"><strong>${esc(name(b.ingredientId))}</strong><span>${esc(sourceLabel(b.organicStatus))} </span></div><div class="mini-quantity kg-basket-stepper"><button type="button" class="kg-step-button" data-basket-decrement="${esc(b.id)}" aria-label="${esc(t('game.decrease'))}" ${line.quantity<=1?'disabled':''}>−</button><output aria-live="polite" aria-label="${esc(t('game.quantity'))}">${line.quantity}</output><button type="button" class="kg-step-button kg-step-plus" data-basket-increment="${esc(b.id)}" aria-label="${esc(t('game.increase'))}" ${line.quantity>=b.onHand?'disabled':''}>+</button><button type="button" class="remove-line" data-basket-remove="${esc(b.id)}" aria-label="${esc(t('game.remove'))}">×</button></div></div>`;
     }).join('');
-    const readiness=recipeReadiness(state);
+    const readiness=selectionReadiness(selection,state.batches);
     byId('basketRecipe').hidden=!lines.length;
     byId('recipeReadyNote').textContent=readiness.possible?t('game.readyRecipe'):`${t('game.needRecipe')} ${readiness.tomato}/2 ${t('game.tomatoShort')} · ${readiness.egg}/3 ${t('game.eggShort')}`;
     byId('basketRecipeBtn').disabled=!readiness.possible;
@@ -149,9 +163,9 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     byId('pantryBatchCount').textContent=`${state.batches.length} ${t('game.batches')}`;
     if(!state.batches.length){list.innerHTML=`<p class="empty-state">${esc(t('pantry.empty'))}</p>`;return;}
     list.innerHTML=state.batches.map(b=>{
-      const held=heldQuantity(state,b.id),available=availableQuantity(state,b.id),blocked=!isUsableBatch(b);
+      const available=availableQuantity(state,b.id),blocked=!isUsableBatch(b);
       return `<article class="stock-batch"><div class="stock-batch-head"><strong>${ingredientIconMarkup(b.ingredientId)} ${esc(name(b.ingredientId))}</strong><span class="stock-chip">${esc(sourceLabel(b.organicStatus))}</span></div>
-        <div class="stock-meta">${esc(t('game.atHome'))}: ${b.onHand} ${esc(t('game.pieces'))} · ${esc(t('game.held'))}: ${held} · ${esc(t('game.available'))}: ${available}<br>${esc(t('game.'+b.storage))}${b.useBy?' · '+esc(t('game.useBy'))+': '+esc(b.useBy):''}${blocked?' · '+esc(t('game.expired')):''}</div>
+        <div class="stock-meta">${esc(t('game.atHome'))}: ${b.onHand} ${esc(t('game.pieces'))} : ${held} · ${esc(t('game.available'))}: ${available}<br>${esc(t('game.'+b.storage))}${b.useBy?' · '+esc(t('game.useBy'))+': '+esc(b.useBy):''}${blocked?' · '+esc(t('game.expired')):''}</div>
         <div class="stock-controls"><label>${esc(t('pantry.actual'))}<input class="stock-correction-input" aria-label="${esc(t('pantry.actual'))}" type="number" inputmode="numeric" min="0" max="99999" step="1" value="${b.onHand}" data-stock-value="${esc(b.id)}"/></label><button type="button" class="mini-action" data-stock-correct="${esc(b.id)}">${esc(t('game.update'))}</button><button type="button" class="mini-action warning" data-stock-empty="${esc(b.id)}">${esc(t('pantry.usedUp'))}</button></div></article>`;
     }).join('');
   }
@@ -164,9 +178,9 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     }else byId('mealStatus').textContent=t('game.recipeName');
   }
   function renderRecipe(){
-    const ready=recipeReadiness(state);
+    const ready=selectionReadiness(selection,state.batches);
     byId('recipeIngredients').innerHTML=RECIPE.ingredients.map(x=>{
-      const actual=basketQuantity(state,x.ingredientId);
+      const actual=selected(x.ingredientId);
       return `<div class="ingredient-tile"><strong>${ingredientIconMarkup(x.ingredientId)} ${esc(name(x.ingredientId))}</strong><span>${actual}/${x.quantity} ${esc(t('game.pieces'))} · ${actual>=x.quantity?esc(t('game.ready')):esc(t('game.moreNeeded'))}</span></div>`;
     }).join('');
     byId('recipeSteps').replaceChildren(...(i18n.locale==='zh-CN'?RECIPE.stepsZh:RECIPE.stepsEn).map(line=>{const li=document.createElement('li');li.textContent=line;return li;}));
@@ -210,6 +224,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     if(modal?.id==='ingredientSheet')renderIngredient();
     if(modal?.id==='recipeSheet')renderRecipe();
     if(modal?.id==='completeSheet')renderComplete();
+    selection=sanitizeSelection(selection,state.batches);
     onAvailability({tomato:usableTotal(state,'tomato'),egg:usableTotal(state,'egg')});
   }
   byId('basketBtn').addEventListener('click',()=>{renderBasket();openPanel('basketSheet');});
@@ -225,23 +240,23 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   byId('harvestBtn').addEventListener('click',()=>{
     const batchId=byId('harvestBatch').value,quantity=Number(byId('harvestQuantity').value);
     if(!batchId)return toast(t('game.noStockHelp'));
-    if(!transact(s=>reserve(s,{batchId,quantity})))return;
+    try{saveSelection(selectQuantity(selection,state.batches,batchId,(selection.lines.find(x=>x.batchId===batchId)?.quantity||0)+quantity));}catch(error){showError(error);return;}
     onHarvest(activeIngredient);
     closePanel();toast(t('game.harvestSuccess'));
   });
   byId('restockShortcut').addEventListener('click',()=>openRestock(activeIngredient));
   byId('basketLines').addEventListener('click',event=>{
     const remove=event.target.closest('[data-basket-remove]');
-    if(remove){transact(s=>setReservation(s,{batchId:remove.dataset.basketRemove,quantity:0}));return;}
+    if(remove){saveSelection(selectQuantity(selection,state.batches,remove.dataset.basketRemove,0));return;}
     const inc=event.target.closest('[data-basket-increment]');
     const dec=event.target.closest('[data-basket-decrement]');
     const action=inc||dec;
     if(action){const batchId=inc?.dataset.basketIncrement||dec?.dataset.basketDecrement;
-      const current=state.basket.lines.find(line=>line.batchId===batchId);
-      if(current)transact(s=>setReservation(s,{batchId,quantity:current.quantity+(inc?1:-1)}));
+      const current=selection.lines.find(line=>line.batchId===batchId);
+      if(current)saveSelection(selectQuantity(selection,state.batches,batchId,current.quantity+(inc?1:-1)));
     }
   });
-  byId('basketClearBtn').addEventListener('click',()=>{transact(s=>clearBasket(s));toast(t('basket.returned'));});
+  byId('basketClearBtn').addEventListener('click',()=>{saveSelection(emptySelection());toast(t('basket.returned'));});
   byId('basketRecipeBtn').addEventListener('click',()=>{renderRecipe();openPanel('recipeSheet');});
   byId('backBasketBtn').addEventListener('click',()=>{renderBasket();openPanel('basketSheet');});
   // Cooking confirmation removed: recipes are informational.
