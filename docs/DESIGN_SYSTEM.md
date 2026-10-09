@@ -33,6 +33,7 @@
 - [RECOMMENDATIONS_V3.md](./RECOMMENDATIONS_V3.md) — ranked suggestions, local recent-history rotation and favourites.
 - [SHOPPING_LIST_V1.md](./SHOPPING_LIST_V1.md) — recipe-selected, device-local shopping checklist and Pantry handoff.
 - [SHARED_FAMILY_PANTRY_FOUNDATION.md](./SHARED_FAMILY_PANTRY_FOUNDATION.md) — authenticated cloud inventory foundation, sync semantics and future security gates.
+- [FAMILY_ONBOARDING_V1.md](./FAMILY_ONBOARDING_V1.md) — reviewable email OTP, household create/join and invitation UX, disabled until backend approval.
 - [MINIMAL_FARM_CAMERA.md](./MINIMAL_FARM_CAMERA.md) — camera gestures.
 - [EMPTY_3D_PLOT.md](./EMPTY_3D_PLOT.md) — empty-state restocking.
 - [KITCHEN_GARDEN_PRD.md](./specs/KITCHEN_GARDEN_PRD.md) — product requirements.
@@ -63,3 +64,7 @@ Today's Kitchen includes an optional Shopping List entry; recipe details contain
 ## Family Pantry preparation (2026-10-10)
 
 The Pantry includes an **informational**, bilingual local-only family-sharing status and opt-in review of the currently stored batch counts. This is not active sync, and neither credentials nor real grocery data are uploaded. A future signed-in shared mode must use authenticated household membership, server-controlled stock transactions and version-based conflict resolution. See [SHARED_FAMILY_PANTRY_FOUNDATION.md](./SHARED_FAMILY_PANTRY_FOUNDATION.md). Keep the existing real 3D farm, compact three-meal cards and recipe-selected shopping list unchanged until a separately approved backend activation.
+
+## Family onboarding review (2026-10-10)
+
+A new optional **Explore family sharing setup** button appears within the existing Family Pantry section, not on the farm HUD. The mobile bottom dialog illustrates and (once gated credentials are approved) executes email-code sign-in, household creation and invitation join. On the current GitHub preview the network actions are disabled with a clear preview-only status. The dialog uses the existing green/cream UI tokens, keyboard-accessible controls and bilingual copy. Nothing is uploaded or synced. Reference [FAMILY_ONBOARDING_V1.md](./FAMILY_ONBOARDING_V1.md).
