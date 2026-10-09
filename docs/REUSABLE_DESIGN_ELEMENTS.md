@@ -28,9 +28,9 @@ Current IDs: `tomato`, `egg`, `bokchoy`, `carrot`, `potato`, `onion`, `garlic`, 
 
 **Recipe art API:** `recipeArtMarkup(id)` and `RECIPE_ART_IDS` in `public/phase0/recipe-art.js`.
 
-Current IDs: `tomato-egg`, `bokchoy-garlic`, `mushroom-rice`, `salmon-bowl`, `pumpkin-soup`, `egg-breakfast`, `tomato-soup`.
+Current 19 IDs: `tomato-egg`, `bokchoy-garlic`, `mushroom-rice`, `salmon-bowl`, `pumpkin-soup`, `egg-breakfast`, `steamed-egg`, `tomato-soup`, `egg-rice-porridge`, `carrot-egg-pancakes`, `mushroom-egg-soup`, `onion-scrambled-eggs`, `tomato-potato-soup`, `potato-carrot-stir-fry`, `mushroom-bokchoy`, `chicken-potato-stew`, `tomato-fish-soup`, `carrot-egg-fried-rice`, `chicken-carrot-rice`.
 
-Shared visual parts: tomato wedge, scrambled egg, leaf, rice, mushroom, salmon, pumpkin, chicken, cream plate/bowl and grounded ellipse. These are currently composed inside `recipe-art.js`, not separately published exports.
+Shared visual parts: tomato wedge, scrambled egg, leaf, rice, mushroom, salmon, pumpkin, chicken, carrot, potato, onion, fish, egg pancake, cream plate/bowl and grounded ellipse. These are currently composed inside `recipe-art.js`, not separately published exports.
 
 **Contracts:** grocery icon 64×64 flat SVG; recipe illustration 320×240 layered SVG. No binary WebP files needed. Always use the same art for the same recipe ID. Decorative SVGs are `aria-hidden` and accompanied by text. Visual assets do not create inventory or recipe-feasibility support.
 
@@ -70,3 +70,7 @@ The current builders are local functions inside `createPastelWorld`, **not** sep
 6. Add English and Chinese labels; preserve keyboard and fallback accessibility.
 7. Test mobile widths, WebGL gesture interactions, visual proportions and recipe matching.
 8. Update documentation only after actual code changes; use draft PR and no production merge without approval.
+
+### Home-recipe illustrations (2026-10-09)
+
+Additional recipe data lives in `public/phase0/home-recipes.js`; all compositions reuse the existing `dish`, `scatter`, `at` helpers in `recipe-art.js`. IDs map directly to titles and units in the recipe catalogue. See [HOME_RECIPE_LIBRARY_V1.md](./HOME_RECIPE_LIBRARY_V1.md). None of these illustrations imply stocked groceries or a cookable dish.

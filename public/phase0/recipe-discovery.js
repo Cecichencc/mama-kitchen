@@ -1,4 +1,4 @@
-import {rankedRecipes,RECIPES,recipeAvailability,ingredientLabels} from './recipes.js';
+import {rankedRecipes,RECIPES,recipeAvailability,ingredientLabels,formatRecipeQuantity} from './recipes.js';
 const key='kitchen-garden.recipe-favourites.v1';
 import {recipeArtMarkup} from './recipe-art.js';
 import {buildDailyIdeas,MEALS} from './meal-planner.js';
@@ -70,7 +70,7 @@ export function initRecipeDiscovery({getState,getLocale}){
   const avail=recipeAvailability(r,getState());
   panel.innerHTML=`<div class="kg-detail-top"><button type="button" data-close-detail aria-label="${tr('Close','关闭')}">×</button><button type="button" data-fav="${r.id}" aria-label="${tr('Toggle favourite','收藏或取消收藏')}">${fav.includes(r.id)?'♥':'♡'}</button></div>
   <div class="kg-detail-art" aria-hidden="true">${art(r)}</div><h2>${title(r)}</h2><p>◷ ${r.minutes} ${tr('min','分钟')} · ${tr('Serves 2','两人份')}</p><p class="kg-recipe-status">${badge({...avail,recipe:r})}</p>
-  <h3>${tr('Ingredients','食材')}</h3><ul>${r.ingredients.map(([id,q])=>`<li>${label(id)} <span>${q??tr('To taste / as needed','适量')}</span></li>`).join('')}</ul>
+  <h3>${tr('Ingredients','食材')}</h3><ul>${r.ingredients.map(([id,q])=>`<li>${label(id)} <span>${formatRecipeQuantity(id,q,getLocale())}</span></li>`).join('')}</ul>
   <h3>${tr('Steps','做法')}</h3><ol>${(zh()?r.stepsZh:r.stepsEn).map(step=>`<li>${step}</li>`).join('')}</ol>
   <p class="kg-recipe-footnote">${tr('Viewing recipes never changes your grocery stock.','查看菜谱不会改变食材库存。')}</p>`;
   panel.hidden=false;document.body.classList.add('kg-detail-open');panel.focus();

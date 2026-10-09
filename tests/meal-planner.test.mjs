@@ -19,7 +19,7 @@ test('tracked stock is allocated across three meals without double counting',()=
 });
 test('untracked groceries are flagged as unknown rather than verified available',()=>{
  const p=buildDailyIdeas(stock(0,0),{date});
- for(const item of Object.values(p.items))if(item)assert.equal(item.verified,false);
+ for(const item of Object.values(p.items))if(item){assert.equal(item.ready,false);assert.equal(item.provisional,true);}
 });
 test('individual swap preserves physical stock and keeps unique dishes',()=>{
  const s=stock(6,8),p=buildDailyIdeas(s,{date,offsets:{lunch:1}});
