@@ -34,10 +34,11 @@ export function buildDailyIdeas(state,{date=dateSG(Date.now()),offsets={},previo
     Number(previous.includes(a.recipe.id))-Number(previous.includes(b.recipe.id))||
     a.recipe.minutes-b.recipe.minutes);
   const feasible=choices.filter(x=>!x.missing.length);
-  const index=Math.abs(Number(offsets[meal])||0)%Math.max(feasible.length,1);
-  const selected=feasible[index]||null;
-  items[meal]=selected?{...selected,needsCheck:selected.unknown.length>0}:null;
-  if(selected){used.add(selected.recipe.id);allocate(selected.recipe,remaining);}
+  const candidates=feasible.length?feasible:choices;
+  const index=Math.abs(Number(offsets[meal])||0)%Math.max(candidates.length,1);
+  const selected=candidates[index]||null;
+  items[meal]=selected?{...selected,provisional:selected.missing.length>0||selected.unknown.length>0,needsCheck:selected.unknown.length>0}:null;
+  if(selected){used.add(selected.recipe.id);if(!selected.missing.length)allocate(selected.recipe,remaining);}
  }
  return {date,items,remaining};
 }
