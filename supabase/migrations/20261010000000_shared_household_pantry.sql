@@ -261,6 +261,9 @@ begin
  if v_row.version<>p_expected_version then
   raise exception 'STALE_VERSION' using errcode='40001';
  end if;
+ if p_reason in ('used-outside','discarded') and p_on_hand>v_row.on_hand then
+  raise exception 'INVALID_CORRECTION' using errcode='22023';
+ end if;
  v_old=v_row.on_hand;
  update public.kg_batches set on_hand=p_on_hand,version=version+1,updated_at=now()
  where id=p_batch returning * into v_row;
