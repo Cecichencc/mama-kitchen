@@ -54,7 +54,7 @@ test('reading a household sends bearer token and user-scoped REST request',async
 test('untrusted household identifiers are rejected before fetch',async()=>{
  let calls=0;
  const api=gateway(async()=>{calls++;return ok([])});
- await assert.rejects(()=>api.readBatches('eq.all%25'),/INVALID_HOUSEHOLD/);
+ assert.throws(()=>api.readBatches('eq.all%25'),/INVALID_HOUSEHOLD/);
  assert.equal(calls,0);
 });
 test('add converts kg to grams using idempotency key, never client-side stock writes',async()=>{
@@ -66,7 +66,7 @@ test('add converts kg to grams using idempotency key, never client-side stock wr
  assert.equal(requests[0].body.p_quantity,1500);
  assert.equal(requests[0].body.p_unit,'g');
  assert.equal(requests[0].body.p_request_id,requestId);
- await assert.rejects(()=>api.addBatch({householdId:home,ingredientId:'egg',
+ assert.throws(()=>api.addBatch({householdId:home,ingredientId:'egg',
   quantity:1.5,organicStatus:'unknown',storage:'fridge'}),/INVALID_QUANTITY/);
  assert.equal(requests.length,1);
 });
