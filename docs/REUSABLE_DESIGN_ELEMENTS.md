@@ -14,6 +14,9 @@
 | `ui/pantry-form` | `#groceryForm` | Quantity, organic source, storage, date |
 | `ui/recipe-card` | `.kg-recipe-card` | SVG dish, title, minutes, availability, View Recipe |
 | `ui/recipe-detail` | `#kgRecipeDetail` | Same dish art, ingredients, steps, favourite |
+| `ui/shopping-entry` | `.kg-shopping-entry` | Optional button on Today's Kitchen showing count of selected recipes |
+| `ui/shopping-sheet` | `#kgShoppingSheet` | Mobile bottom sheet/desktop dialog with recipe chips, shortages, check at home, and Pantry handoff |
+| `ui/shopping-line` | `.kg-shop-row` | Quantity-aware checklist row with explicit Add to Pantry action |
 | `ui/recipe-filter` | `.kg-recipe-filters` | All/Breakfast/Lunch/Dinner |
 | `ui/main-nav` | `.bottom-nav` | Farm / Today's Meals / Pantry |
 | `ui/webgl-fallback` | `#fallback` | Accessible alternative when 3D fails |
@@ -74,3 +77,7 @@ The current builders are local functions inside `createPastelWorld`, **not** sep
 ### Home-recipe illustrations (2026-10-09)
 
 Additional recipe data lives in `public/phase0/home-recipes.js`; all compositions reuse the existing `dish`, `scatter`, `at` helpers in `recipe-art.js`. IDs map directly to titles and units in the recipe catalogue. See [HOME_RECIPE_LIBRARY_V1.md](./HOME_RECIPE_LIBRARY_V1.md). None of these illustrations imply stocked groceries or a cookable dish.
+
+## Recipe-to-shopping interaction (2026-10-10)
+
+See [SHOPPING_LIST_V1.md](./SHOPPING_LIST_V1.md). Recipe details reuse the established green CTA style for the optional add-to-list action. The shopping list uses the same cream surfaces, green actions and accessible dialog/focus conventions as existing sheets; it's not a new fourth navigation tab or an overlay on the real 3D farm. The pure reducer `shopping-list.js` and UI adapter `shopping-ui.js` remain distinct. Checkboxes never alter stored inventory.

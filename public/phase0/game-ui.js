@@ -103,6 +103,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   function openRestock(id){
     closePanel();switchTab('pantry');
     byId('groceryIngredient').value=id;
+    renderGroceryUnits();
     byId('groceryQuantity').focus();
   }
   function openIngredient(id){
@@ -319,7 +320,20 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
     else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
   });
-  const recipeDiscovery=initRecipeDiscovery({getState:()=>state,getLocale:()=>i18n.locale});
+  const recipeDiscovery=initRecipeDiscovery({
+    getState:()=>state,getLocale:()=>i18n.locale,
+    onAddToPantry:({ingredientId,quantity,unit})=>{
+      // Shopping suggestions never purchase food or modify physical stock.
+      // Explicit user confirmation is still required in the standard Pantry form.
+      if(!INGREDIENTS[ingredientId]||INGREDIENTS[ingredientId].unit!==unit)return;
+      openRestock(ingredientId);
+      byId('groceryUnit').value=unit;
+      byId('groceryQuantity').value=String(quantity);
+      byId('groceryQuantityError').hidden=true;
+      byId('groceryQuantity').removeAttribute('aria-invalid');
+      byId('groceryQuantity').focus();
+    }
+  });
   recipeDiscovery.render();
   render();
   if(storageFailed)toast(t('pantry.memoryWarning'));

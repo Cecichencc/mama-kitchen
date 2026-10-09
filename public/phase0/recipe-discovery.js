@@ -2,9 +2,10 @@ import {rankedRecipes,RECIPES,recipeAvailability,ingredientLabels,formatRecipeQu
 const key='kitchen-garden.recipe-favourites.v1';
 import {recipeArtMarkup} from './recipe-art.js';
 import {buildDailyIdeas,MEALS} from './meal-planner.js';
+import {initShoppingListUI} from './shopping-ui.js';
 import {sanitizeSuggestionState,beginSuggestionDay,rememberSuggestedPlan,recentSuggestedRecipeIds} from './daily-suggestions.js';
 const art=recipe=>recipeArtMarkup(recipe.id);
-export function initRecipeDiscovery({getState,getLocale}){
+export function initRecipeDiscovery({getState,getLocale,onAddToPantry=()=>{}}){
  const host=document.getElementById('todayView');
  const root=document.createElement('section');root.className='kg-recipe-discovery';
  host.append(root);host.classList.add('kg-recipe-enabled');
@@ -30,7 +31,10 @@ export function initRecipeDiscovery({getState,getLocale}){
  const mealName=m=>({breakfast:tr('Breakfast','早餐'),lunch:tr('Lunch','午餐'),dinner:tr('Dinner','晚餐')})[m];
  function dailyMarkup(plan){
   return `<section class="kg-daily-plan">
-    <div class="kg-daily-head"><h2>${tr('Today’s Kitchen','今日三餐')}</h2><p>${tr('Pantry-aware ideas with fresh variety each day.','根据家中食材，每天换点新花样。')}</p></div>
+    <div class="kg-daily-head"><div class="kg-daily-head-row">
+      <div><h2>${tr('Today’s Kitchen','今日三餐')}</h2><p>${tr('Pantry-aware ideas with fresh variety each day.','根据家中食材，每天换点新花样。')}</p></div>
+      <button type="button" class="kg-shopping-entry" data-shop-open><span aria-hidden="true">🛒</span> ${tr('Shopping List','购物清单')}<span class="kg-shopping-count">${shoppingUI.recipeCount()}</span></button>
+    </div></div>
     <div class="kg-daily-grid">${MEALS.map(m=>{
       const item=plan.items[m];
       if(!item)return `<article class="kg-daily-meal"><div class="kg-daily-title"><h3>${mealName(m)}</h3></div><p class="kg-no-meal">${tr('Add a recipe to see more ideas.','添加菜谱后查看更多建议。')}</p></article>`;
@@ -57,6 +61,7 @@ export function initRecipeDiscovery({getState,getLocale}){
  const tr=(en,cn)=>zh()?cn:en;
  const title=r=>zh()?r.zh:r.en;
  const label=id=>ingredientLabels[id]?.[zh()?1:0]||id;
+ const shoppingUI=initShoppingListUI({getState,getLocale,onAddToPantry,beforeOpen:()=>closeDetail(),onChange:()=>render()});
  function badge(item){return item.ready?tr('Recorded ingredients sufficient','已记录食材足够'):[item.missing.length?tr('Insufficient: ','数量不足：')+item.missing.map(label).join(', '):'',item.unknown.length?tr('Verify: ','请核对：')+item.unknown.map(label).join(', '):''].filter(Boolean).join(' · ');}
  function card(item,featured=false){const r=item.recipe;return `<article class="kg-recipe-card ${featured?'featured':''}">
  <div class="kg-recipe-illustration" aria-hidden="true">${art(r)}</div>
@@ -83,6 +88,7 @@ export function initRecipeDiscovery({getState,getLocale}){
   panel.innerHTML=`<div class="kg-detail-top"><button type="button" data-close-detail aria-label="${tr('Close','关闭')}">×</button><button type="button" data-fav="${r.id}" aria-label="${tr('Toggle favourite','收藏或取消收藏')}">${fav.includes(r.id)?'♥':'♡'}</button></div>
   <div class="kg-detail-art" aria-hidden="true">${art(r)}</div><h2>${title(r)}</h2><p>◷ ${r.minutes} ${tr('min','分钟')} · ${tr('Serves 2','两人份')}</p><p class="kg-recipe-status">${badge({...avail,recipe:r})}</p>
   <h3>${tr('Ingredients','食材')}</h3><ul>${r.ingredients.map(([id,q])=>`<li>${label(id)} <span>${formatRecipeQuantity(id,q,getLocale())}</span></li>`).join('')}</ul>
+  <button type="button" class="kg-recipe-shopping-action" data-shop-recipe="${r.id}"><span aria-hidden="true">🛒</span> ${shoppingUI.isSelected(r.id)?tr('View Shopping List','查看购物清单'):tr('Add recipe to Shopping List','加入购物清单')}</button>
   <h3>${tr('Steps','做法')}</h3><ol>${(zh()?r.stepsZh:r.stepsEn).map(step=>`<li>${step}</li>`).join('')}</ol>
   <p class="kg-recipe-footnote">${tr('Viewing recipes never changes your grocery stock.','查看菜谱不会改变食材库存。')}</p>`;
   panel.hidden=false;document.body.classList.add('kg-detail-open');panel.focus();

@@ -31,6 +31,7 @@
 - [FLAT_SVG_RECIPE_ART.md](./FLAT_SVG_RECIPE_ART.md) — recipe-art implementation.
 - [HOME_RECIPE_LIBRARY_V1.md](./HOME_RECIPE_LIBRARY_V1.md) — current bilingual recipe catalogue, unit conventions and feasibility guardrails.
 - [RECOMMENDATIONS_V3.md](./RECOMMENDATIONS_V3.md) — ranked suggestions, local recent-history rotation and favourites.
+- [SHOPPING_LIST_V1.md](./SHOPPING_LIST_V1.md) — recipe-selected, device-local shopping checklist and Pantry handoff.
 - [MINIMAL_FARM_CAMERA.md](./MINIMAL_FARM_CAMERA.md) — camera gestures.
 - [EMPTY_3D_PLOT.md](./EMPTY_3D_PLOT.md) — empty-state restocking.
 - [KITCHEN_GARDEN_PRD.md](./specs/KITCHEN_GARDEN_PRD.md) — product requirements.
@@ -53,3 +54,7 @@ The curated recipe catalogue now combines `recipes.js` with 11 dishes in `home-r
 ## Today’s Kitchen recommendation behavior (2026-10-10)
 
 Today's Kitchen and Recipe Ideas share deterministic Pantry-aware ranking. Favourites and suggestions from the past seven Singapore-calendar days are soft tie-breakers and never override clearer inventory feasibility. The three compact meal cards and Another Idea affordance remain unchanged; newly exposed alternatives are labelled provisional when ingredients need checking. Device-local suggestion history must never be described as a cooking log. The 3D farm and flat SVG art are unaffected.
+
+## Smart Shopping List v1 (2026-10-10)
+
+Today's Kitchen includes an optional Shopping List entry; recipe details contain an Add recipe to Shopping List action. The compact cream/green sheet separates measured **To buy** quantities, unmeasured **Check at home** ingredients and already-sufficient recorded stock. Multiple recipes aggregate their ingredient requirements. Checking/copying the list never updates real batches; Add to Pantry only pre-fills the standard form for user confirmation. The existing 3D farm and bottom navigation are unchanged. See [SHOPPING_LIST_V1.md](./SHOPPING_LIST_V1.md).
