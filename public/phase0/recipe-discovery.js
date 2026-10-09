@@ -15,7 +15,33 @@ export function initRecipeDiscovery({getState,getLocale}){
  function dayPlan(){const date=currentDay();if(daily.date!==date)daily={date,offsets:{},history:daily.history?.slice(-12)||[]};return buildDailyIdeas(getState(),{date,offsets:daily.offsets,previous:daily.history});}
  function persistDay(){try{localStorage.setItem(dayKey,JSON.stringify(daily));}catch{}}
  const mealName=m=>({breakfast:tr('Breakfast','早餐'),lunch:tr('Lunch','午餐'),dinner:tr('Dinner','晚餐')})[m];
- function dailyMarkup(){const plan=dayPlan();return `<section class="kg-daily-plan"><div class="kg-daily-head"><h2>${tr('Today’s Kitchen','今日三餐')}</h2><p>${tr('Three different ideas for two. Check untracked groceries before cooking.','两人份三餐灵感，做饭前请核对未记录的食材。')}</p></div><div class="kg-daily-grid">${MEALS.map(m=>{const item=plan.items[m];return `<article class="kg-daily-meal"><div class="kg-daily-title"><h3>${mealName(m)}</h3><button type="button" data-swap-meal="${m}" ${!item?'disabled':''}>↻ ${tr('Another Idea','换一道')}</button></div>${item?`<div class="kg-daily-art">${art(item.recipe)}</div><strong>${title(item.recipe)}</strong><p>◷ ${item.recipe.minutes} ${tr('min','分钟')}</p><p class="kg-recipe-status ${item.needsCheck?'unknown':'ready'}">${item.needsCheck?tr('Check: ','请核对：')+item.unknown.map(label).join(', '):tr('Tracked ingredients available','已记录食材齐全')}</p><button class="kg-daily-view" data-open-recipe="${item.recipe.id}">${tr('View Recipe','查看做法')}</button>`:`<p class="kg-no-meal">${tr('No verified ingredient-feasible idea yet. Add groceries or check Pantry.','暂无已记录食材足够的建议，请先补充库存。')}</p>`}</article>`}).join('')}</div><p class="kg-daily-note">${tr('Suggestions only. Meals are not booked, and viewing them does not deduct groceries.','仅供参考，不预留或扣除食材；未记录的食材需自行确认。')}</p></section>`;}
+ function dailyMarkup(){
+  const plan=dayPlan();
+  return `<section class="kg-daily-plan">
+    <div class="kg-daily-head"><h2>${tr('Today’s Kitchen','今日三餐')}</h2><p>${tr('A little inspiration for your three meals.','为你们的三餐找点灵感。')}</p></div>
+    <div class="kg-daily-grid">${MEALS.map(m=>{
+      const item=plan.items[m];
+      if(!item)return `<article class="kg-daily-meal"><div class="kg-daily-title"><h3>${mealName(m)}</h3></div><p class="kg-no-meal">${tr('Add a recipe to see more ideas.','添加菜谱后查看更多建议。')}</p></article>`;
+      const r=item.recipe;
+      const checks=[...item.missing,...item.unknown];
+      const unique=[...new Set(checks)];
+      const status=item.missing.length?tr('Not enough recorded: ','已记录食材不足：')+item.missing.map(label).join(', '):item.unknown.length?tr('Not recorded: ','未记录：')+item.unknown.map(label).join(', '):tr('Tracked ingredients available','已记录食材齐全');
+      return `<article class="kg-daily-meal">
+        <div class="kg-daily-title"><h3>${mealName(m)}</h3><button type="button" data-swap-meal="${m}" aria-label="${tr('Another','换一道')} ${mealName(m)}"><span aria-hidden="true">↻</span> ${tr('Another Idea','换一道')}</button></div>
+        <div class="kg-daily-body">
+          <div class="kg-daily-art" aria-hidden="true">${art(r)}</div>
+          <div class="kg-daily-info"><h4>${title(r)}</h4><p class="kg-daily-time">◷ ${r.minutes} ${tr('min','分钟')}</p>
+          <p class="kg-daily-status ${item.provisional?'needs-check':'available'}"><span aria-hidden="true">${item.provisional?'!':'✓'}</span> ${status}</p>
+          ${item.missing.length&&item.unknown.length?`<p class="kg-daily-secondary">${tr('Also check: ','还需核对：')}${item.unknown.map(label).join(', ')}</p>`:''}
+          <button type="button" class="kg-daily-view" data-open-recipe="${r.id}">${tr('View Recipe','查看做法')} <span aria-hidden="true">›</span></button>
+          </div>
+        </div>
+      </article>`;
+    }).join('')}</div>
+    <p class="kg-daily-note">${tr('Ideas only. Unrecorded groceries must be checked. Viewing recipes never changes stock.','仅供参考。未记录的食材请核对；查看菜谱不会改变库存。')}</p>
+  </section>`;
+ }
+
  let fav=[];try{fav=JSON.parse(localStorage.getItem(key)||'[]');if(!Array.isArray(fav))fav=[];}catch{fav=[];}
  const zh=()=>getLocale()==='zh-CN';
  const tr=(en,cn)=>zh()?cn:en;

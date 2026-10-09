@@ -14,7 +14,7 @@ test('tracked stock is allocated across three meals without double counting',()=
  const s=stock(2,2),p=buildDailyIdeas(s,{date});
  assert.ok(Object.values(p.remaining).every(n=>n>=0));
  const usage={tomato:0,egg:0};
- for(const item of Object.values(p.items))if(item)for(const [id,q] of item.recipe.ingredients)if(id in usage)usage[id]+=q;
+ for(const item of Object.values(p.items))if(item&&!item.missing.length)for(const [id,q] of item.recipe.ingredients)if(id in usage)usage[id]+=q;
  assert.ok(usage.tomato<=2);assert.ok(usage.egg<=2);
 });
 test('untracked groceries are flagged as unknown rather than verified available',()=>{
@@ -29,4 +29,17 @@ test('individual swap preserves physical stock and keeps unique dishes',()=>{
 test('past-use-by stock excluded from planning',()=>{
  let s=addGroceries(emptyState(),{ingredientId:'egg',quantity:4,useBy:'2026-10-08'},now);
  assert.equal(stockForPlan(s,now).egg,undefined);
+});
+
+test('empty breakfast stock still produces a clearly provisional suggestion',()=>{
+ const p=buildDailyIdeas(stock(0,0),{date});
+ assert.ok(p.items.breakfast);
+ assert.equal(p.items.breakfast.provisional,true);
+ assert.ok(p.items.breakfast.missing.includes('egg'));
+ assert.equal(p.remaining.egg||0,0);
+});
+test('provisional meal ideas do not allocate imaginary stock',()=>{
+ const p=buildDailyIdeas(stock(0,0),{date});
+ assert.ok(Object.values(p.remaining).every(n=>n>=0));
+ assert.ok(Object.values(p.items).every(x=>!x||x.provisional));
 });
