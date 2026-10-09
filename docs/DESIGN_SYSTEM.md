@@ -1,52 +1,45 @@
-# Kitchen Garden — Design System Index
+# Kitchen Garden Design System v2.0
 
-**Version:** 1.0 · 2026-10-08  
-**Approved visual direction:** Soft Pastel Toy World (mint sky, sage island, blush farmhouse, white hen, simple soil-resting tomatoes, cream UI).  
-**Scope of this update:** **Markdown documentation only.** The playable farm, styling code, inventory and deployments remain unchanged.  
-**Baseline reviewed:** `feature/kitchen-garden-grounded-shadows-20261008` (`6caa52c`).
+**Updated:** 2026-10-09. **Baseline:** `feature/kitchen-garden-flat-svg-art-20261009`. Documentation-only update; no production changes.
 
-## Design documentation
+## Three design layers
 
-| File | Purpose | Use when… |
+| Layer | Implementation | Guidance |
 | --- | --- | --- |
-| [DESIGN_STYLES.md](./DESIGN_STYLES.md) | Visual principles, current CSS and 3D colour roles, typography, layout, lighting, grounding, motion, accessibility and responsive QA | Creating/refining visual style, tokens, shadows or camera |
-| [REUSABLE_DESIGN_ELEMENTS.md](./REUSABLE_DESIGN_ELEMENTS.md) | Existing 3D assets, dimensions, model/collider contracts, UI patterns and future component boundaries | Reusing a tomato, tree, hen, farmhouse, farm HUD or planning new ingredients |
-| [PHASE0_PASTEL_REDESIGN.md](./PHASE0_PASTEL_REDESIGN.md) | Original pastel redesign implementation checkpoint | Checking why Phase 0 changed visually |
-| [PHASE0_SHADOW_GROUNDING.md](./PHASE0_SHADOW_GROUNDING.md) | Ground-surface maths, contact-shadow and light configuration decisions | Fixing floating shadows without introducing regressions |
+| UI | `styles.css`, `index.html`, `game-ui.js`, `recipe-discovery.js` | Green controls, cream cards, mobile bottom sheets, minimal HUD |
+| Flat 2D | `ingredient-icons.js`, `recipe-art.js` | Flat SVG grocery icons; layered reusable recipe compositions |
+| Real 3D | `world.js`, `grounding.js`, `scene.js` | Soft Pastel Toy World, real geometry, grounded shadows, touch camera |
 
-## Product and engineering sources
+## Approved rules
 
-| Source | Authority |
-| --- | --- |
-| [KITCHEN_GARDEN_PRD.md](./specs/KITCHEN_GARDEN_PRD.md) | Product goals, household users, five farm areas, accepted workflows |
-| [KITCHEN_GARDEN_GAME_LOGIC.md](./specs/KITCHEN_GARDEN_GAME_LOGIC.md) | Authoritative stock, reservation, cooking, consumption and two-person rules |
-| [KITCHEN_GARDEN_3D_BUILD_PLAN.md](./specs/KITCHEN_GARDEN_3D_BUILD_PLAN.md) | Phases, tech constraints and exit gates |
-| `public/phase0/world.js` | **Actual** model/material implementation and 3D scene geometry |
-| `public/phase0/grounding.js` | **Actual** surface and model grounding calculations |
-| `public/phase0/scene.js` | **Actual** light, camera, renderer, pointer selection and state transitions |
-| `public/phase0/styles.css` | **Actual** DOM/CSS tokens and screen styling |
-| `public/phase0/i18n.js` | **Actual** English and Simplified Chinese copy |
+- The 3D farm remains real Three.js, with sage island, mint sky, pink farmhouse and white hen.
+- Keep the farm HUD minimal: no permanent quantity badges, Tomato/Egg buttons, Back to Farm button, Add Food labels or chicken speech bubble. Pan, pinch, tap and double-tap to reset.
+- Empty crop/nest uses an interactive green 3D + to open Pantry.
+- UI primary actions are garden green, secondary surfaces warm cream, text readable.
+- Grocery icons are **flat SVG**, not clay-shaded; recipes use layered 2D SVG compositions assembled from reusable food shapes and tableware.
+- No binary WebP upload is required for recipe images. Recipe cards and details reuse the same illustration by recipe ID.
+- The product is **recipe-first**: recipe viewing never deducts physical stock. No mandatory cooking confirmation.
+- Navigation: Farm / Today's Meals / Pantry; basket accessible in header.
+- English first, Simplified Chinese switch.
+- Never invent stock, organic certification or recipe feasibility.
 
-When documentation differs from code, **do not silently assume the documented proposal has been implemented**. Resolve the discrepancy explicitly, then update both if and when a code change is approved. For inventory, the game-logic specification remains the non-negotiable rule set.
+## Documentation
 
-## How to use with Codex
+- [DESIGN_STYLES.md](./DESIGN_STYLES.md) — current tokens, typography, spacing, UI/2D/3D art direction.
+- [REUSABLE_DESIGN_ELEMENTS.md](./REUSABLE_DESIGN_ELEMENTS.md) — UI, SVG and 3D component inventory.
+- [AI_DESIGN_GUIDELINES.md](./AI_DESIGN_GUIDELINES.md) — agent instructions and acceptance.
+- [FLAT_SVG_RECIPE_ART.md](./FLAT_SVG_RECIPE_ART.md) — recipe-art implementation.
+- [MINIMAL_FARM_CAMERA.md](./MINIMAL_FARM_CAMERA.md) — camera gestures.
+- [EMPTY_3D_PLOT.md](./EMPTY_3D_PLOT.md) — empty-state restocking.
+- [KITCHEN_GARDEN_PRD.md](./specs/KITCHEN_GARDEN_PRD.md) — product requirements.
+- [KITCHEN_GARDEN_GAME_LOGIC.md](./specs/KITCHEN_GARDEN_GAME_LOGIC.md) — inventory invariants.
 
-1. Read this index, the PRD, game logic and current feature-branch source.
-2. Read **Design Styles** for the accepted visual language; read **Reusable Design Elements** before creating or modifying assets/UI.
-3. Preserve the currently working 3D tomato selection, focus/return, English-first with Chinese switch, mobile fallback and grounded shadows.
-4. Distinguish **implemented**, **proposed** and **future** elements. In particular, existing local 3D builder functions are **not yet exports**.
-5. Never replace live 3D models with reference image sprites, fake stock data, or a static screenshot.
-6. For any implementation change, run tests, review mobile screenshots and compare front/side/top WebGL renders against approved references.
-7. Keep new development on a branch/draft PR; do not publish production without approval.
+## Implemented versus future
 
-## Known gaps (explicitly deferred)
+**Implemented:** green CSS UI, flat SVG icons, seven composed SVG recipe illustrations, 3D farm and gestures, contextual sheets, recipe suggestions, device-local favourites and inventory.
 
-- CSS `--grass` / `--barn` reference values are not identical to the live Three.js grass/house palette; keep the approved current scene and address cross-medium token unification in a separate implementation PR.
-- Some values are still hardcoded in CSS and local Three.js material factories; the current documentation describes them rather than claiming full token refactoring.
-- `world.js` has locally reusable procedural builders, but no exported 3D asset library yet.
-- Only tomato inspection works; basket, recipes, pantry and real stock logic are later phases.
-- Full visual-fidelity and measured FPS acceptance still need actual WebGL and physical iPhone validation.
+**Not yet complete:** exported reusable 3D asset modules, unified cross-medium runtime tokens, reusable published UI component package, cross-device inventory sync, full recipe library and measured iPhone visual/performance acceptance.
 
-## Maintenance checklist
+**Known technical debt:** the basket still uses temporary reservations despite the agreed recipe-selection-only experience. Resolve this in a separately tested domain migration. Older documentation may describe superseded clay-shaded icons or WebP images; this v2 specification takes precedence for design intent, while actual code is authoritative for runtime behaviour.
 
-When updating the design system, include: affected assets/UI components, source files and new tokens, current vs proposed status, English/Chinese copy changes, world-unit anchors and touch colliders, shadow/performance implications, and screenshot / accessibility acceptance. Document a change only after confirming its code status.
+Do not silently change product decisions or production. Implement on branches, test and review.
