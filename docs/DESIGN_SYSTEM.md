@@ -32,6 +32,7 @@
 - [HOME_RECIPE_LIBRARY_V1.md](./HOME_RECIPE_LIBRARY_V1.md) — current bilingual recipe catalogue, unit conventions and feasibility guardrails.
 - [RECOMMENDATIONS_V3.md](./RECOMMENDATIONS_V3.md) — ranked suggestions, local recent-history rotation and favourites.
 - [SHOPPING_LIST_V1.md](./SHOPPING_LIST_V1.md) — recipe-selected, device-local shopping checklist and Pantry handoff.
+- [SHARED_FAMILY_PANTRY_FOUNDATION.md](./SHARED_FAMILY_PANTRY_FOUNDATION.md) — authenticated cloud inventory foundation, sync semantics and future security gates.
 - [MINIMAL_FARM_CAMERA.md](./MINIMAL_FARM_CAMERA.md) — camera gestures.
 - [EMPTY_3D_PLOT.md](./EMPTY_3D_PLOT.md) — empty-state restocking.
 - [KITCHEN_GARDEN_PRD.md](./specs/KITCHEN_GARDEN_PRD.md) — product requirements.
@@ -58,3 +59,7 @@ Today's Kitchen and Recipe Ideas share deterministic Pantry-aware ranking. Favou
 ## Smart Shopping List v1 (2026-10-10)
 
 Today's Kitchen includes an optional Shopping List entry; recipe details contain an Add recipe to Shopping List action. The compact cream/green sheet separates measured **To buy** quantities, unmeasured **Check at home** ingredients and already-sufficient recorded stock. Multiple recipes aggregate their ingredient requirements. Checking/copying the list never updates real batches; Add to Pantry only pre-fills the standard form for user confirmation. The existing 3D farm and bottom navigation are unchanged. See [SHOPPING_LIST_V1.md](./SHOPPING_LIST_V1.md).
+
+## Family Pantry preparation (2026-10-10)
+
+The Pantry includes an **informational**, bilingual local-only family-sharing status and opt-in review of the currently stored batch counts. This is not active sync, and neither credentials nor real grocery data are uploaded. A future signed-in shared mode must use authenticated household membership, server-controlled stock transactions and version-based conflict resolution. See [SHARED_FAMILY_PANTRY_FOUNDATION.md](./SHARED_FAMILY_PANTRY_FOUNDATION.md). Keep the existing real 3D farm, compact three-meal cards and recipe-selected shopping list unchanged until a separately approved backend activation.
