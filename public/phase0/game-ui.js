@@ -9,6 +9,7 @@ import {
 import {ingredientIconMarkup} from './ingredient-icons.js';
 import {initRecipeDiscovery} from './recipe-discovery.js';
 import {unitOptions,displayAmount} from './units.js';
+import {previewLocalInventoryTransfer} from './shared-pantry-session.js';
 import {SELECTION_KEY,emptySelection,sanitizeSelection,selectQuantity,selectedQuantity,selectionReadiness} from './recipe-selection.js';
 
 const byId = id => document.getElementById(id);
@@ -46,6 +47,16 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   const labelFor=b=>`${sourceLabel(b.organicStatus)} · ${t('game.'+b.storage)} · ${amount(b)}`;
   const batchesOf=id=>state.batches.filter(b=>b.ingredientId===id);
   const liveBatches=id=>batchesOf(id).filter(b=>b.onHand>0&&isUsableBatch(b));
+  function renderFamilyPreview(){
+    const target=byId('kgFamilyPreview');
+    if(target.hidden)return;
+    const summary=previewLocalInventoryTransfer(state);
+    byId('kgFamilyPreviewSummary').textContent=t('family.summary')
+      .replace('{batches}',String(summary.batchCount))
+      .replace('{ingredients}',String(summary.ingredientCount))
+      .replace('{dated}',String(summary.datedCount));
+  }
+
 
   function toast(text){
     clearTimeout(toastTimer);note.hidden=false;note.textContent=text;
@@ -162,6 +173,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     byId('basketClearBtn').disabled=!lines.length;
   }
   function renderPantry(){
+    renderFamilyPreview();
     const list=byId('stockList');
     byId('pantryBatchCount').textContent=`${state.batches.length} ${t('game.batches')}`;
     if(!state.batches.length){list.innerHTML=`<p class="empty-state">${esc(t('pantry.empty'))}</p>`;return;}
@@ -246,6 +258,12 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   }
   renderGroceryOptions();
   byId('groceryIngredient').addEventListener('change',renderGroceryUnits);
+  byId('kgReviewLocalStock').addEventListener('click',()=>{
+    const target=byId('kgFamilyPreview');
+    target.hidden=!target.hidden;
+    if(!target.hidden)renderFamilyPreview();
+    byId('kgReviewLocalStock').setAttribute('aria-expanded',String(!target.hidden));
+  });
   byId('groceryQuantity').addEventListener('input',()=>{byId('groceryQuantityError').hidden=true;byId('groceryQuantity').removeAttribute('aria-invalid');});
   byId('basketBtn').addEventListener('click',()=>{renderBasket();openPanel('basketSheet');});
   byId('todayBasketBtn').addEventListener('click',()=>{renderBasket();openPanel('basketSheet');});
