@@ -7,7 +7,7 @@ export function initRecipeDiscovery({getState,getLocale}){
  const host=document.getElementById('todayView');
  const root=document.createElement('section');root.className='kg-recipe-discovery';
  host.append(root);host.classList.add('kg-recipe-enabled');
- let meal='all',offset=0,detail=null;
+ let meal='all',offset=0,detail=null,showMore=false;
  const dayKey='kitchen-garden.daily-ideas.v1';
  let daily={date:'',offsets:{},history:[]};
  try{const v=JSON.parse(localStorage.getItem(dayKey)||'{}');if(v&&typeof v==='object')daily={...daily,...v};}catch{}
@@ -30,11 +30,11 @@ export function initRecipeDiscovery({getState,getLocale}){
  <button type="button" class="cta-button" data-open-recipe="${r.id}">${tr('View Recipe','查看做法')}</button></div></article>`;}
  function render(){
   const items=rankedRecipes(getState(),meal),pick=items[offset%Math.max(1,items.length)];
-  root.innerHTML=`${dailyMarkup()}<header class="kg-recipes-head"><h2>${tr('Recipe Ideas','菜谱推荐')}</h2><p>${tr('Ideas based on your recorded groceries. Untracked ingredients must be checked at home.','根据已记录的食材推荐，未记录的食材请自行核对。')}</p></header>
+  root.innerHTML=`${dailyMarkup()}<section class="kg-extra-recipes" ${showMore?'':'hidden'}><header class="kg-recipes-head"><h2>${tr('Recipe Ideas','菜谱推荐')}</h2><p>${tr('Ideas based on your recorded groceries. Untracked ingredients must be checked at home.','根据已记录的食材推荐，未记录的食材请自行核对。')}</p></header>
   <div class="kg-recipe-filters">${[['all','All','全部'],['breakfast','Breakfast','早餐'],['lunch','Lunch','午餐'],['dinner','Dinner','晚餐']].map(([id,en,cn])=>`<button type="button" data-meal="${id}" class="${meal===id?'active':''}" aria-pressed="${meal===id}">${tr(en,cn)}</button>`).join('')}</div>
   ${pick?card(pick,true):''}
   <button class="kg-another" type="button" data-another>${tr('↻ Another Idea','↻ 换一道')}</button>
-  <h3 class="kg-more-title">${tr('More recipe ideas','更多菜谱')}</h3><div class="kg-more-recipes">${items.filter(x=>x.recipe.id!==pick?.recipe.id).map(x=>card(x)).join('')}</div>`;
+  <h3 class="kg-more-title">${tr('More recipe ideas','更多菜谱')}</h3><div class="kg-more-recipes">${items.filter(x=>x.recipe.id!==pick?.recipe.id).map(x=>card(x)).join('')}</div></section><button type="button" class="kg-more-toggle" data-toggle-more aria-expanded="${showMore}">${showMore?tr('Hide extra recipes','收起更多菜谱'):tr('Explore more recipes','查看更多菜谱')}</button>`;
   if(detail)showDetail(detail);
  }
  function showDetail(id){
@@ -51,8 +51,9 @@ export function initRecipeDiscovery({getState,getLocale}){
  }
  function closeDetail(){const p=document.getElementById('kgRecipeDetail');if(p)p.hidden=true;detail=null;document.body.classList.remove('kg-detail-open');}
  function toggleFav(id){fav=fav.includes(id)?fav.filter(x=>x!==id):[...fav,id];try{localStorage.setItem(key,JSON.stringify(fav));}catch{}render();}
- document.addEventListener('click',e=>{const el=e.target.closest('[data-meal],[data-another],[data-open-recipe],[data-close-detail],[data-fav],[data-swap-meal]');if(!el)return;
-  if(el.dataset.swapMeal){daily.offsets[el.dataset.swapMeal]=(daily.offsets[el.dataset.swapMeal]||0)+1;persistDay();render();}
+ document.addEventListener('click',e=>{const el=e.target.closest('[data-meal],[data-another],[data-open-recipe],[data-close-detail],[data-fav],[data-swap-meal],[data-toggle-more]');if(!el)return;
+  if(el.hasAttribute('data-toggle-more')){showMore=!showMore;render();}
+  else if(el.dataset.swapMeal){daily.offsets[el.dataset.swapMeal]=(daily.offsets[el.dataset.swapMeal]||0)+1;persistDay();render();}
   else if(el.dataset.meal){meal=el.dataset.meal;offset=0;render();}
   else if(el.hasAttribute('data-another')){offset++;render();}
   else if(el.dataset.openRecipe)showDetail(el.dataset.openRecipe);
