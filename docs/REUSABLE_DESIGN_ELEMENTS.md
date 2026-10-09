@@ -12,6 +12,9 @@
 | `ui/ingredient-sheet` | `#ingredientSheet` | Name, sourcing, quantity, Add to Basket |
 | `ui/basket-row` | `.basket-line` | Icon, source, quantity controls, remove |
 | `ui/pantry-form` | `#groceryForm` | Quantity, organic source, storage, date |
+| `ui/family-setup-entry` | `#kgFamilySetupBtn` | Optional in-Pantry onboarding entry; preview-only without backend |
+| `ui/family-onboarding-dialog` | `#kgFamilyOnboarding` | Accessible English/Chinese email OTP, create/join and invitation flow; disabled remote actions until configured |
+| `ui/family-step-nav` | `.kg-family-step-nav` | Compact sign-in/create/join steps, minimum 44px targets |
 | `ui/recipe-card` | `.kg-recipe-card` | SVG dish, title, minutes, availability, View Recipe |
 | `ui/recipe-detail` | `#kgRecipeDetail` | Same dish art, ingredients, steps, favourite |
 | `ui/shopping-entry` | `.kg-shopping-entry` | Optional button on Today's Kitchen showing count of selected recipes |
@@ -81,3 +84,7 @@ Additional recipe data lives in `public/phase0/home-recipes.js`; all composition
 ## Recipe-to-shopping interaction (2026-10-10)
 
 See [SHOPPING_LIST_V1.md](./SHOPPING_LIST_V1.md). Recipe details reuse the established green CTA style for the optional add-to-list action. The shopping list uses the same cream surfaces, green actions and accessible dialog/focus conventions as existing sheets; it's not a new fourth navigation tab or an overlay on the real 3D farm. The pure reducer `shopping-list.js` and UI adapter `shopping-ui.js` remain distinct. Checkboxes never alter stored inventory.
+
+### Family setup UI (2026-10-10)
+
+The onboarding dialog is built with existing CSS and DOM conventions in `public/phase0/family-onboarding.js`, without replacing the approved 3D farm or three-tab navigation. Feature configuration lives in `family-config.js` and is **off by default**. Credential and backend code must never appear in the design-system asset library. See [FAMILY_ONBOARDING_V1.md](./FAMILY_ONBOARDING_V1.md).

@@ -413,3 +413,58 @@ main.game-main{width:100%;max-width:860px;flex:1;min-height:0;margin:0 auto}
 .kg-family-explanation p{margin:2px 0 7px}
 .kg-family-sync button:focus-visible,.kg-family-sync summary:focus-visible{outline:3px solid #2F7D46;outline-offset:3px}
 @media(max-width:360px){.kg-family-sync{padding:12px}.kg-family-preview-btn{width:100%}}
+
+
+/* Shared Family Pantry Step 2 — gated onboarding; not real inventory sync. */
+.kg-family-setup-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 13px;border:1px solid #A6D4B8;background:#E9F4E9;color:#285A42;border-radius:12px;font-size:12px;font-weight:780;margin:7px 0 2px;width:100%;text-align:center}
+.kg-family-backdrop{position:fixed;z-index:55;inset:0;background:rgba(26,55,46,.56);backdrop-filter:blur(3px)}
+.kg-family-onboarding{position:fixed;z-index:56;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,580px);max-height:min(90svh,800px);overflow-y:auto;overscroll-behavior:contain;padding:20px 20px max(30px,env(safe-area-inset-bottom));background:#FFF9F2;border-radius:27px 27px 0 0;color:#315A50;box-shadow:0 -16px 44px rgba(20,50,38,.25);outline:0}
+.kg-family-dialog-open{overflow:hidden}
+.kg-family-onboarding-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.kg-family-onboarding-top small{font-size:10px;letter-spacing:1px;font-weight:800;color:#738A78}
+.kg-family-onboarding-top h2{font-size:23px;line-height:1.25;margin:4px 0 2px;letter-spacing:-.4px;color:#315A50}
+.kg-family-close{flex-shrink:0;width:44px;height:44px;display:grid;place-items:center;background:white;border:1px solid #DFE7DA;color:#315A50;border-radius:50%;font-size:24px}
+.kg-family-step-nav{display:flex;gap:6px;flex-wrap:wrap;margin:17px 0 13px;padding:4px;background:#F0F3E8;border-radius:14px}
+.kg-family-step-nav button{flex:1 1 90px;min-height:42px;border:0;border-radius:11px;background:transparent;color:#62796C;font-size:12px;font-weight:700;padding:7px}
+.kg-family-step-nav button[aria-current="step"]{background:white;color:#2D6A49;box-shadow:0 2px 7px rgba(50,82,66,.07)}
+.kg-family-disabled{padding:11px 12px;background:#FFF0DA;border:1px solid #EFD9B8;border-radius:13px;color:#845F33;font-size:12px;line-height:1.55;margin:0 0 12px}
+.kg-family-stage{min-height:80px}
+.kg-family-stage h3{color:#315A50;margin:16px 0 8px;font-size:18px;line-height:1.3}
+.kg-family-stage p,.kg-family-explain{color:#657B73;font-size:13px;line-height:1.6;margin:8px 0 13px}
+.kg-family-stage label{display:block;font-size:12px;font-weight:700;color:#315A50;margin:14px 0 6px}
+.kg-family-stage input,.kg-family-stage textarea{width:100%;min-width:0;display:block;padding:11px 12px;min-height:48px;background:white;border:1px solid #C9D7CA;border-radius:13px;color:#315A50;font:inherit;font-size:16px;outline-offset:3px}
+.kg-family-stage input:disabled,.kg-family-stage textarea:disabled{background:#F4F4EF;color:#98A69E;border-color:#E2E7E0}
+.kg-family-stage textarea{min-height:80px;resize:vertical;overflow-wrap:anywhere;line-height:1.4}
+.kg-family-primary{width:100%;min-height:48px;padding:10px 14px;border:0;border-radius:14px;background:#4CAF7A;color:#FFF;font-size:14px;font-weight:780;margin-top:15px;box-shadow:0 4px 10px rgba(49,98,71,.10)}
+.kg-family-primary:disabled{background:#B2CBB8;box-shadow:none}
+.kg-family-text-btn{min-height:44px;border:0;background:none;color:#2D6A49;font-weight:730;padding:7px 5px;font-size:13px}
+.kg-family-intro-tiles{display:grid;gap:8px;margin:16px 0}
+.kg-family-intro-tiles>div{padding:12px 13px;border:1px solid #E0E8DA;background:#F3F7EF;border-radius:15px;display:flex;flex-direction:column;gap:4px}
+.kg-family-intro-tiles strong{font-size:14px;color:#315A50}
+.kg-family-intro-tiles span{font-size:12px;line-height:1.45;color:#657B73}
+.kg-family-options{display:grid;gap:9px;margin:18px 0 10px}
+.kg-family-options button{min-height:44px;border:1px solid #A6D4B8;border-radius:12px;background:#E9F4E9;color:#285A42;font-weight:730}
+.kg-family-households{margin:15px 0;list-style:none;padding:0;display:grid;gap:8px}
+.kg-family-households button{width:100%;border:1px solid #D6E4D5;border-radius:14px;background:white;min-height:58px;padding:11px 13px;text-align:left;display:flex;flex-direction:column;gap:3px}
+.kg-family-households strong{color:#315A50;font-size:14px}
+.kg-family-households span{color:#657B73;font-size:11px}
+.kg-family-empty{padding:14px;background:#F4F7ED;border-radius:14px}
+.kg-family-member-role{display:inline-flex;border-radius:999px;background:#E5F1E6;color:#285A42;font-size:12px;font-weight:750;padding:7px 12px}
+.kg-family-invite-result{margin:15px 0 12px;padding:14px;background:#F1F7ED;border:1px solid #D5E4D3;border-radius:14px}
+.kg-family-invite-result strong{font-size:13px;display:block}
+.kg-family-invite-result code{font-size:13px;display:block;letter-spacing:.6px;overflow-wrap:anywhere;margin:10px 0 6px;padding:10px;border-radius:10px;background:white;color:#315A50}
+.kg-family-invite-result button{min-height:44px;border:1px solid #9BCFAC;border-radius:12px;color:#285A42;background:#E1F1E3;padding:8px 14px;font-size:13px;font-weight:750}
+.kg-family-response{font-size:12px;line-height:1.5}
+.kg-family-error,.kg-family-success{padding:10px 11px;border-radius:11px;margin:9px 0}
+.kg-family-error{background:#FBE9E6;color:#983C34}
+.kg-family-success{background:#E9F4E9;color:#2D6A49}
+.kg-family-disclaimer{font-size:11px;line-height:1.55;color:#687E72;margin:20px 0 0;padding:13px 0 0;border-top:1px solid #E7EBDD}
+.kg-family-setup-btn:focus-visible,.kg-family-onboarding button:focus-visible,.kg-family-onboarding input:focus-visible,.kg-family-onboarding textarea:focus-visible{outline:3px solid #2F7D46;outline-offset:3px}
+@media(max-width:360px){
+ .kg-family-onboarding{padding:16px 12px max(26px,env(safe-area-inset-bottom))}
+ .kg-family-onboarding-top h2{font-size:20px}
+ .kg-family-step-nav button{font-size:11px;flex-basis:75px}
+}
+@media(min-width:720px){
+ .kg-family-onboarding{bottom:50%;transform:translate(-50%,50%);border-radius:24px;max-height:85svh;padding:24px 28px}
+}
