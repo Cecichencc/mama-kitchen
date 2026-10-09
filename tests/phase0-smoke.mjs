@@ -22,7 +22,7 @@ test('root Vite app is preserved; phase1 remains at /phase0/',()=>{
 });
 test('farm and utility screens plus recipe-first sheets exist',()=>{
   for(const id of ['farmView','todayView','pantryView','ingredientSheet','basketSheet','recipeSheet','settingsSheet','basketBtn','navFarm','navToday','navPantry','harvestBtn','harvestBatch','basketLines','groceryForm','stockList','gameToast'])assert.match(html,new RegExp(`id="${id}"`),id);
-  assert.match(ui,/confirmCooked/);assert.match(ui,/reserve\(/);
+  assert.match(ui,/selectQuantity\(/);assert.match(ui,/SELECTION_KEY/);
   assert.match(ui,/correctStock/);assert.match(ui,/STORAGE_KEY/);
 });
 test('real 3D geometry, egg resource, movable camera and colliders remain',()=>{
