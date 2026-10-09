@@ -333,3 +333,62 @@ main.game-main{width:100%;max-width:860px;flex:1;min-height:0;margin:0 auto}
 
 .kg-field-error{margin:-3px 0 13px;color:#B33D43;font-size:13px;line-height:1.45}
 .kg-quantity-unit input[aria-invalid="true"]{border-color:#B33D43;outline-color:#B33D43}
+
+
+/* Smart Shopping List v1 — optional, local-only checklist; no persistent farm overlays. */
+.kg-daily-head-row{display:flex;gap:10px;align-items:start;justify-content:space-between;flex-wrap:wrap}
+.kg-daily-head-row>div{flex:1 1 205px;min-width:0}
+.kg-daily-head-row p{margin-bottom:4px}
+.kg-shopping-entry{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;max-width:100%;padding:8px 12px;border:1px solid #B7D8C1;background:#EAF5EC;border-radius:14px;color:#245C3D;font-size:13px;font-weight:750;white-space:nowrap}
+.kg-shopping-count{display:inline-grid;place-items:center;min-width:22px;height:22px;background:#D7ECD9;border-radius:999px;padding:0 5px;font-variant-numeric:tabular-nums}
+.kg-recipe-shopping-action{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:48px;margin:12px 0 20px;background:#E8F4EA;border:1px solid #A6D4B8;border-radius:14px;color:#245C3D;font-weight:780}
+.kg-shopping-overlay{position:fixed;z-index:48;inset:0;background:rgba(25,57,48,.5);backdrop-filter:blur(2px)}
+.kg-shopping-sheet{position:fixed;z-index:49;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,580px);max-height:min(89svh,800px);overflow-y:auto;overscroll-behavior:contain;background:#FFF9F2;border-radius:26px 26px 0 0;padding:20px 20px max(28px,env(safe-area-inset-bottom));box-shadow:0 -15px 45px rgba(19,52,40,.18);color:#315A50}
+.kg-shopping-visible{overflow:hidden}
+.kg-shopping-header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.kg-shopping-header h2{font-size:24px;margin:3px 0 0;letter-spacing:-.4px;line-height:1.15}
+.kg-shopping-kicker{font-size:10px;font-weight:800;letter-spacing:1px;color:#698278}
+.kg-shop-close{border:1px solid #DCE7DB;background:white;border-radius:50%;font-size:24px;height:44px;width:44px;flex-shrink:0;color:#315A50}
+.kg-shopping-intro,.kg-shopping-note{font-size:12px;line-height:1.55;color:#657B73}
+.kg-shopping-intro{margin:12px 0 17px}
+.kg-shopping-sheet h3{font-size:15px;color:#315A50;margin:18px 0 10px}
+.kg-shopping-sheet ul{list-style:none;margin:0;padding:0}
+.kg-shopping-recipes{background:#F2F7ED;border:1px solid #DAE7D9;padding:9px 13px 13px;border-radius:16px}
+.kg-shopping-recipes h3{margin:4px 0 7px}
+.kg-shop-recipe{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:43px;padding:3px 0;border-bottom:1px solid #E1EBDD;font-size:13px}
+.kg-shop-recipe:last-child{border-bottom:0}
+.kg-shop-recipe span{min-width:0;overflow-wrap:anywhere}
+.kg-shop-recipe button{height:40px;width:40px;border:0;border-radius:12px;background:transparent;color:#7A5D50;font-size:22px;flex-shrink:0}
+.kg-shopping-subtitle{font-size:11px;color:#657B73;line-height:1.55;margin:0 0 8px}
+.kg-shop-row{background:#FFF;display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;padding:10px 12px;margin:8px 0;border:1px solid #E5E7DF;border-radius:15px}
+.kg-shop-check{display:flex;flex:1 1 190px;gap:11px;align-items:center;min-height:44px;cursor:pointer;min-width:0}
+.kg-shop-check input{height:22px;width:22px;accent-color:#4CAF7A;flex-shrink:0}
+.kg-shop-item-info{display:flex;flex-direction:column;min-width:0;gap:3px;overflow-wrap:anywhere}
+.kg-shop-item-info strong{font-size:14px;color:#315A50}
+.kg-shop-item-info span{font-size:11px;line-height:1.5;color:#657B73}
+.kg-shop-check input:checked+.kg-shop-item-info strong{text-decoration:line-through;text-decoration-color:#8DAEA2;color:#657B73}
+.kg-shop-pantry-link{min-height:44px;border:1px solid #9ACBAB;border-radius:12px;color:#246441;background:#EEF7EE;font-size:12px;font-weight:750;padding:8px 11px}
+.kg-shopping-verify{padding:9px 13px 13px;background:#FFF4E4;border:1px solid #F0DFCB;border-radius:16px;margin-top:18px}
+.kg-shopping-verify h3{margin:4px 0 5px}
+.kg-shop-verify-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:9px 0;font-size:13px;border-bottom:1px solid #F3E5D3}
+.kg-shop-verify-row:last-child{border-bottom:0}
+.kg-shop-verify-row small{color:#806D52;font-size:11px;text-align:right}
+.kg-shopping-covered{font-size:12px;color:#657B73;margin:16px 0}
+.kg-shopping-covered summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:750}
+.kg-shopping-covered li{padding:6px 0}
+.kg-shopping-note{margin:18px 0 12px}
+.kg-shopping-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.kg-shopping-actions button{min-height:46px;border:1px solid #9ACBAB;border-radius:13px;padding:8px 16px;background:#E8F4EA;color:#245C3D;font-size:13px;font-weight:750}
+.kg-shopping-actions button+button{background:transparent;border-color:#D7DED3;color:#657B73}
+.kg-shopping-actions button:disabled{opacity:.45}
+.kg-shopping-feedback{font-size:12px;color:#315A50;margin:9px 0 0}
+.kg-shopping-empty{font-size:13px;line-height:1.6;color:#657B73;margin:9px 0}
+.kg-shopping-sheet button:focus-visible,.kg-shopping-sheet input:focus-visible,.kg-shopping-entry:focus-visible,.kg-recipe-shopping-action:focus-visible{outline:3px solid #2F7D46;outline-offset:3px}
+@media(max-width:360px){
+ .kg-shopping-sheet{padding:16px 12px max(24px,env(safe-area-inset-bottom))}
+ .kg-shop-row{padding:8px 10px}
+ .kg-shopping-header h2{font-size:21px}
+}
+@media(min-width:720px){
+ .kg-shopping-sheet{bottom:50%;transform:translate(-50%,50%);border-radius:24px;max-height:min(85svh,780px);padding:23px 26px}
+}
