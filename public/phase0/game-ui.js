@@ -60,6 +60,8 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   }
   function save(next){
     state=next;
+    selection=sanitizeSelection(selection,state.batches);
+    try{storage?.setItem(SELECTION_KEY,JSON.stringify(selection));}catch{}
     try{storage?.setItem(STORAGE_KEY,JSON.stringify(state));if(!storage)storageFailed=true;}
     catch(error){storageFailed=true;console.warn('Inventory is in-memory only',error);}
     render();
@@ -161,7 +163,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     byId('pantryBatchCount').textContent=`${state.batches.length} ${t('game.batches')}`;
     if(!state.batches.length){list.innerHTML=`<p class="empty-state">${esc(t('pantry.empty'))}</p>`;return;}
     list.innerHTML=state.batches.map(b=>{
-      const held=0,available=availableQuantity(state,b.id),blocked=!isUsableBatch(b);
+      const available=availableQuantity(state,b.id),blocked=!isUsableBatch(b);
       return `<article class="stock-batch"><div class="stock-batch-head"><strong>${ingredientIconMarkup(b.ingredientId)} ${esc(name(b.ingredientId))}</strong><span class="stock-chip">${esc(sourceLabel(b.organicStatus))}</span></div>
         <div class="stock-meta">${esc(t('game.atHome'))}: ${b.onHand} ${esc(t('game.pieces'))} : ${held} · ${esc(t('game.available'))}: ${available}<br>${esc(t('game.'+b.storage))}${b.useBy?' · '+esc(t('game.useBy'))+': '+esc(b.useBy):''}${blocked?' · '+esc(t('game.expired')):''}</div>
         <div class="stock-controls"><label>${esc(t('pantry.actual'))}<input class="stock-correction-input" aria-label="${esc(t('pantry.actual'))}" type="number" inputmode="numeric" min="0" max="99999" step="1" value="${b.onHand}" data-stock-value="${esc(b.id)}"/></label><button type="button" class="mini-action" data-stock-correct="${esc(b.id)}">${esc(t('game.update'))}</button><button type="button" class="mini-action warning" data-stock-empty="${esc(b.id)}">${esc(t('pantry.usedUp'))}</button></div></article>`;
