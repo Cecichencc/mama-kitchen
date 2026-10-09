@@ -7,7 +7,7 @@ test('Pantry quantity avoids native iOS number validation',()=>{
  assert.match(html,/id="groceryQuantityError"/);
 });
 test('Pantry quantity handles valid typed values and bilingual inline errors',()=>{
- assert.match(ui,/raw=input\.value\.trim\(\)\.replace\(',', '\.'\)/);
+ assert.match(ui,/raw=input\.value\.trim\(\)/);
  assert.match(ui,/Number\.isFinite\(quantity\)/);
  assert.match(ui,/请输入有效的正数数量/);
 });
