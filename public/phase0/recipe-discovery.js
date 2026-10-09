@@ -47,7 +47,7 @@ export function initRecipeDiscovery({getState,getLocale}){
  const tr=(en,cn)=>zh()?cn:en;
  const title=r=>zh()?r.zh:r.en;
  const label=id=>ingredientLabels[id]?.[zh()?1:0]||id;
- function badge(item){return item.ready?tr('All ingredients available','食材齐全'):item.missing.length?tr('Missing: ','缺少：')+item.missing.map(label).join(', '):tr('Check untracked ingredients at home','请核对未记录的食材');}
+ function badge(item){return item.ready?tr('Recorded ingredients sufficient','已记录食材足够'):[item.missing.length?tr('Insufficient: ','数量不足：')+item.missing.map(label).join(', '):'',item.unknown.length?tr('Verify: ','请核对：')+item.unknown.map(label).join(', '):''].filter(Boolean).join(' · ');}
  function card(item,featured=false){const r=item.recipe;return `<article class="kg-recipe-card ${featured?'featured':''}">
  <div class="kg-recipe-illustration" aria-hidden="true">${art(r)}</div>
  <div class="kg-recipe-content"><div class="kg-recipe-heading"><h3>${title(r)}</h3><button type="button" class="kg-fav" data-fav="${r.id}" aria-label="${tr('Toggle favourite','收藏或取消收藏')} ${title(r)}" aria-pressed="${fav.includes(r.id)}">${fav.includes(r.id)?'♥':'♡'}</button></div>
