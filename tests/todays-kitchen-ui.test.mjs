@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 const ui=readFileSync(new URL('../public/phase0/recipe-discovery.js',import.meta.url),'utf8');
 const css=readFileSync(new URL('../public/phase0/styles.css',import.meta.url),'utf8');
 test('Today’s Kitchen shows three meals before optional recipe library',()=>{
- assert.ok(ui.indexOf('dailyMarkup()}<section class="kg-extra-recipes"')>=0);
+ assert.match(ui,/root\.innerHTML=`\$\{dailyMarkup\(plan\)\}<section class="kg-extra-recipes"/);
  assert.match(ui,/data-toggle-more aria-expanded/);
  assert.match(ui,/showMore=!showMore;render\(\)/);
 });
