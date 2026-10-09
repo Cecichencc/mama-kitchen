@@ -1,4 +1,5 @@
 import {recordedStock,recipeCheck} from './recipe-matching.js';
+import {rankRecipeCandidates} from './recommendation-ranking.js';
 import {HOME_RECIPES} from './home-recipes.js';
 import {INGREDIENTS} from './domain.js';
 import {displayAmount} from './units.js';
@@ -26,9 +27,11 @@ export const TRACKED_IDS=new Set(['tomato','egg','carrot','potato','onion','garl
 export function recipeAvailability(recipe,state,now=Date.now()){
  return recipeCheck(recipe,recordedStock(state,now));
 }
-export function rankedRecipes(state,meal='all'){
- return RECIPES.filter(r=>meal==='all'||r.meal.includes(meal)).map(recipe=>({recipe,...recipeAvailability(recipe,state)}))
-  .sort((a,b)=>a.missing.length-b.missing.length||a.unknown.length-b.unknown.length||a.recipe.minutes-b.recipe.minutes);
+export function rankedRecipes(state,meal='all',ranking={}){
+ const stock=recordedStock(state);
+ const items=RECIPES.filter(r=>meal==='all'||r.meal.includes(meal))
+  .map(recipe=>({recipe,...recipeCheck(recipe,stock)}));
+ return rankRecipeCandidates(items,ranking);
 }
 export const ingredientLabels={
  tomato:['Tomato','番茄'],egg:['Egg','鸡蛋'],oil:['Cooking oil','食用油'],salt:['Salt','盐'],water:['Water','水'],

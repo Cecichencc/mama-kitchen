@@ -2,6 +2,7 @@ import {rankedRecipes,RECIPES,recipeAvailability,ingredientLabels,formatRecipeQu
 const key='kitchen-garden.recipe-favourites.v1';
 import {recipeArtMarkup} from './recipe-art.js';
 import {buildDailyIdeas,MEALS} from './meal-planner.js';
+import {sanitizeSuggestionState,beginSuggestionDay,rememberSuggestedPlan,recentSuggestedRecipeIds} from './daily-suggestions.js';
 const art=recipe=>recipeArtMarkup(recipe.id);
 export function initRecipeDiscovery({getState,getLocale}){
  const host=document.getElementById('todayView');
@@ -9,23 +10,32 @@ export function initRecipeDiscovery({getState,getLocale}){
  host.append(root);host.classList.add('kg-recipe-enabled');
  let meal='all',offset=0,detail=null,showMore=false;
  const dayKey='kitchen-garden.daily-ideas.v1';
- let daily={date:'',offsets:{},history:[]};
- try{const v=JSON.parse(localStorage.getItem(dayKey)||'{}');if(v&&typeof v==='object')daily={...daily,...v};}catch{}
+ let daily=sanitizeSuggestionState({},RECIPES.map(r=>r.id));
+ try{daily=sanitizeSuggestionState(JSON.parse(localStorage.getItem(dayKey)||'{}'),RECIPES.map(r=>r.id));}catch{}
  const currentDay=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Singapore',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
- function dayPlan(){const date=currentDay();if(daily.date!==date)daily={date,offsets:{},history:daily.history?.slice(-12)||[]};return buildDailyIdeas(getState(),{date,offsets:daily.offsets,previous:daily.history});}
  function persistDay(){try{localStorage.setItem(dayKey,JSON.stringify(daily));}catch{}}
+ function dayPlan(){
+  const date=currentDay();
+  if(daily.date!==date){daily=beginSuggestionDay(daily,date);persistDay();}
+  const plan=buildDailyIdeas(getState(),{
+   date,offsets:daily.offsets,previous:recentSuggestedRecipeIds(daily),favorites:fav
+  });
+  const updated=rememberSuggestedPlan(daily,plan);
+  if(JSON.stringify(updated.suggestions)!==JSON.stringify(daily.suggestions)){
+   daily=updated;
+   persistDay();
+  }
+  return plan;
+ }
  const mealName=m=>({breakfast:tr('Breakfast','早餐'),lunch:tr('Lunch','午餐'),dinner:tr('Dinner','晚餐')})[m];
- function dailyMarkup(){
-  const plan=dayPlan();
+ function dailyMarkup(plan){
   return `<section class="kg-daily-plan">
-    <div class="kg-daily-head"><h2>${tr('Today’s Kitchen','今日三餐')}</h2><p>${tr('A little inspiration for your three meals.','为你们的三餐找点灵感。')}</p></div>
+    <div class="kg-daily-head"><h2>${tr('Today’s Kitchen','今日三餐')}</h2><p>${tr('Pantry-aware ideas with fresh variety each day.','根据家中食材，每天换点新花样。')}</p></div>
     <div class="kg-daily-grid">${MEALS.map(m=>{
       const item=plan.items[m];
       if(!item)return `<article class="kg-daily-meal"><div class="kg-daily-title"><h3>${mealName(m)}</h3></div><p class="kg-no-meal">${tr('Add a recipe to see more ideas.','添加菜谱后查看更多建议。')}</p></article>`;
       const r=item.recipe;
-      const checks=[...item.missing,...item.unknown];
-      const unique=[...new Set(checks)];
-      const status=item.missing.length?tr('Not enough recorded: ','已记录食材不足：')+item.missing.map(label).join(', '):item.unknown.length?tr('Not recorded: ','未记录：')+item.unknown.map(label).join(', '):tr('Tracked ingredients available','已记录食材齐全');
+      const status=item.missing.length?tr('Not enough recorded: ','已记录食材不足：')+item.missing.map(label).join(', '):item.unknown.length?tr('Needs checking: ','需要核对：')+item.unknown.map(label).join(', '):tr('Tracked ingredients available','已记录食材齐全');
       return `<article class="kg-daily-meal">
         <div class="kg-daily-title"><h3>${mealName(m)}</h3><button type="button" data-swap-meal="${m}" aria-label="${tr('Another','换一道')} ${mealName(m)}"><span aria-hidden="true">↻</span> ${tr('Another Idea','换一道')}</button></div>
         <div class="kg-daily-body">
@@ -38,7 +48,7 @@ export function initRecipeDiscovery({getState,getLocale}){
         </div>
       </article>`;
     }).join('')}</div>
-    <p class="kg-daily-note">${tr('Ideas only. Unrecorded groceries must be checked. Viewing recipes never changes stock.','仅供参考。未记录的食材请核对；查看菜谱不会改变库存。')}</p>
+    <p class="kg-daily-note">${tr('Suggestions, not a cooking log. Check unrecorded ingredients; your stock never changes when you browse.','这里只记录推荐，不代表已经做过菜。请核对未记录的食材；浏览菜谱不会改变库存。')}</p>
   </section>`;
  }
 
@@ -55,8 +65,10 @@ export function initRecipeDiscovery({getState,getLocale}){
  <p class="kg-recipe-status ${item.ready?'ready':item.missing.length?'missing':'unknown'}">${badge(item)}</p>
  <button type="button" class="cta-button" data-open-recipe="${r.id}">${tr('View Recipe','查看做法')}</button></div></article>`;}
  function render(){
-  const items=rankedRecipes(getState(),meal),pick=items[offset%Math.max(1,items.length)];
-  root.innerHTML=`${dailyMarkup()}<section class="kg-extra-recipes" ${showMore?'':'hidden'}><header class="kg-recipes-head"><h2>${tr('Recipe Ideas','菜谱推荐')}</h2><p>${tr('Ideas based on your recorded groceries. Untracked ingredients must be checked at home.','根据已记录的食材推荐，未记录的食材请自行核对。')}</p></header>
+  const plan=dayPlan();
+  const items=rankedRecipes(getState(),meal,{previous:recentSuggestedRecipeIds(daily),favorites:fav});
+  const pick=items[offset%Math.max(1,items.length)];
+  root.innerHTML=`${dailyMarkup(plan)}<section class="kg-extra-recipes" ${showMore?'':'hidden'}><header class="kg-recipes-head"><h2>${tr('Recipe Ideas','菜谱推荐')}</h2><p>${tr('Ideas based on your recorded groceries. Untracked ingredients must be checked at home.','根据已记录的食材推荐，未记录的食材请自行核对。')}</p></header>
   <div class="kg-recipe-filters">${[['all','All','全部'],['breakfast','Breakfast','早餐'],['lunch','Lunch','午餐'],['dinner','Dinner','晚餐']].map(([id,en,cn])=>`<button type="button" data-meal="${id}" class="${meal===id?'active':''}" aria-pressed="${meal===id}">${tr(en,cn)}</button>`).join('')}</div>
   ${pick?card(pick,true):''}
   <button class="kg-another" type="button" data-another>${tr('↻ Another Idea','↻ 换一道')}</button>
