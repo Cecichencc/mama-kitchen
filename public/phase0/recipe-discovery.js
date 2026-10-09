@@ -1,13 +1,7 @@
 import {rankedRecipes,RECIPES,recipeAvailability,ingredientLabels} from './recipes.js';
 const key='kitchen-garden.recipe-favourites.v1';
-const recipeImages={
- 'tomato-egg':'tomato-egg-stir-fry.webp',
- 'bokchoy-garlic':'garlic-bok-choy.webp',
- 'mushroom-rice':'chicken-mushroom-rice.webp',
- 'salmon-bowl':'salmon-vegetable-bowl.webp',
- 'pumpkin-soup':'pumpkin-soup.webp'
-};
-const art=recipe=>recipeImages[recipe.id]?`<img loading="lazy" decoding="async" src="./recipes/${recipeImages[recipe.id]}" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"/><span hidden>${recipe.icon}</span>`:`<span>${recipe.icon}</span>`;
+import {recipeArtMarkup} from './recipe-art.js';
+const art=recipe=>recipeArtMarkup(recipe.id);
 export function initRecipeDiscovery({getState,getLocale}){
  const host=document.getElementById('todayView');
  const root=document.createElement('section');root.className='kg-recipe-discovery';
