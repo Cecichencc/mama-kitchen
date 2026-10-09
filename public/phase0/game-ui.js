@@ -39,7 +39,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   const overlay=byId('sheetBackdrop');
   const note=byId('gameToast');
   const sourceLabel=source=>t('game.'+source);
-  const name=id=>t(id==='egg'?'game.eggs':'farm.tomato');
+  const name=id=>INGREDIENTS[id]?.[i18n.locale==='zh-CN'?'zh':'en']||id;
   const prettyLine=(b,q)=>`${name(b.ingredientId)} · ${q} ${t('game.pieces')} · ${sourceLabel(b.organicStatus)}`;
   const labelFor=b=>`${sourceLabel(b.organicStatus)} · ${t('game.'+b.storage)} · ${b.onHand} ${t('game.pieces')}`;
   const batchesOf=id=>state.batches.filter(b=>b.ingredientId===id);
@@ -227,6 +227,12 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     selection=sanitizeSelection(selection,state.batches);
     onAvailability({tomato:usableTotal(state,'tomato'),egg:usableTotal(state,'egg')});
   }
+  function renderGroceryOptions(){
+    const el=byId('groceryIngredient'),previous=el.value;
+    el.replaceChildren(...Object.values(INGREDIENTS).map(item=>new Option(name(item.id),item.id)));
+    if(INGREDIENTS[previous])el.value=previous;
+  }
+  renderGroceryOptions();
   byId('basketBtn').addEventListener('click',()=>{renderBasket();openPanel('basketSheet');});
   byId('todayBasketBtn').addEventListener('click',()=>{renderBasket();openPanel('basketSheet');});
   byId('settingsBtn').addEventListener('click',()=>openPanel('settingsSheet'));
@@ -276,6 +282,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   // Never propose an actual household quantity without the person's explicit entry.
   document.querySelectorAll('input[name="language"]').forEach(input=>input.addEventListener('change',e=>i18n.setLocale(e.target.value)));
   document.addEventListener('kg:languagechange',()=>{
+    renderGroceryOptions();
     render();
     if(modal?.id==='ingredientSheet')renderIngredient();
     else if(modal?.id==='recipeSheet')renderRecipe();
