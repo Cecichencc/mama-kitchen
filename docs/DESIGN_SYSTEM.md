@@ -30,6 +30,7 @@
 - [AI_DESIGN_GUIDELINES.md](./AI_DESIGN_GUIDELINES.md) — agent instructions and acceptance.
 - [FLAT_SVG_RECIPE_ART.md](./FLAT_SVG_RECIPE_ART.md) — recipe-art implementation.
 - [HOME_RECIPE_LIBRARY_V1.md](./HOME_RECIPE_LIBRARY_V1.md) — current bilingual recipe catalogue, unit conventions and feasibility guardrails.
+- [RECOMMENDATIONS_V3.md](./RECOMMENDATIONS_V3.md) — ranked suggestions, local recent-history rotation and favourites.
 - [MINIMAL_FARM_CAMERA.md](./MINIMAL_FARM_CAMERA.md) — camera gestures.
 - [EMPTY_3D_PLOT.md](./EMPTY_3D_PLOT.md) — empty-state restocking.
 - [KITCHEN_GARDEN_PRD.md](./specs/KITCHEN_GARDEN_PRD.md) — product requirements.
@@ -48,3 +49,7 @@ Do not silently change product decisions or production. Implement on branches, t
 ## Recipe library extension (2026-10-09)
 
 The curated recipe catalogue now combines `recipes.js` with 11 dishes in `home-recipes.js` (19 total). Code-generated food art in `recipe-art.js` covers all 19 stable recipe IDs. Recipe details use `formatRecipeQuantity` to display base units clearly. These are initial home-cooking recipes, not medical portion plans, and uncertain pantry ingredients must be labelled for user confirmation.
+
+## Today’s Kitchen recommendation behavior (2026-10-10)
+
+Today's Kitchen and Recipe Ideas share deterministic Pantry-aware ranking. Favourites and suggestions from the past seven Singapore-calendar days are soft tie-breakers and never override clearer inventory feasibility. The three compact meal cards and Another Idea affordance remain unchanged; newly exposed alternatives are labelled provisional when ingredients need checking. Device-local suggestion history must never be described as a cooking log. The 3D farm and flat SVG art are unaffected.
