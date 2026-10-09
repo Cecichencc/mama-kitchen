@@ -2,9 +2,10 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import {INGREDIENTS,emptyState,addGroceries,correctStock,physicalTotal,loadState} from '../public/phase0/domain.js';
 import {ingredientIconMarkup} from '../public/phase0/ingredient-icons.js';
 const now=Date.parse('2026-10-09T05:00:00Z');
-test('pantry catalogue has ten bilingual piece-counted items',()=>{
- assert.equal(Object.keys(INGREDIENTS).length,10);
- for(const x of Object.values(INGREDIENTS)){assert.ok(x.en&&x.zh);assert.equal(x.unit,'piece');}
+test('pantry catalogue includes ten original piece-counted items plus unit-aware groceries',()=>{
+ assert.ok(Object.keys(INGREDIENTS).length>=15);
+ for(const x of Object.values(INGREDIENTS))assert.ok(x.en&&x.zh&&x.unit);
+ for(const id of ['tomato','egg','carrot','potato','onion','garlic','mushroom','pumpkin','apple','orange'])assert.equal(INGREDIENTS[id].unit,'piece');
 });
 test('new groceries can be added and corrected without touching tomato or egg stock',()=>{
  let s=addGroceries(emptyState(),{ingredientId:'pumpkin',quantity:2,organicStatus:'organic'},now);
