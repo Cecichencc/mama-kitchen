@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {initFamilyOnboarding} from '../public/phase0/family-onboarding.js';
 
 const file=name=>readFileSync(new URL('../public/phase0/'+name,import.meta.url),'utf8');
 const html=file('index.html');
@@ -94,4 +95,43 @@ test('only a signed-in owner may see the create-invitation action',()=>{
  assert.match(onboard,/selectedRole!=='owner'/);
  assert.match(onboard,/isInvite\(code\)/);
  assert.match(onboard,/48 hours/);
+});
+
+test('unconfigured onboarding can be explored but does not send emails or enable actions',()=>{
+ const original=globalThis.document;
+ const built=[],trigger={listeners:{},isConnected:true,focus(){this.focused=true;},
+  addEventListener(type,handler){this.listeners[type]=handler;}};
+ const element=()=>({
+  hidden:true,innerHTML:'',listeners:{},attributes:{},tabIndex:0,
+  setAttribute(k,v){this.attributes[k]=v;},
+  addEventListener(type,handler){this.listeners[type]=handler;},
+  focus(){this.focused=true;},
+  contains(){return true;},
+  querySelectorAll(){return [];}
+ });
+ const fakeDocument={
+  createElement(){const el=element();built.push(el);return el;},
+  body:{append(){},classList:{add(){},remove(){}}},
+  getElementById(id){return id==='kgFamilySetupBtn'?trigger:null;},
+  addEventListener(){}
+ };
+ globalThis.document=fakeDocument;
+ try{
+  const onboarding=initFamilyOnboarding({getLocale:()=> 'en'});
+  assert.equal(onboarding.isConfigured(),false);
+  assert.equal(built.length,2);
+  trigger.listeners.click();
+  const sheet=built[1];
+  assert.equal(sheet.hidden,false);
+  assert.match(sheet.innerHTML,/Preview only/);
+  assert.match(sheet.innerHTML,/Account setup is separate from stock synchronisation/);
+  sheet.listeners.click({target:{closest:()=>({
+   dataset:{familyStep:'create'},hasAttribute:()=>false
+  })}});
+  assert.match(sheet.innerHTML,/Create your household/);
+  assert.match(sheet.innerHTML,/type="submit" disabled/);
+  onboarding.close();
+  assert.equal(sheet.hidden,true);
+  assert.equal(trigger.focused,true);
+ }finally{globalThis.document=original;}
 });
