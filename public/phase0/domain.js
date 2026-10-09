@@ -6,7 +6,15 @@ export const RESERVATION_MS = 30 * 60 * 1000;
 export const STORAGE_KEY = 'kitchen-garden.phase1.v1';
 export const INGREDIENTS = Object.freeze({
   tomato: Object.freeze({id:'tomato',en:'Tomato',zh:'番茄',unit:'piece',zone:'vegetable'}),
-  egg: Object.freeze({id:'egg',en:'Egg',zh:'鸡蛋',unit:'piece',zone:'barn'})
+  egg: Object.freeze({id:'egg',en:'Egg',zh:'鸡蛋',unit:'piece',zone:'barn'}),
+  carrot: Object.freeze({id:'carrot',en:'Carrot',zh:'胡萝卜',unit:'piece',zone:'vegetable'}),
+  potato: Object.freeze({id:'potato',en:'Potato',zh:'土豆',unit:'piece',zone:'grain'}),
+  onion: Object.freeze({id:'onion',en:'Onion',zh:'洋葱',unit:'piece',zone:'vegetable'}),
+  garlic: Object.freeze({id:'garlic',en:'Garlic (bulb)',zh:'大蒜（头）',unit:'piece',zone:'vegetable'}),
+  mushroom: Object.freeze({id:'mushroom',en:'Mushroom',zh:'蘑菇',unit:'piece',zone:'vegetable'}),
+  pumpkin: Object.freeze({id:'pumpkin',en:'Pumpkin',zh:'南瓜',unit:'piece',zone:'vegetable'}),
+  apple: Object.freeze({id:'apple',en:'Apple',zh:'苹果',unit:'piece',zone:'fruit'}),
+  orange: Object.freeze({id:'orange',en:'Orange',zh:'橙子',unit:'piece',zone:'fruit'})
 });
 export const RECIPE = Object.freeze({
   id:'tomato-egg',nameEn:'Tomato & Egg Stir-fry',nameZh:'番茄炒蛋',servings:2,cookMinutes:15,
