@@ -2,27 +2,31 @@
 // All known tracked ingredients are allocated across meals before a plan is offered.
 import {RECIPES} from './recipes.js';
 import {recordedStock,recipeCheck,allocateRecipe} from './recipe-matching.js';
+import {rankRecipeCandidates} from './recommendation-ranking.js';
 export const MEALS=['breakfast','lunch','dinner'];
 const dateSG=(now)=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Singapore',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(now));
 export const stockForPlan=recordedStock;
-export function buildDailyIdeas(state,{date=dateSG(Date.now()),offsets={},previous=[]}={}){
- const remaining=stockForPlan(state);
- const used=new Set(),items={};
+export function buildDailyIdeas(state,{date=null,offsets={},previous=[],favorites=[],now=Date.now()}={}){
+ const day=date||dateSG(now);
+ const remaining=stockForPlan(state,now);
+ const used=new Set(),usedCategories=new Set(),items={};
  for(const meal of MEALS){
-  const choices=RECIPES.filter(r=>r.meal.includes(meal)&&!used.has(r.id)).map(recipe=>({recipe,...recipeCheck(recipe,remaining)}));
-  // Prefer tracked-feasible meals, fewer unknown ingredients, variety, and shorter preparation.
-  choices.sort((a,b)=>Number(a.missing.length>0)-Number(b.missing.length>0)||
-    a.missing.length-b.missing.length||a.unknown.length-b.unknown.length||
-    Number(previous.includes(a.recipe.id))-Number(previous.includes(b.recipe.id))||
-    a.recipe.minutes-b.recipe.minutes);
-  const feasible=choices.filter(x=>!x.missing.length);
-  const candidates=feasible.length?feasible:choices;
-  const index=Math.abs(Number(offsets[meal])||0)%Math.max(candidates.length,1);
-  const selected=candidates[index]||null;
+  const choices=RECIPES.filter(r=>r.meal.includes(meal)&&!used.has(r.id))
+   .map(recipe=>({recipe,...recipeCheck(recipe,remaining)}));
+  const ranked=rankRecipeCandidates(choices,{previous,favorites,usedCategories:[...usedCategories]});
+  // "Another Idea" must actually change recipes, including when there is only
+  // one recorded-feasible dish. Less feasible alternatives stay clearly provisional.
+  const rawOffset=Number(offsets[meal]);
+  const index=(Number.isSafeInteger(rawOffset)&&rawOffset>=0?rawOffset:0)%Math.max(ranked.length,1);
+  const selected=ranked[index]||null;
   items[meal]=selected?{...selected,provisional:selected.missing.length>0||selected.unknown.length>0,needsCheck:selected.unknown.length>0}:null;
-  if(selected){used.add(selected.recipe.id);if(!selected.missing.length)allocateRecipe(selected.recipe,remaining);}
+  if(selected){
+   used.add(selected.recipe.id);
+   usedCategories.add(selected.recipe.category);
+   if(!selected.missing.length)allocateRecipe(selected.recipe,remaining);
+  }
  }
- return {date,items,remaining};
+ return {date:day,items,remaining};
 }
 export function swapMeal(state,current,meal,previous=[]){
  if(!MEALS.includes(meal))throw Error('Unknown meal.');
