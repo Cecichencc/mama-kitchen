@@ -258,3 +258,21 @@ main.game-main{width:100%;max-width:860px;flex:1;min-height:0;margin:0 auto}
 .kg-recipe-illustration{background:#FFF9F2}
 .kg-detail-art{background:#FFF9F2}
 .kg-food-icon{filter:none}
+
+/* Today's Kitchen: compact three-meal ideas; no inventory side effects. */
+.kg-daily-plan{margin:0 0 30px}
+.kg-daily-head h2{font-size:25px;margin:0 0 5px;color:#315A50}
+.kg-daily-head p,.kg-daily-note{font-size:12px;color:#657B73;line-height:1.55}
+.kg-daily-grid{display:grid;gap:12px;margin-top:15px}
+.kg-daily-meal{background:#FFF9F2;border:1px solid #E5E7DF;border-radius:20px;padding:14px;box-shadow:0 5px 18px rgba(45,55,72,.06)}
+.kg-daily-title{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.kg-daily-title h3{margin:0;color:#315A50;font-size:17px}
+.kg-daily-title button{border:1px solid #A6D4B8;border-radius:14px;color:#245C3D;background:#E8F4EA;min-height:44px;padding:6px 12px;font-weight:700}
+.kg-daily-title button:disabled{opacity:.4}
+.kg-daily-art{height:130px;display:grid;place-items:center;background:#FFF9F2;margin:5px auto}
+.kg-daily-art svg{height:100%;width:100%;max-width:250px}
+.kg-daily-meal>strong{display:block;color:#2D3748;font-size:16px}
+.kg-daily-meal>p{font-size:12px;color:#657B73;margin:7px 0}
+.kg-daily-view{width:100%;border:0;background:#4CAF7A;color:white;border-radius:16px;min-height:48px;font-weight:750}
+.kg-daily-note{margin:13px 3px}
+@media(min-width:660px){.kg-daily-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.kg-daily-art{height:100px}.kg-daily-title{flex-wrap:wrap}}
