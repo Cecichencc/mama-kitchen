@@ -392,3 +392,24 @@ main.game-main{width:100%;max-width:860px;flex:1;min-height:0;margin:0 auto}
 @media(min-width:720px){
  .kg-shopping-sheet{bottom:50%;transform:translate(-50%,50%);border-radius:24px;max-height:min(85svh,780px);padding:23px 26px}
 }
+
+
+/* Family Pantry foundation: informational local status, not an enabled cloud switch. */
+.kg-family-sync{background:#FFF9F2;border:1px solid #E3E9DC;border-radius:18px;padding:14px 15px;margin:0 0 16px;box-shadow:0 3px 12px rgba(49,90,80,.04)}
+.kg-family-sync-heading{display:flex;align-items:center;gap:11px}
+.kg-family-sync-icon{display:grid;place-items:center;background:#E9F4E9;border-radius:14px;width:45px;height:45px;font-size:25px;flex:none}
+.kg-family-sync-heading h2{margin:0 0 3px;color:#315A50;font-size:16px}
+.kg-family-sync-state{margin:0;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#657B73}
+.kg-family-sync-dot{width:8px;height:8px;border-radius:100%;background:#A6AFA7;flex:none}
+.kg-family-sync>p{color:#657B73;font-size:12px;line-height:1.6;margin:12px 0}
+.kg-family-preview-btn{display:inline-flex;align-items:center;justify-content:center;background:#E9F4E9;color:#315A50;border:1px solid #A6D4B8;border-radius:12px;min-height:44px;padding:8px 14px;font-size:12px;font-weight:750;max-width:100%;text-align:center}
+.kg-family-preview{padding:11px 12px;margin-top:11px;background:#F2F7EF;border-radius:12px;border:1px solid #DCEADA}
+.kg-family-preview p{font-size:12px;line-height:1.5;color:#315A50;margin:5px 0}
+.kg-family-preview p+p{color:#657B73}
+.kg-family-explanation{margin-top:12px;border-top:1px solid #E4EBDD;font-size:12px;color:#657B73;line-height:1.6}
+.kg-family-explanation summary{display:flex;align-items:center;min-height:44px;cursor:pointer;color:#315A50;font-weight:700;list-style:none}
+.kg-family-explanation summary:after{content:'⌄';margin-left:auto;font-size:16px;color:#657B73}
+.kg-family-explanation[open] summary:after{transform:rotate(180deg)}
+.kg-family-explanation p{margin:2px 0 7px}
+.kg-family-sync button:focus-visible,.kg-family-sync summary:focus-visible{outline:3px solid #2F7D46;outline-offset:3px}
+@media(max-width:360px){.kg-family-sync{padding:12px}.kg-family-preview-btn{width:100%}}
