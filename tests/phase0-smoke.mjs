@@ -20,10 +20,12 @@ test('root Vite app is preserved; phase1 remains at /phase0/',()=>{
   assert.match(html,/href="\.\/styles\.css"/);
   for(const f of ['world.js','scene.js','i18n.js','grounding.js','game-ui.js','domain.js'])assert.ok(existsSync(resolve(root,'public/phase0',f)));
 });
-test('farm and utility screens plus all four gameplay sheets exist',()=>{
-  for(const id of ['farmView','todayView','pantryView','ingredientSheet','basketSheet','recipeSheet','cookSheet','completeSheet','settingsSheet','basketBtn','navFarm','navToday','navPantry','harvestBtn','harvestBatch','basketLines','actualUsedLines','groceryForm','stockList','organicAck','gameToast'])assert.match(html,new RegExp(`id="${id}"`),id);
-  assert.match(ui,/confirmCooked/);assert.match(ui,/reserve\(/);
-  assert.match(ui,/correctStock/);assert.match(ui,/STORAGE_KEY/);
+test('recipe-first farm, pantry and ingredient selection screens exist',()=>{
+  for(const id of ['farmView','todayView','pantryView','ingredientSheet','basketSheet','recipeSheet','settingsSheet','basketBtn','navFarm','navToday','navPantry','harvestBtn','harvestBatch','basketLines','groceryForm','stockList','gameToast'])assert.match(html,new RegExp(`id="${id}"`),id);
+  for(const removed of ['cookSheet','completeSheet','actualUsedLines','organicAck'])assert.doesNotMatch(html,new RegExp(`id="${removed}"`),removed);
+  assert.match(ui,/selectQuantity/);assert.match(ui,/correctStock/);
+  assert.match(ui,/SELECTION_KEY/);assert.match(ui,/STORAGE_KEY/);
+  assert.doesNotMatch(ui,/transact\(s=>reserve\(/);
 });
 test('real 3D geometry, egg resource, movable camera and colliders remain',()=>{
   assert.match(scene,/new THREE\.WebGLRenderer/);
