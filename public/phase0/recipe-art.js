@@ -19,6 +19,7 @@ const designs={
  'salmon-bowl':dish(scatter('rice',[[107,120,1.4,0],[134,143,1.4,30],[165,105,1.3,0]])+scatter('salmon',[[178,124,1.6,-18],[202,146,1.1,30]])+scatter('leaf',[[108,150,.9,-20],[202,99,.9,20]]),true),
  'pumpkin-soup':dish('<ellipse cx="160" cy="128" rx="88" ry="53" fill="#E9AC5D"/><path d="M99 130Q151 100 208 134" fill="none" stroke="#F9D28A" stroke-width="8" stroke-linecap="round"/>'+at('pumpkin',164,127,.85,0)+at('leaf',201,144,.55,30),true),
  'egg-breakfast':dish(scatter('egg',[[119,125,1.6,0],[178,126,1.6,20]])+at('leaf',151,156,.55,30)),
+ 'steamed-egg':dish('<ellipse cx="160" cy="128" rx="88" ry="53" fill="#F4D58D"/><path d="M106 128Q160 112 211 128" stroke="#FFF0BB" stroke-width="6" fill="none"/>',true),
  'tomato-soup':dish('<ellipse cx="160" cy="128" rx="88" ry="53" fill="#E99079"/>'+scatter('tomato',[[135,117,.9,0],[185,136,.85,35]])+at('leaf',170,109,.65,15),true)
 };
 export const RECIPE_ART_IDS=Object.freeze(Object.keys(designs));
