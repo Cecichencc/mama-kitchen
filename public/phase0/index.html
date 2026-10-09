@@ -55,6 +55,21 @@
 
     <section id="pantryView" class="page-view utility-view" hidden>
       <div class="page-heading"><span class="eyebrow" data-i18n="game.household">For Mom & Daughter</span><h1 data-i18n="pantry.title">My Pantry</h1><p data-i18n="pantry.deviceOnly">These quantities are saved on this device only. Shared sync comes later.</p></div>
+      <section id="kgFamilySyncPanel" class="kg-family-sync" aria-labelledby="kgFamilySyncTitle">
+        <div class="kg-family-sync-heading"><span class="kg-family-sync-icon" aria-hidden="true">🏡</span>
+          <div><h2 id="kgFamilySyncTitle" data-i18n="family.title">Family Pantry</h2>
+            <p class="kg-family-sync-state"><span class="kg-family-sync-dot" aria-hidden="true"></span><span data-i18n="family.localStatus">This device only · Not shared</span></p></div>
+        </div>
+        <p data-i18n="family.description">Your groceries are still stored only on this device. Secure two-phone sharing needs a household sign-in and server setup.</p>
+        <button type="button" id="kgReviewLocalStock" class="kg-family-preview-btn" data-i18n="family.review">Review groceries before sharing</button>
+        <div id="kgFamilyPreview" class="kg-family-preview" hidden role="status" aria-live="polite">
+          <p id="kgFamilyPreviewSummary"></p>
+          <p data-i18n="family.noUpload">No groceries were uploaded. Sharing will require your explicit confirmation.</p>
+        </div>
+        <details class="kg-family-explanation"><summary data-i18n="family.how">How family sharing will work</summary>
+          <p data-i18n="family.howBody">Each person signs in, one person creates a household, and the other joins with a private invitation. Server-verified edits prevent silent stock overwrites.</p>
+        </details>
+      </section>
       <form id="groceryForm" class="grocery-form card-surface" novalidate>
         <h2 data-i18n="pantry.addTitle">Add food from home</h2>
         <div class="field-pair"><label for="groceryIngredient" data-i18n="game.ingredient">Ingredient</label><select id="groceryIngredient" name="ingredient"><option value="tomato" data-i18n="farm.tomato">Tomato</option><option value="egg" data-i18n="game.eggs">Eggs</option></select></div>
