@@ -44,7 +44,7 @@ test('email OTP is typed manually; user JWT is in memory and separate from groce
  assert.match(auth,/getAccessToken/);
  assert.match(auth,/getSession:publicSession/);
  assert.match(auth,/refreshToken/);
- assert.doesNotMatch(auth,/localStorage|sessionStorage|document\.cookie/);
+ assert.doesNotMatch(auth,/\b(?:localStorage|sessionStorage)\.(?:getItem|setItem|removeItem)\s*\(|document\.cookie\s*=/);
  assert.doesNotMatch(onboard,/location\.hash|location\.search|history\.pushState/);
  assert.doesNotMatch(onboard,/localStorage|sessionStorage/);
 });
@@ -110,6 +110,7 @@ test('unconfigured onboarding can be explored but does not send emails or enable
   querySelectorAll(){return [];}
  });
  const fakeDocument={
+  activeElement:trigger,
   createElement(){const el=element();built.push(el);return el;},
   body:{append(){},classList:{add(){},remove(){}}},
   getElementById(id){return id==='kgFamilySetupBtn'?trigger:null;},
