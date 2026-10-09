@@ -8,6 +8,7 @@ import {
 } from './domain.js';
 import {ingredientIconMarkup} from './ingredient-icons.js';
 import {initRecipeDiscovery} from './recipe-discovery.js';
+import {unitOptions,displayAmount} from './units.js';
 import {SELECTION_KEY,emptySelection,sanitizeSelection,selectQuantity,selectedQuantity,selectionReadiness} from './recipe-selection.js';
 
 const byId = id => document.getElementById(id);
@@ -41,7 +42,8 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   const sourceLabel=source=>t('game.'+source);
   const name=id=>INGREDIENTS[id]?.[i18n.locale==='zh-CN'?'zh':'en']||id;
   const prettyLine=(b,q)=>`${name(b.ingredientId)} · ${q} ${t('game.pieces')} · ${sourceLabel(b.organicStatus)}`;
-  const labelFor=b=>`${sourceLabel(b.organicStatus)} · ${t('game.'+b.storage)} · ${b.onHand} ${t('game.pieces')}`;
+  const amount=b=>displayAmount(b.onHand,b.unit,i18n.locale);
+  const labelFor=b=>`${sourceLabel(b.organicStatus)} · ${t('game.'+b.storage)} · ${amount(b)}`;
   const batchesOf=id=>state.batches.filter(b=>b.ingredientId===id);
   const liveBatches=id=>batchesOf(id).filter(b=>b.onHand>0&&isUsableBatch(b));
 
@@ -165,7 +167,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     list.innerHTML=state.batches.map(b=>{
       const available=availableQuantity(state,b.id),blocked=!isUsableBatch(b);
       return `<article class="stock-batch"><div class="stock-batch-head"><strong>${ingredientIconMarkup(b.ingredientId)} ${esc(name(b.ingredientId))}</strong><span class="stock-chip">${esc(sourceLabel(b.organicStatus))}</span></div>
-        <div class="stock-meta">${esc(t('game.atHome'))}: ${b.onHand} ${esc(t('game.pieces'))} : ${held} · ${esc(t('game.available'))}: ${available}<br>${esc(t('game.'+b.storage))}${b.useBy?' · '+esc(t('game.useBy'))+': '+esc(b.useBy):''}${blocked?' · '+esc(t('game.expired')):''}</div>
+        <div class="stock-meta">${esc(t('game.atHome'))}: ${esc(amount(b))} · ${esc(t('game.available'))}: ${esc(displayAmount(available,b.unit,i18n.locale))}<br>${esc(t('game.'+b.storage))}${b.useBy?' · '+esc(t('game.useBy'))+': '+esc(b.useBy):''}${blocked?' · '+esc(t('game.expired')):''}</div>
         <div class="stock-controls"><label>${esc(t('pantry.actual'))}<input class="stock-correction-input" aria-label="${esc(t('pantry.actual'))}" type="number" inputmode="numeric" min="0" max="99999" step="1" value="${b.onHand}" data-stock-value="${esc(b.id)}"/></label><button type="button" class="mini-action" data-stock-correct="${esc(b.id)}">${esc(t('game.update'))}</button><button type="button" class="mini-action warning" data-stock-empty="${esc(b.id)}">${esc(t('pantry.usedUp'))}</button></div></article>`;
     }).join('');
   }
@@ -227,12 +229,21 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     selection=sanitizeSelection(selection,state.batches);
     onAvailability({tomato:usableTotal(state,'tomato'),egg:usableTotal(state,'egg')});
   }
+  function renderGroceryUnits(){
+    const id=byId('groceryIngredient').value,base=INGREDIENTS[id]?.unit||'piece';
+    const unit=byId('groceryUnit'),previous=unit.value;
+    unit.replaceChildren(...unitOptions(base).map(o=>new Option(i18n.locale==='zh-CN'?o.zh:o.en,o.id)));
+    if(unitOptions(base).some(o=>o.id===previous))unit.value=previous;
+    const quantity=byId('groceryQuantity');quantity.step=base==='g'||base==='ml'?'any':'1';
+  }
   function renderGroceryOptions(){
     const el=byId('groceryIngredient'),previous=el.value;
     el.replaceChildren(...Object.values(INGREDIENTS).map(item=>new Option(name(item.id),item.id)));
     if(INGREDIENTS[previous])el.value=previous;
+    renderGroceryUnits();
   }
   renderGroceryOptions();
+  byId('groceryIngredient').addEventListener('change',renderGroceryUnits);
   byId('basketBtn').addEventListener('click',()=>{renderBasket();openPanel('basketSheet');});
   byId('todayBasketBtn').addEventListener('click',()=>{renderBasket();openPanel('basketSheet');});
   byId('settingsBtn').addEventListener('click',()=>openPanel('settingsSheet'));
@@ -270,8 +281,8 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   // No actual-used form in the recipe-first experience.
   byId('groceryForm').addEventListener('submit',event=>{
     event.preventDefault();const form=event.currentTarget;
-    const ingredientId=form.elements.ingredient.value,quantity=Number(form.elements.quantity.value),organicStatus=form.elements.source.value,storage=form.elements.storage.value,useBy=byId('groceryDate').value;
-    if(transact(s=>addGroceries(s,{ingredientId,quantity,organicStatus,storage,useBy}))){toast(t('pantry.added'));form.elements.quantity.value='';switchTab('farm');}
+    const ingredientId=form.elements.ingredient.value,quantity=Number(form.elements.quantity.value),inputUnit=byId('groceryUnit').value,organicStatus=form.elements.source.value,storage=form.elements.storage.value,useBy=byId('groceryDate').value;
+    if(transact(s=>addGroceries(s,{ingredientId,quantity,inputUnit,organicStatus,storage,useBy}))){toast(t('pantry.added'));form.elements.quantity.value='';switchTab('farm');}
   });
   byId('stockList').addEventListener('click',event=>{
     const update=event.target.closest('[data-stock-correct]'),empty=event.target.closest('[data-stock-empty]');
