@@ -35,7 +35,7 @@ export function initRecipeDiscovery({getState,getLocale}){
       const item=plan.items[m];
       if(!item)return `<article class="kg-daily-meal"><div class="kg-daily-title"><h3>${mealName(m)}</h3></div><p class="kg-no-meal">${tr('Add a recipe to see more ideas.','添加菜谱后查看更多建议。')}</p></article>`;
       const r=item.recipe;
-          const status=item.missing.length?tr('Not enough recorded: ','已记录食材不足：')+item.missing.map(label).join(', '):item.unknown.length?tr('Not recorded: ','未记录：')+item.unknown.map(label).join(', '):tr('Tracked ingredients available','已记录食材齐全');
+      const status=item.missing.length?tr('Not enough recorded: ','已记录食材不足：')+item.missing.map(label).join(', '):item.unknown.length?tr('Needs checking: ','需要核对：')+item.unknown.map(label).join(', '):tr('Tracked ingredients available','已记录食材齐全');
       return `<article class="kg-daily-meal">
         <div class="kg-daily-title"><h3>${mealName(m)}</h3><button type="button" data-swap-meal="${m}" aria-label="${tr('Another','换一道')} ${mealName(m)}"><span aria-hidden="true">↻</span> ${tr('Another Idea','换一道')}</button></div>
         <div class="kg-daily-body">
