@@ -252,3 +252,9 @@ main.game-main{width:100%;max-width:860px;flex:1;min-height:0;margin:0 auto}
 .kg-recipe-illustration img,.kg-detail-art img{width:100%;height:100%;position:absolute;inset:0;object-fit:cover;display:block}
 .kg-recipe-illustration span[hidden],.kg-detail-art span[hidden]{display:none}
 .kg-recipe-illustration img[hidden],.kg-detail-art img[hidden]{display:none}
+
+/* Code-rendered 2D artwork: shared flat food shapes, scalable recipe compositions. */
+.kg-recipe-illustration .kg-recipe-svg,.kg-detail-art .kg-recipe-svg{width:100%;height:100%;max-height:100%;display:block;object-fit:contain}
+.kg-recipe-illustration{background:#FFF9F2}
+.kg-detail-art{background:#FFF9F2}
+.kg-food-icon{filter:none}
