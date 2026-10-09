@@ -1,3 +1,4 @@
+import {toBase} from './units.js';
 // Kitchen Garden Phase 1 — device-local, deterministic inventory domain.
 // This module has NO DOM, WebGL or browser-storage dependency.
 // Physical stock is authoritative; harvesting only creates a reservation.
@@ -14,7 +15,12 @@ export const INGREDIENTS = Object.freeze({
   mushroom: Object.freeze({id:'mushroom',en:'Mushroom',zh:'蘑菇',unit:'piece',zone:'vegetable'}),
   pumpkin: Object.freeze({id:'pumpkin',en:'Pumpkin',zh:'南瓜',unit:'piece',zone:'vegetable'}),
   apple: Object.freeze({id:'apple',en:'Apple',zh:'苹果',unit:'piece',zone:'fruit'}),
-  orange: Object.freeze({id:'orange',en:'Orange',zh:'橙子',unit:'piece',zone:'fruit'})
+  orange: Object.freeze({id:'orange',en:'Orange',zh:'橙子',unit:'piece',zone:'fruit'}),
+  rice: Object.freeze({id:'rice',en:'Rice (dry)',zh:'大米（干）',unit:'g',zone:'grain'}),
+  chicken: Object.freeze({id:'chicken',en:'Chicken',zh:'鸡肉',unit:'g',zone:'barn'}),
+  fish: Object.freeze({id:'fish',en:'Fish',zh:'鱼肉',unit:'g',zone:'pond'}),
+  bokchoy: Object.freeze({id:'bokchoy',en:'Bok choy',zh:'小白菜',unit:'bunch',zone:'vegetable'}),
+  oil: Object.freeze({id:'oil',en:'Cooking oil',zh:'食用油',unit:'ml',zone:'grain'})
 });
 export const RECIPE = Object.freeze({
   id:'tomato-egg',nameEn:'Tomato & Egg Stir-fry',nameZh:'番茄炒蛋',servings:2,cookMinutes:15,
@@ -69,7 +75,7 @@ export function checkState(state){
   for(const b of state.batches){
     if(typeof b.id!=='string'||seen.has(b.id))throw new Error('Invalid batch ID.');seen.add(b.id);
     checkIngredient(b.ingredientId);checkSource(b.organicStatus);checkStorage(b.storage);
-    safeInt(b.onHand,'Physical quantity');if(!validDate(b.useBy))throw new Error('Invalid use-by date.');
+    safeInt(b.onHand,'Physical quantity');if(b.unit!==INGREDIENTS[b.ingredientId].unit)throw new Error('Batch unit does not match ingredient.');if(!validDate(b.useBy))throw new Error('Invalid use-by date.');
   }
   for(const line of state.basket.lines){
     if(!Number.isSafeInteger(line.quantity)||line.quantity<=0)throw new Error('Invalid held quantity.');
@@ -84,13 +90,15 @@ export function loadState(raw,now=Date.now()){
   const parsed=typeof raw==='string'?JSON.parse(raw):raw;
   checkState(parsed);return expireBasket(parsed,now);
 }
-export function addGroceries(state,{ingredientId,quantity,organicStatus='unknown',storage='fridge',useBy=''},now=Date.now()){
+export function addGroceries(state,{ingredientId,quantity,inputUnit,organicStatus='unknown',storage='fridge',useBy=''},now=Date.now()){
   checkState(state);checkIngredient(ingredientId);checkSource(organicStatus);checkStorage(storage);
-  safeInt(quantity,'Quantity',{minimum:1,maximum:9999});if(!validDate(useBy))throw new Error('Use YYYY-MM-DD for the use-by date.');
+  const base=INGREDIENTS[ingredientId].unit;
+  const amount=inputUnit?toBase(quantity,inputUnit,base):quantity;
+  safeInt(amount,'Quantity',{minimum:1,maximum:99999});if(!validDate(useBy))throw new Error('Use YYYY-MM-DD for the use-by date.');
   const next=clone(expireBasket(state,now));
   const id=`${BATCH_PREFIX}${next.sequence++}`;
-  next.batches.push({id,ingredientId,onHand:quantity,unit:'piece',organicStatus,storage,useBy:useBy||null,createdAt:new Date(now).toISOString()});
-  record(next,id,quantity,'add',now);checkState(next);return next;
+  next.batches.push({id,ingredientId,onHand:amount,unit:base,organicStatus,storage,useBy:useBy||null,createdAt:new Date(now).toISOString()});
+  record(next,id,amount,'add',now);checkState(next);return next;
 }
 export function correctStock(state,{batchId,onHand,reason='count'},now=Date.now()){
   checkState(state);safeInt(onHand,'Corrected stock',{maximum:99999});
