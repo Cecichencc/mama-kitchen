@@ -34,7 +34,7 @@ test('all curated recipes have reusable inline SVG illustrations',()=>{
    const svg=recipeArtMarkup(r.id);
    assert.match(svg,/<svg[^>]*viewBox="0 0 320 240"/,r.id);
    assert.match(svg,/<\/svg>$/,r.id);
-   assert.doesNotMatch(svg,/<img\b|https?:\/\//,r.id);
+   assert.doesNotMatch(svg,/<img\b|<image\b|(?:src|href)="https?:\/\//,r.id);
  }
 });
 test('new recipes match real measured base-unit stock without claiming condiments',()=>{
