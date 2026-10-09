@@ -1,5 +1,7 @@
 import {recordedStock,recipeCheck} from './recipe-matching.js';
 import {HOME_RECIPES} from './home-recipes.js';
+import {INGREDIENTS} from './domain.js';
+import {displayAmount} from './units.js';
 // Curated recipes for two people. Only explicitly quantified, recorded stock
 // can be marked sufficient; unquantified staples always need checking.
 export const RECIPES=Object.freeze([
@@ -10,10 +12,16 @@ export const RECIPES=Object.freeze([
  {id:'bokchoy-garlic',en:'Garlic Bok Choy',zh:'蒜蓉小白菜',minutes:12,meal:['lunch','dinner'],category:'vegetable',icon:'🥬',ingredients:[['bokchoy',1],['garlic',1],['oil',null]],stepsEn:['Wash bok choy and chop garlic.','Stir-fry garlic briefly.','Add bok choy and cook until tender.'],stepsZh:['洗净小白菜，蒜切末。','先略炒蒜末。','加入小白菜炒熟。']},
  {id:'mushroom-rice',en:'Chicken Mushroom Rice',zh:'香菇鸡肉饭',minutes:30,meal:['lunch','dinner'],category:'rice',icon:'🍚',ingredients:[['chicken',250],['mushroom',4],['rice',150]],stepsEn:['Cook rice according to package instructions.','Cook chicken thoroughly and sauté mushrooms.','Combine and season lightly.'],stepsZh:['按包装说明煮米饭。','将鸡肉彻底煮熟，香菇炒香。','拌匀并少量调味。']},
  {id:'salmon-bowl',en:'Salmon & Vegetable Bowl',zh:'三文鱼蔬菜碗',minutes:25,meal:['lunch','dinner'],category:'rice',icon:'🐟',ingredients:[['salmon',null],['vegetables',null],['rice',null]],stepsEn:['Cook rice and vegetables.','Cook salmon thoroughly.','Serve together in a bowl.'],stepsZh:['煮好米饭和蔬菜。','将三文鱼彻底煮熟。','装碗享用。']},
- {id:'pumpkin-soup',en:'Pumpkin Soup',zh:'南瓜汤',minutes:25,meal:['lunch','dinner'],category:'soup',icon:'🎃',ingredients:[['pumpkin',1],['water',null]],stepsEn:['Cut pumpkin into small pieces.','Simmer until tender.','Blend carefully until smooth.'],stepsZh:['南瓜切小块。','加水煮软。','小心搅打至顺滑。']}
-,
+ {id:'pumpkin-soup',en:'Pumpkin Soup',zh:'南瓜汤',minutes:25,meal:['lunch','dinner'],category:'soup',icon:'🎃',ingredients:[['pumpkin',1],['water',null]],stepsEn:['Cut pumpkin into small pieces.','Simmer until tender.','Blend carefully until smooth.'],stepsZh:['南瓜切小块。','加水煮软。','小心搅打至顺滑。']},
  ...HOME_RECIPES
 ]);
+// Recipe amounts use the same base units as the authoritative Pantry.
+export function formatRecipeQuantity(id,qty,locale='en'){
+ if(qty==null)return locale==='zh-CN'?'按需准备 · 请核对':'As needed · check at home';
+ const base=INGREDIENTS[id]?.unit;
+ if(base)return displayAmount(qty,base,locale);
+ return String(qty);
+}
 export const TRACKED_IDS=new Set(['tomato','egg','carrot','potato','onion','garlic','mushroom','pumpkin','apple','orange','rice','chicken','fish','bokchoy','oil']);
 export function recipeAvailability(recipe,state,now=Date.now()){
  return recipeCheck(recipe,recordedStock(state,now));
