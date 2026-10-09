@@ -1,6 +1,6 @@
 // Kitchen Garden v1.5 — reusable, dependency-free flat, reusable grocery icons.
 // SVG is presentation-only. Catalog entries do not imply live inventory support.
-export const INGREDIENT_ICON_IDS=Object.freeze(['tomato','egg','bokchoy','carrot','potato','onion','garlic','mushroom','fish','chicken','rice']);
+export const INGREDIENT_ICON_IDS=Object.freeze(['tomato','egg','bokchoy','carrot','potato','onion','garlic','mushroom','fish','chicken','rice','pumpkin','apple','orange']);
 const shell=(body,id)=>`<svg class="kg-food-icon" viewBox="0 0 64 64" width="32" height="32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${body}</svg>`;
 const leaf=(x,y)=>`<path d="M${x} ${y}q-12-14-17-3 11 9 17 3Zm0 0q12-14 17-3-11 9-17 3Z" fill="#70B978" stroke="#4B985E" stroke-width="1.2"/>`;
 const designs={
@@ -14,6 +14,9 @@ garlic:`<path d="M32 7Q25 17 22 23Q11 27 12 43Q13 57 32 58Q51 57 52 43Q53 27 42 
 mushroom:`<path d="M25 33H39L41 54Q32 60 23 54Z" fill="#F3DFC5"/><path d="M9 34Q10 11 32 10Q54 11 55 34Q32 43 9 34Z" fill="#B87E56" stroke="#986544" stroke-width="1.5"/><path d="M12 32Q32 41 52 32" fill="none" stroke="#E5B28A" stroke-width="3"/>`,
 fish:`<path d="M13 32Q29 9 47 26L58 18V46L47 38Q29 56 13 32Z" fill="#78BBD5" stroke="#529CB9" stroke-width="1.5"/><circle cx="24" cy="29" r="2.5" fill="#263F52"/><path d="M35 22L40 14L45 26M35 41L40 49L45 37" fill="#A0D3E2"/>`,
 chicken:`<ellipse cx="32" cy="39" rx="19" ry="20" fill="#FFF9F1" stroke="#E8DFD5" stroke-width="1.3"/><circle cx="31" cy="23" r="13" fill="#FFF9F1"/><path d="M26 11Q23 2 31 5Q37 0 39 11" fill="#F0756A"/><circle cx="27" cy="23" r="2" fill="#33484B"/><circle cx="37" cy="23" r="2" fill="#33484B"/><path d="M32 28l-5 5h10Z" fill="#F4B64C"/><path d="M25 57v4M39 57v4" stroke="#E8AC4D" stroke-width="4"/>`,
+pumpkin:`<path d="M12 35Q10 17 24 17Q32 12 40 17Q54 17 52 35Q52 55 32 56Q12 55 12 35Z" fill="#EFB366" stroke="#D9944B" stroke-width="1.5"/><path d="M32 17V55M22 19Q15 36 23 52M42 19Q49 36 41 52" stroke="#D9944B" stroke-width="2" fill="none"/><path d="M32 18V9" stroke="#5E9F63" stroke-width="5" stroke-linecap="round"/>`,
+apple:`<path d="M32 22Q18 13 11 30Q6 49 23 56Q31 59 33 54Q45 60 53 43Q60 21 43 20Q36 20 32 22Z" fill="#F07864" stroke="#D96356" stroke-width="1.5"/><path d="M32 21Q33 9 41 8" stroke="#6B8F4B" stroke-width="3" fill="none"/><path d="M34 17Q44 8 51 15Q44 23 34 17Z" fill="#75B47C"/>`,
+orange:`<circle cx="32" cy="35" r="23" fill="#F4B65D" stroke="#DE9840" stroke-width="1.5"/><path d="M31 14Q31 8 36 7" stroke="#648B52" stroke-width="3" fill="none"/><path d="M33 14Q42 7 49 14Q42 20 33 14Z" fill="#75B47C"/>`,
 rice:`<path d="M11 32Q32 41 53 32L48 55Q32 61 16 55Z" fill="#D2AF87" stroke="#B9926C" stroke-width="1.4"/><ellipse cx="32" cy="31" rx="22" ry="9" fill="#FFF8E8"/><path d="M20 30l5-2m3 6 5-3m5-3 6 3" stroke="#DCCBB0" stroke-width="2" stroke-linecap="round"/>`
 };
 export function ingredientIconMarkup(id){if(!Object.hasOwn(designs,id))return '';return shell(designs[id],id);}
