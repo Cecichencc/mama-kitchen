@@ -286,7 +286,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     const ingredientId=form.elements.ingredient.value,inputUnit=byId('groceryUnit').value,organicStatus=form.elements.source.value,storage=form.elements.storage.value,useBy=byId('groceryDate').value;
     const input=byId('groceryQuantity'),raw=input.value.trim().replace(',','.');
     const quantity=Number(raw),error=byId('groceryQuantityError');
-    const invalid=!/^\\d+(?:\\.\\d+)?$/.test(raw)||!Number.isFinite(quantity)||quantity<=0;
+    const invalid=!/^\d+(?:\.\d+)?$/.test(raw)||!Number.isFinite(quantity)||quantity<=0;
     if(invalid){
       error.textContent=i18n.locale==='zh-CN'?'请输入有效的正数数量。':'Enter a valid quantity greater than zero.';
       error.hidden=false;input.setAttribute('aria-invalid','true');input.focus();return;
