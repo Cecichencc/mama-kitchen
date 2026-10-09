@@ -20,9 +20,9 @@ test('root Vite app is preserved; phase1 remains at /phase0/',()=>{
   assert.match(html,/href="\.\/styles\.css"/);
   for(const f of ['world.js','scene.js','i18n.js','grounding.js','game-ui.js','domain.js'])assert.ok(existsSync(resolve(root,'public/phase0',f)));
 });
-test('farm and utility screens plus all four gameplay sheets exist',()=>{
-  for(const id of ['farmView','todayView','pantryView','ingredientSheet','basketSheet','recipeSheet','cookSheet','completeSheet','settingsSheet','basketBtn','navFarm','navToday','navPantry','harvestBtn','harvestBatch','basketLines','actualUsedLines','groceryForm','stockList','organicAck','gameToast'])assert.match(html,new RegExp(`id="${id}"`),id);
-  assert.match(ui,/confirmCooked/);assert.match(ui,/reserve\(/);
+test('farm and utility screens plus recipe-first sheets exist',()=>{
+  for(const id of ['farmView','todayView','pantryView','ingredientSheet','basketSheet','recipeSheet','settingsSheet','basketBtn','navFarm','navToday','navPantry','harvestBtn','harvestBatch','basketLines','groceryForm','stockList','gameToast'])assert.match(html,new RegExp(`id="${id}"`),id);
+  assert.match(ui,/selectQuantity\(/);assert.match(ui,/SELECTION_KEY/);
   assert.match(ui,/correctStock/);assert.match(ui,/STORAGE_KEY/);
 });
 test('real 3D geometry, egg resource, movable camera and colliders remain',()=>{
@@ -87,4 +87,10 @@ test('UI interaction is usable without any WebGL and exposes confirmed changes',
   assert.match(ui,/renderPantry\(/);
   assert.match(ui,/showError\(/);
   assert.match(ui,/onAvailabilityChanged/);
+});
+
+
+test('recipe-first UI does not expose obsolete cooking confirmation forms',()=>{
+  for(const id of ['cookSheet','completeSheet','actualUsedLines','organicAck'])assert.doesNotMatch(html,new RegExp(`id="${id}"`),id);
+  assert.match(html,/id="recipeSheet"/);
 });
