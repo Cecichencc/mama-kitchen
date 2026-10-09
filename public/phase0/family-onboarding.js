@@ -18,6 +18,7 @@ const errorCopy={
  AUTH_REQUEST_FAILED:['Sign-in could not be completed. Please retry.','无法完成登录，请稍后重试。'],
  RATE_LIMITED:['Too many attempts. Please try later.','尝试次数过多，请稍后重试。'],
  NETWORK_UNAVAILABLE:['Network unavailable. Nothing was changed.','网络不可用，未做任何修改。'],
+ COPY_UNAVAILABLE:['Copying is unavailable in this browser. You can select the code manually.','当前浏览器无法复制，可手动选择邀请码。'],
  INVALID_AUTH_RESPONSE:['The sign-in response was incomplete. Please retry.','登录信息不完整，请重新尝试。'],
  SIGN_IN_REQUIRED:['Please sign in first.','请先登录。'],
  SIGN_IN_EXPIRED:['Your session expired. Please sign in again.','登录已过期，请重新登录。'],
