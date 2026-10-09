@@ -234,7 +234,8 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
     const unit=byId('groceryUnit'),previous=unit.value;
     unit.replaceChildren(...unitOptions(base).map(o=>new Option(i18n.locale==='zh-CN'?o.zh:o.en,o.id)));
     if(unitOptions(base).some(o=>o.id===previous))unit.value=previous;
-    const quantity=byId('groceryQuantity');quantity.step=base==='g'||base==='ml'?'any':'1';
+    const quantity=byId('groceryQuantity');quantity.placeholder=base==='g'||base==='ml'?'500':'1';
+    byId('groceryQuantityError').hidden=true;quantity.removeAttribute('aria-invalid');
   }
   function renderGroceryOptions(){
     const el=byId('groceryIngredient'),previous=el.value;
@@ -244,6 +245,7 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   }
   renderGroceryOptions();
   byId('groceryIngredient').addEventListener('change',renderGroceryUnits);
+  byId('groceryQuantity').addEventListener('input',()=>{byId('groceryQuantityError').hidden=true;byId('groceryQuantity').removeAttribute('aria-invalid');});
   byId('basketBtn').addEventListener('click',()=>{renderBasket();openPanel('basketSheet');});
   byId('todayBasketBtn').addEventListener('click',()=>{renderBasket();openPanel('basketSheet');});
   byId('settingsBtn').addEventListener('click',()=>openPanel('settingsSheet'));
@@ -281,8 +283,16 @@ export function createGameUI({i18n,onAvailability=()=>{},onHarvest=()=>{},onRetu
   // No actual-used form in the recipe-first experience.
   byId('groceryForm').addEventListener('submit',event=>{
     event.preventDefault();const form=event.currentTarget;
-    const ingredientId=form.elements.ingredient.value,quantity=Number(form.elements.quantity.value),inputUnit=byId('groceryUnit').value,organicStatus=form.elements.source.value,storage=form.elements.storage.value,useBy=byId('groceryDate').value;
-    if(transact(s=>addGroceries(s,{ingredientId,quantity,inputUnit,organicStatus,storage,useBy}))){toast(t('pantry.added'));form.elements.quantity.value='';switchTab('farm');}
+    const ingredientId=form.elements.ingredient.value,inputUnit=byId('groceryUnit').value,organicStatus=form.elements.source.value,storage=form.elements.storage.value,useBy=byId('groceryDate').value;
+    const input=byId('groceryQuantity'),raw=input.value.trim().replace(',','.');
+    const quantity=Number(raw),error=byId('groceryQuantityError');
+    const invalid=!/^\\d+(?:\\.\\d+)?$/.test(raw)||!Number.isFinite(quantity)||quantity<=0;
+    if(invalid){
+      error.textContent=i18n.locale==='zh-CN'?'请输入有效的正数数量。':'Enter a valid quantity greater than zero.';
+      error.hidden=false;input.setAttribute('aria-invalid','true');input.focus();return;
+    }
+    error.hidden=true;input.removeAttribute('aria-invalid');
+    if(transact(s=>addGroceries(s,{ingredientId,quantity,inputUnit,organicStatus,storage,useBy}))){toast(t('pantry.added'));input.value='';switchTab('farm');}
   });
   byId('stockList').addEventListener('click',event=>{
     const update=event.target.closest('[data-stock-correct]'),empty=event.target.closest('[data-stock-empty]');
