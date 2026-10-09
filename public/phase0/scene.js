@@ -33,7 +33,12 @@ async function boot(){
   try {
     // Pinned Three.js for the existing lightweight Vite proof. Migrate to a
     // bundled R3F dependency once package install/deployment access is available.
-    THREE=await import('https://cdn.jsdelivr.net/npm/three@0.167.1/build/three.module.js');
+    // In-app browsers can stall on CDN imports without rejecting the promise.
+    // Bound the wait so the user sees the accessible farm fallback instead of an empty sky.
+    THREE=await Promise.race([
+      import('https://cdn.jsdelivr.net/npm/three@0.167.1/build/three.module.js'),
+      new Promise((_,reject)=>setTimeout(()=>reject(new Error('3D library loading timed out')),12000))
+    ]);
   }catch(error){console.warn('Three.js could not load',error);showFallback('farm.loadFailed');return;}
   let renderer,observer;
   try {
@@ -48,6 +53,11 @@ async function boot(){
     renderer.domElement.style.touchAction='none';
     renderer.domElement.setAttribute('aria-label',i18n.t('farm.viewLabel'));
     mount.appendChild(renderer.domElement);
+    renderer.domElement.addEventListener('webglcontextlost',event=>{
+      event.preventDefault();
+      console.warn('Kitchen Garden WebGL context lost');
+      showFallback('farm.loadFailed');
+    });
     const scene=new THREE.Scene();
     scene.add(new THREE.HemisphereLight(0xfffcf2,0x7c9b8d,1.6));
     const sunlight=new THREE.DirectionalLight(0xfff4df,2.05);
