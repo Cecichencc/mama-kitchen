@@ -237,6 +237,7 @@ create or replace function public.kg_correct_batch(
 set search_path = public, pg_temp
 as $$
 declare v_row public.kg_batches%rowtype; v_payload jsonb; v_prior jsonb; v_batch uuid;
+ v_old integer;
 begin
  if auth.uid() is null or not public.kg_is_member(p_household)
  then raise exception 'NOT_AUTHORIZED' using errcode='42501'; end if;
@@ -260,6 +261,7 @@ begin
  if v_row.version<>p_expected_version then
   raise exception 'STALE_VERSION' using errcode='40001';
  end if;
+ v_old=v_row.on_hand;
  update public.kg_batches set on_hand=p_on_hand,version=version+1,updated_at=now()
  where id=p_batch returning * into v_row;
  insert into public.kg_events(
@@ -267,8 +269,7 @@ begin
   delta,old_quantity,new_quantity
  ) values(p_household,p_batch,p_request_id,v_payload,auth.uid(),
   case when p_reason='count' then 'correct' else p_reason end,
-  p_on_hand-(select old_quantity from (select v_row.on_hand as old_quantity) x), -- corrected below
-  0,p_on_hand);
+  p_on_hand-v_old,v_old,p_on_hand);
  return v_row;
 end;
 $$;
