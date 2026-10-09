@@ -330,3 +330,6 @@ main.game-main{width:100%;max-width:860px;flex:1;min-height:0;margin:0 auto}
 .kg-quantity-unit>.field-pair{min-width:0}
 .kg-quantity-unit input,.kg-quantity-unit select{width:100%;min-width:0;min-height:46px}
 @media(max-width:340px){.kg-quantity-unit{grid-template-columns:minmax(0,1fr) 105px;gap:7px}}
+
+.kg-field-error{margin:-3px 0 13px;color:#B33D43;font-size:13px;line-height:1.45}
+.kg-quantity-unit input[aria-invalid="true"]{border-color:#B33D43;outline-color:#B33D43}
