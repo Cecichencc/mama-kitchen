@@ -4,7 +4,7 @@
 
 ## Current status
 
-The Supabase app is now connected for project discovery, but the account **has no existing Supabase projects** (checked 2026-10-10). No isolated test database is available, so **database permissions, real invitation consumption, and simultaneous edits have NOT been verified against Postgres**. The linked GitHub PR provides a guarded test harness that can run only after the user approves creating or choosing a dedicated test project.
+At initial Stage 3A development, Supabase project discovery found no projects. **That blocker has since been resolved:** the user approved creating the isolated Kitchen Garden test project, Supabase quoted $0/month, and the Singapore project is now healthy. The foundation migration, database permissions, and rollback-only SQL household/invite/stock smoke checks have passed. **The guarded three-real-account HTTP test suite, email OTP and genuinely concurrent requests have NOT run yet** and require separate test identities and credential handling. See [SUPABASE_TEST_PROJECT_STATUS.md](./SUPABASE_TEST_PROJECT_STATUS.md).
 
 The Kitchen Garden mobile app is still local-only. The `family-config.js` feature gate remains `enabled:false`. No household grocery data has been transferred or shared, and no production/v0 deployment was performed.
 
@@ -30,9 +30,9 @@ Three accounts are needed to verify both the normal two-person household journey
 
 ## Required independent project approval
 
-Before creating a project, request the user's choice of Supabase **organization**, then obtain the exact project cost and have the user explicitly confirm. A Singapore-region test project (`ap-southeast-1`) is the recommended default for this household, but region and organization require approval. Never reuse a production or personal-data project.
+For any **future** project or branch creation, request the user's choice of Supabase **organization**, check the exact cost and have the user explicitly confirm. The current isolated project already received that approval at a confirmed $0/month project cost. A Singapore-region test project (`ap-southeast-1`) is the recommended default for this household, but region and organization require approval. Never reuse a production or personal-data project.
 
-**Do not apply the existing migration until it has been reviewed.** The SQL migration in `supabase/migrations/20261010000000_shared_household_pantry.sql` has not yet been applied anywhere through this workflow.
+**Foundation migration already applied to the isolated TEST project:** The migration in `supabase/migrations/20261010000000_shared_household_pantry.sql` was reviewed, then applied to the separate test project; an additive index migration was also applied. Do not apply either to production without separate review and approval. Details: [SUPABASE_TEST_PROJECT_STATUS.md](./SUPABASE_TEST_PROJECT_STATUS.md).
 
 After project creation, configure passwordless email OTP with a template using `{{ .Token }}` and approved sender/rate limits. Create three **fictional/test** accounts. Sign each in separately and keep their access JWTs in GitHub's protected **environment secrets**, never in repository code, PR comments, ChatGPT text, URLs, or committed `.env` files.
 
@@ -84,7 +84,7 @@ For a GitHub-managed run, configure a protected environment called `family-e2e`,
 - Offline replays, device-to-device UX and Safari touch interactions.
 - Actual two-device sync into the current 3D Farm or Shopping List.
 - Local Pantry migration, deduplication, backups and human-approved import.
-- No backend was provisioned, no migration applied and no live tests executed in this GitHub milestone.
+- At the original GitHub-only milestone, no backend was provisioned. **Since then**, an isolated test backend has been created and database-role smoke tests executed; genuine three-JWT HTTP tests are still pending.
 
 ## Acceptance before cloud integration
 
