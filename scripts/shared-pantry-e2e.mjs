@@ -24,8 +24,8 @@ const decodeJWTSub=token=>{
 };
 if(missing.length){
  fail('Missing settings: '+missing.join(', ')+'. Nothing sent to a server.');
-}else if(env.KG_RUN_REMOTE_TESTS!=='I_CONFIRM_ISOLATED_TEST_PROJECT'){
- fail('Explicit isolated-test acknowledgement required. Nothing sent.');
+}else if(!['I_CONFIRM_ISOLATED_TEST_PROJECT','READ_ONLY_PREFLIGHT'].includes(env.KG_RUN_REMOTE_TESTS)){
+ fail('Use READ_ONLY_PREFLIGHT or explicitly confirm isolated-test mutations. Nothing sent.');
 }else{
  try{
   const ref=env.KG_TEST_PROJECT_REF;
@@ -48,20 +48,32 @@ if(missing.length){
    url:url.origin,anonKey:env.KG_TEST_PUBLISHABLE_KEY,
    getAccessToken:()=>jwt
   });
-  console.log('Using explicitly approved isolated Supabase test project.');
-  const result=await runSharedPantryE2E({
-   owner:connection(jwtByRole.owner),
-   member:connection(jwtByRole.member),
-   outsider:connection(jwtByRole.outsider),
-   mark:step=>console.log('PASS: '+step)
-  });
-  console.log('PASS: '+result.checks+' groups of test-only household checks');
-  console.log('Synthetic test household ID: '+result.householdId);
-  console.log('Synthetic test batch ID: '+result.batchId);
-  console.log('Test records remain in the isolated test project for audit and cleanup.');
+  const owner=connection(jwtByRole.owner);
+  const member=connection(jwtByRole.member);
+  const outsider=connection(jwtByRole.outsider);
+  if(env.KG_RUN_REMOTE_TESTS==='READ_ONLY_PREFLIGHT'){
+   const accounts=[owner,member,outsider];
+   await Promise.all(accounts.map(g=>g.listHouseholds()));
+   console.log('PASS: isolated test project is reachable with three signed-in test accounts.');
+   console.log('No test records created or modified.');
+  }else{
+   console.log('Running explicit test-only household creation and stock-conflict checks.');
+   const result=await runSharedPantryE2E({
+    owner,member,outsider,
+    mark:step=>console.log('PASS: '+step)
+   });
+   console.log('PASS: '+result.checks+' groups of test-only household checks');
+   console.log('Synthetic test household ID: '+result.householdId);
+   console.log('Synthetic test batch ID: '+result.batchId);
+   console.log('Test records remain in the isolated test project for audit and cleanup.');
+  }
  }catch(error){
-  // Deliberately never print raw server payloads, headers, JWTs or invitation codes.
-  fail(error?.code||(/^(?:Error|AssertionError)$/.test(error?.name||'')?
-   error?.message:'Integration check failed. Review isolated backend logs.'));
+  // Never print provider error bodies, assertions with payloads, JWTs or invites.
+  const allowed=new Set(['NOT_AUTHORIZED','AUTH_REQUIRED','INVALID_NAME',
+   'INVALID_INVITE','HOUSEHOLD_FULL','ALREADY_MEMBER','INVALID_BATCH',
+   'INVALID_CORRECTION','BATCH_NOT_FOUND','STALE_VERSION',
+   'IDEMPOTENCY_KEY_REUSED','SIGN_IN_REQUIRED','NETWORK_UNAVAILABLE']);
+  fail(allowed.has(error?.code)?error.code:
+   'Integration verification failed. Review isolated test backend logs.');
  }
 }
