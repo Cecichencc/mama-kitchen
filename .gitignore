@@ -1,0 +1,16 @@
+# Kitchen Garden / Node / Vite
+node_modules/
+dist/
+.vite/
+coverage/
+*.log
+
+# Never commit Supabase tokens, JWTs, OTPs or project secrets.
+.env
+.env.*
+!.env.example
+!*.env.example
+*.local
+integration/credentials*
+integration/*-tokens.*
+integration/*.secret.*
