@@ -45,7 +45,7 @@ KG_TEST_OUTSIDER_JWT                # authenticated TEST account #3
 KG_RUN_REMOTE_TESTS                 # mode selection
 ```
 
-**Never check in a .env file containing tokens or publishable keys.** Supply them through a trusted local credential manager or encrypted CI secrets, with log redaction and an isolated runner; tokens should be short-lived. The CLI refuses to run if required settings are missing, if the URL is not exactly `https://<ref>.supabase.co/`, if any JWT is malformed/expired, or if the three account subjects are not distinct.
+**Never check in a .env file containing tokens or publishable keys.** Supply them through a trusted local credential manager or encrypted CI secrets, with log redaction and an isolated runner; tokens should be short-lived. The CLI refuses to run if required settings are missing, if the URL is not exactly `https://<ref>.supabase.co/`, if any JWT is malformed/expired, does not contain `role=authenticated`, is long-lived (over 24 hours), or if the three account subjects are not distinct.
 
 - **Read-only preflight:** set `KG_RUN_REMOTE_TESTS=READ_ONLY_PREFLIGHT`, then run `npm run test:shared-pantry:e2e`. This contacts the test backend to list each test account's own households and **creates or modifies no data**.
 - **Explicit mutation test:** set `KG_RUN_REMOTE_TESTS=I_CONFIRM_ISOLATED_TEST_PROJECT` and run the same command. This **creates** a synthetic household, invitation, batch and event history in the test project. Test objects are not auto-deleted, so security and audit trails can be inspected before manual cleanup.
