@@ -19,7 +19,9 @@ const decodeJWTSub=token=>{
  if(parts.length!==3)throw Error('JWT does not contain three segments');
  const payload=JSON.parse(Buffer.from(parts[1],'base64url').toString('utf8'));
  if(typeof payload.sub!=='string'||payload.sub.length<10)throw Error('JWT missing subject');
- if(Number.isFinite(payload.exp)&&payload.exp*1000<=Date.now())throw Error('JWT expired');
+ if(payload.role!=='authenticated')throw Error('Use only signed-in test user JWTs, never service-role credentials');
+ if(!Number.isSafeInteger(payload.exp)||payload.exp*1000<=Date.now())throw Error('JWT is expired or missing expiry');
+ if(payload.exp*1000>Date.now()+86400000)throw Error('Use short-lived test user JWTs, not long-lived credentials');
  return payload.sub;
 };
 if(missing.length){
