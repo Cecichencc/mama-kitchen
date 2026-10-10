@@ -141,6 +141,8 @@ test('integration script keeps remote-run gates and never logs secrets',()=>{
  assert.match(textSource,/KG_TEST_PROJECT_REF/);
  assert.match(textSource,/\.supabase\.co/);
  assert.match(textSource,/Three distinct test accounts required/);
+ assert.match(textSource,/payload\.role!=='authenticated'/);
+ assert.match(textSource,/Use short-lived test user JWTs/);
  assert.doesNotMatch(textSource,/console\.log\([^)]*(?:JWT|publishableKey|invite)/i);
 });
 function requireRead(path){return readFileSync(path,'utf8');}
