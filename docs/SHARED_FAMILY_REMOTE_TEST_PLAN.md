@@ -1,6 +1,6 @@
 # Kitchen Garden — Shared Family Pantry: Isolated Backend Test Gate
 
-**Stage 3A: GitHub-only preparation — no live test database was created or modified.**
+**Historical Stage 3A:** GitHub-only preparation. **Update (2026-10-10):** A separate Singapore Supabase test project has since been created, and its SQL migration and database-role smoke tests have passed. Real HTTP test-user authentication and concurrent browser verification remain pending. See [SUPABASE_TEST_PROJECT_STATUS.md](./SUPABASE_TEST_PROJECT_STATUS.md).
 
 ## Current status
 
