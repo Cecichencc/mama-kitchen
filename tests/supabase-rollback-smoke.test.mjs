@@ -39,5 +39,7 @@ test('No live test project identifiers, JWTs or integration flags are embedded i
  const conf=read('../public/phase0/family-config.js');
  assert.match(conf,/enabled:false/);
  assert.doesNotMatch(conf,/voytokitbphutqgrvutm/);
- assert.doesNotMatch(conf,/eyJhbGci|sb_secret_|service_role\s*:/);
+ // Ignore comments like "NEVER use sb_secret_"; inspect executable source instead.
+ const runtime=conf.replace(/\/\/[^\n]*/g,'');
+ assert.doesNotMatch(runtime,/eyJhbGci|sb_secret_[A-Za-z0-9]{8}|service_role\s*:/);
 });
