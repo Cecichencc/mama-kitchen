@@ -18,13 +18,14 @@ const forbidden=async(promise,allowed)=>{
   'Request must fail with one of: '+allowed.join(', '));
 };
 const verifyHidden=async(gateway,householdId)=>{
- try{
-  const rows=await gateway.readBatches(householdId);
-  assert.deepEqual(rows,[],'Outside accounts must see no household stock');
- }catch(error){
-  assert.ok(LOGIN_ERRORS.has(error?.code),
-   'Outside accounts should receive empty rows or an authorisation error');
+ let rows;
+ try{rows=await gateway.readBatches(householdId);}
+ catch(error){
+  if(LOGIN_ERRORS.has(error?.code))return; // An explicit 401/403 is acceptable.
+  throw error;
  }
+ // RLS often returns [] rather than a 403 for denied SELECT.
+ assert.deepEqual(rows,[],'Outside accounts must see no household stock');
 };
 export async function runSharedPantryE2E({
  owner,member,outsider,mark=()=>{},makeId=randomUUID
