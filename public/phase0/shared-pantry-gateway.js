@@ -76,6 +76,10 @@ export function createSharedPantryGateway({
   readBatches:householdId=>api('GET',
    '/rest/v1/kg_batches?select=id,household_id,ingredient_id,on_hand,unit,organic_status,storage,use_by,version,created_at'+
    '&household_id=eq.'+encodeURIComponent(uuid(householdId,'household'))+'&order=created_at.asc'),
+  // Audit history is read-only and scoped by RLS; no direct event writes.
+  readEvents:householdId=>api('GET',
+   '/rest/v1/kg_events?select=id,household_id,batch_id,request_id,actor_id,event_type,delta,old_quantity,new_quantity,created_at'+
+   '&household_id=eq.'+encodeURIComponent(uuid(householdId,'household'))+'&order=created_at.asc'),
   createHousehold:name=>{
    if(typeof name!=='string'||name.trim().length<1||name.trim().length>80)
     throw new SharedPantryError('INVALID_NAME');

@@ -140,3 +140,19 @@ test('network failures put remote session into offline mode without fake success
  assert.equal(session.getStatus(),FAMILY_SYNC_STATUS.OFFLINE);
  await assert.rejects(()=>session.correctStock({batchId:batch,onHand:0}),/offline or not connected/);
 });
+
+test('read-only event audit query is scoped by household and carries auth token',async()=>{
+ const requests=[];
+ const audit={id:'44444444-4444-4444-8444-444444444444',household_id:home,
+  batch_id:batch,event_type:'add',delta:6,old_quantity:0,new_quantity:6};
+ const api=gateway(async(url,options)=>{requests.push({url,options});return ok([audit]);});
+ const events=await api.readEvents(home);
+ assert.equal(events.length,1);
+ assert.equal(events[0].delta,6);
+ assert.equal(requests[0].options.method,'GET');
+ assert.match(requests[0].url,/\/rest\/v1\/kg_events\?select=/);
+ assert.ok(requests[0].url.includes('household_id=eq.'+home));
+ assert.equal(requests[0].options.headers.Authorization,'Bearer user-token');
+ assert.equal(requests[0].options.body,undefined);
+ assert.throws(()=>api.readEvents('not-a-uuid'),/INVALID_HOUSEHOLD/);
+});

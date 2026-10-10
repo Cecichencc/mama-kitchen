@@ -1,0 +1,47 @@
+# Manual, isolated Supabase test ONLY. Not triggered by pushes or PRs.
+# Requires 3 test-account JWTs and a DEDICATED non-production project.
+name: Family Pantry Remote E2E (manual)
+on:
+  workflow_dispatch:
+    inputs:
+      project_ref:
+        description: 'Exact Supabase project ref of an isolated throwaway TEST project'
+        required: true
+        type: string
+      confirmation:
+        description: 'Enter I_ACCEPT_ISOLATED_TEST_WRITES to authorize disposable test records'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: family-e2e-${{ inputs.project_ref }}
+  cancel-in-progress: false
+
+jobs:
+  test-shared-pantry:
+    if: ${{ inputs.confirmation == 'I_ACCEPT_ISOLATED_TEST_WRITES' }}
+    runs-on: ubuntu-latest
+    # Configure required reviewers and secrets on this environment before use.
+    environment: family-e2e
+    timeout-minutes: 5
+    env:
+      KG_ENABLE_REMOTE_E2E: ${{ inputs.confirmation }}
+      KG_TEST_PROJECT_CONFIRMATION: isolated-test:${{ inputs.project_ref }}
+      KG_TEST_SUPABASE_URL: ${{ secrets.KG_TEST_SUPABASE_URL }}
+      KG_TEST_PUBLISHABLE_KEY: ${{ secrets.KG_TEST_PUBLISHABLE_KEY }}
+      KG_TEST_OWNER_JWT: ${{ secrets.KG_TEST_OWNER_JWT }}
+      KG_TEST_MEMBER_JWT: ${{ secrets.KG_TEST_MEMBER_JWT }}
+      KG_TEST_OUTSIDER_JWT: ${{ secrets.KG_TEST_OUTSIDER_JWT }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Validate isolated test opt-in and run remote scenarios
+        run: npm run test:family:remote

@@ -34,6 +34,7 @@
 - [SHOPPING_LIST_V1.md](./SHOPPING_LIST_V1.md) — recipe-selected, device-local shopping checklist and Pantry handoff.
 - [SHARED_FAMILY_PANTRY_FOUNDATION.md](./SHARED_FAMILY_PANTRY_FOUNDATION.md) — authenticated cloud inventory foundation, sync semantics and future security gates.
 - [FAMILY_ONBOARDING_V1.md](./FAMILY_ONBOARDING_V1.md) — reviewable email OTP, household create/join and invitation UX, disabled until backend approval.
+- [SHARED_FAMILY_REMOTE_TEST_PLAN.md](./SHARED_FAMILY_REMOTE_TEST_PLAN.md) — gated three-account RLS/concurrency tests on an isolated, explicitly approved Supabase project.
 - [MINIMAL_FARM_CAMERA.md](./MINIMAL_FARM_CAMERA.md) — camera gestures.
 - [EMPTY_3D_PLOT.md](./EMPTY_3D_PLOT.md) — empty-state restocking.
 - [KITCHEN_GARDEN_PRD.md](./specs/KITCHEN_GARDEN_PRD.md) — product requirements.
@@ -68,3 +69,7 @@ The Pantry includes an **informational**, bilingual local-only family-sharing st
 ## Family onboarding review (2026-10-10)
 
 A new optional **Explore family sharing setup** button appears within the existing Family Pantry section, not on the farm HUD. The mobile bottom dialog illustrates and (once gated credentials are approved) executes email-code sign-in, household creation and invitation join. On the current GitHub preview the network actions are disabled with a clear preview-only status. The dialog uses the existing green/cream UI tokens, keyboard-accessible controls and bilingual copy. Nothing is uploaded or synced. Reference [FAMILY_ONBOARDING_V1.md](./FAMILY_ONBOARDING_V1.md).
+
+## Remote two-account test readiness (2026-10-10)
+
+The UI design is unchanged in this milestone. A GitHub-only integration harness and future **manual** GitHub Action are prepared for a disposable Supabase project, with mandatory test-project identity and short-lived JWT checks. There is not yet a Supabase project, so no cloud inventory has been synced, modified or tested live; see [SHARED_FAMILY_REMOTE_TEST_PLAN.md](./SHARED_FAMILY_REMOTE_TEST_PLAN.md). The 3D farm and local Pantry continue operating as before.
