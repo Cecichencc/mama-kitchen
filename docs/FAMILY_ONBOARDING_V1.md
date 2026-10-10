@@ -62,3 +62,7 @@ The new `public/phase0/family-config.js` sets `enabled:false`, an empty backend 
 ## Next development step
 
 **Step 3 — Controlled two-device test with real auth + cloud-authoritative reads**, after a user-approved isolated Supabase test project and independent backend security review. Then implement real Pantry writes with stale-version conflict UI and a separate batch-by-batch **explicit import consent** flow. Do not automatically upload local stock, use localStorage as shared truth or silently merge inventory from two phones.
+
+### Step 3A continuation — remote test gating (2026-10-10)
+
+[SHARED_FAMILY_REMOTE_TEST_PLAN.md](./SHARED_FAMILY_REMOTE_TEST_PLAN.md) defines the isolated test project and manual three-account GitHub harness. The Supabase connection is available for discovery, but the account currently contains no project; therefore no real auth, invitation/RLS or stock-concurrency test has been run. Backend creation and any cost require explicit organisation choice and approval. The Family Setup UI remains feature-gated off and device-local. No live household groceries were transferred.
