@@ -140,3 +140,21 @@ test('network failures put remote session into offline mode without fake success
  assert.equal(session.getStatus(),FAMILY_SYNC_STATUS.OFFLINE);
  await assert.rejects(()=>session.correctStock({batchId:batch,onHand:0}),/offline or not connected/);
 });
+
+test('audit events are retrieved through member-scoped RLS read only',async()=>{
+ const calls=[];
+ const api=gateway(async(url,options)=>{
+  calls.push({url,options});
+  return ok([{id:requestId,household_id:home,batch_id:batch,
+   event_type:'add',delta:6,old_quantity:0,new_quantity:6}]);
+ });
+ const rows=await api.listEvents(home);
+ assert.equal(rows[0].delta,6);
+ assert.equal(calls.length,1);
+ assert.ok(calls[0].url.includes('/rest/v1/kg_events?select='));
+ assert.ok(calls[0].url.includes('household_id=eq.'+home));
+ assert.equal(calls[0].options.method,'GET');
+ assert.equal(calls[0].options.headers.Authorization,'Bearer user-token');
+ assert.throws(()=>api.listEvents('bad-household'),/INVALID_HOUSEHOLD/);
+ assert.equal(calls.length,1);
+});

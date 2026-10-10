@@ -120,3 +120,7 @@ The current `domain.js` still contains legacy reservation/cooking helpers, even 
 ## 6. Next engineering milestone
 
 **Shared Family Pantry B — Auth + invite UX:** create passwordless sign-in, safe redirect handling, household creation, joining via private invite, and test-project integration. After that, wire *cloud-authoritative* Pantry mutations and plan controlled local inventory migration. Do not imply that a disabled prototype is already synced.
+
+## Update — Isolated backend test preparation (2026-10-10)
+
+The optional `scripts/shared-pantry-e2e.mjs` tool and [SHARED_PANTRY_TEST_HARNESS.md](./SHARED_PANTRY_TEST_HARNESS.md) now define a guarded read-only connectivity check and explicitly opted-in live three-account RLS/invitation/concurrent-stock contract. This milestone **does not** connect a real Supabase project or automatically create test users; backend connection and test-account credentials remain prerequisites. In ordinary GitHub CI the new checks use fake gateways and never contact a live database. No actual family data is uploaded or synced.

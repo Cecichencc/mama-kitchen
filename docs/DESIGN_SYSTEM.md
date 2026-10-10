@@ -34,6 +34,7 @@
 - [SHOPPING_LIST_V1.md](./SHOPPING_LIST_V1.md) — recipe-selected, device-local shopping checklist and Pantry handoff.
 - [SHARED_FAMILY_PANTRY_FOUNDATION.md](./SHARED_FAMILY_PANTRY_FOUNDATION.md) — authenticated cloud inventory foundation, sync semantics and future security gates.
 - [FAMILY_ONBOARDING_V1.md](./FAMILY_ONBOARDING_V1.md) — reviewable email OTP, household create/join and invitation UX, disabled until backend approval.
+- [SHARED_PANTRY_TEST_HARNESS.md](./SHARED_PANTRY_TEST_HARNESS.md) — optional isolated Supabase two-account RLS, invitation, and stock-concurrency test plan.
 - [MINIMAL_FARM_CAMERA.md](./MINIMAL_FARM_CAMERA.md) — camera gestures.
 - [EMPTY_3D_PLOT.md](./EMPTY_3D_PLOT.md) — empty-state restocking.
 - [KITCHEN_GARDEN_PRD.md](./specs/KITCHEN_GARDEN_PRD.md) — product requirements.
@@ -68,3 +69,7 @@ The Pantry includes an **informational**, bilingual local-only family-sharing st
 ## Family onboarding review (2026-10-10)
 
 A new optional **Explore family sharing setup** button appears within the existing Family Pantry section, not on the farm HUD. The mobile bottom dialog illustrates and (once gated credentials are approved) executes email-code sign-in, household creation and invitation join. On the current GitHub preview the network actions are disabled with a clear preview-only status. The dialog uses the existing green/cream UI tokens, keyboard-accessible controls and bilingual copy. Nothing is uploaded or synced. Reference [FAMILY_ONBOARDING_V1.md](./FAMILY_ONBOARDING_V1.md).
+
+## Shared Pantry security test harness (2026-10-10)
+
+A separately gated CLI can test three disposable authenticated users against an isolated Supabase project, once the user approves project connection. This is **test tooling only**, with **no design-system component or production behavior change**. The existing local-only Family Pantry status, Kitchen Garden UI, 3D farm, English/Chinese onboarding and manual shopping list remain unchanged. Do not label a mocked pass as proof that live household sync works.

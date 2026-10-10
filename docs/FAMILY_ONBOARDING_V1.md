@@ -62,3 +62,7 @@ The new `public/phase0/family-config.js` sets `enabled:false`, an empty backend 
 ## Next development step
 
 **Step 3 — Controlled two-device test with real auth + cloud-authoritative reads**, after a user-approved isolated Supabase test project and independent backend security review. Then implement real Pantry writes with stale-version conflict UI and a separate batch-by-batch **explicit import consent** flow. Do not automatically upload local stock, use localStorage as shared truth or silently merge inventory from two phones.
+
+## Update — Isolated backend test preparation (2026-10-10)
+
+The optional `scripts/shared-pantry-e2e.mjs` tool and [SHARED_PANTRY_TEST_HARNESS.md](./SHARED_PANTRY_TEST_HARNESS.md) now define a guarded read-only connectivity check and explicitly opted-in live three-account RLS/invitation/concurrent-stock contract. This milestone **does not** connect a real Supabase project or automatically create test users; backend connection and test-account credentials remain prerequisites. In ordinary GitHub CI the new checks use fake gateways and never contact a live database. No actual family data is uploaded or synced.
