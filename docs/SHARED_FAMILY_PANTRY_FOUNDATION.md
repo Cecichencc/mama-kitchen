@@ -1,7 +1,7 @@
 # Kitchen Garden — Shared Family Pantry Foundation
 
 **Milestone:** Shared Pantry — secure backend and opt-in readiness
-**Build status:** GitHub development only; **not live two-phone synchronisation**.
+**Build status:** GitHub development only; **not live two-phone synchronisation**. **Later update (2026-10-10):** An isolated Supabase test project now exists with foundational SQL migrations applied and rollback-only database-role smoke tests passed; see [SUPABASE_TEST_PROJECT_STATUS.md](./SUPABASE_TEST_PROJECT_STATUS.md). This historical Stage A document predates the test project's creation.
 **Do not merge or deploy** until the user authorises a release.
 **Source baseline:** [Kitchen Garden PRD](./specs/KITCHEN_GARDEN_PRD.md), [Game Logic](./specs/KITCHEN_GARDEN_GAME_LOGIC.md), [Shopping List v1](./SHOPPING_LIST_V1.md).
 
