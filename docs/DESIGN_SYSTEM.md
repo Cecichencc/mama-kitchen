@@ -35,6 +35,7 @@
 - [SHARED_FAMILY_PANTRY_FOUNDATION.md](./SHARED_FAMILY_PANTRY_FOUNDATION.md) — authenticated cloud inventory foundation, sync semantics and future security gates.
 - [FAMILY_ONBOARDING_V1.md](./FAMILY_ONBOARDING_V1.md) — reviewable email OTP, household create/join and invitation UX, disabled until backend approval.
 - [SHARED_FAMILY_REMOTE_TEST_PLAN.md](./SHARED_FAMILY_REMOTE_TEST_PLAN.md) — gated three-account RLS/concurrency tests on an isolated, explicitly approved Supabase project.
+- [SUPABASE_TEST_PROJECT_STATUS.md](./SUPABASE_TEST_PROJECT_STATUS.md) — actual isolated test project, completed SQL migrations, RLS grant checks, database smoke results and pending auth testing.
 - [MINIMAL_FARM_CAMERA.md](./MINIMAL_FARM_CAMERA.md) — camera gestures.
 - [EMPTY_3D_PLOT.md](./EMPTY_3D_PLOT.md) — empty-state restocking.
 - [KITCHEN_GARDEN_PRD.md](./specs/KITCHEN_GARDEN_PRD.md) — product requirements.

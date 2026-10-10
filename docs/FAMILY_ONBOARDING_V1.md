@@ -1,6 +1,6 @@
 # Kitchen Garden — Shared Family Pantry: Onboarding v1
 
-**Status:** GitHub development only; no active real household backend or synced inventory.
+**Status:** GitHub development only; no active real household backend connection or synced inventory. **Later update (2026-10-10):** An isolated Supabase TEST database now exists and schema/permission smoke tests passed, but app sign-in remains disabled and real OTP/HTTP test users remain unverified. See [SUPABASE_TEST_PROJECT_STATUS.md](./SUPABASE_TEST_PROJECT_STATUS.md).
 **Scope:** Step 2 — English/Chinese email sign-in, create/join household and owner invitation UX.
 **Parent:** [Shared Family Pantry Foundation](./SHARED_FAMILY_PANTRY_FOUNDATION.md)
 **App:** `/phase0/index.html` (existing 3D farm remains unchanged).
